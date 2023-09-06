@@ -1,0 +1,35 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container">
+    <h1 class="text-light">@ViewData["Title"]</h1>
+
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <form asp-controller="Admin" asp-action="ResetFlagValues" method="post">
+                <button type="submit" class="btn btn-info mb-2">Reset Flag Values</button>
+            </form>
+            <form asp-controller="Admin" asp-action="ResetHintPoints" method="post">
+                <button type="submit" class="btn btn-info mb-2">Reset Hint Points</button>
+            </form>
+
+            <form asp-controller="Admin" asp-action="UnlockIntel" method="post">
+                <input type="hidden" name="forAll" value="true" />
+                <button type="submit" class="btn btn-warning mb-2">Unlock Intel For All</button>
+            </form>
+
+            <form asp-controller="Admin" asp-action="UnlockIntel" method="post">
+                <input type="hidden" name="forAll" value="false" />
+                <button type="submit" class="btn btn-warning mb-2">Unlock Intel By Team</button>
+            </form>
+
+            <form asp-controller="Admin" asp-action="LockIntelForAll" method="post">
+                <button type="submit" class="btn btn-warning mb-2">Lock Intel For All</button>
+            </form>
+
+            <!-- Redirect to /AdminCore -->
+            <a href="/CoreAdmin" class="btn btn-light mb-2">Database Admin</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,65 @@
+@model IEnumerable<CTFWhodunnit.Models.Hint>
+
+@{
+    ViewData["Title"] = "Hints";
+}
+
+<div class="container">
+    <h2>Hints</h2>
+
+    <div class="row">
+        <div class="col-12">
+            Current Points: @ViewData["Points"]
+            <a href="/Hint">
+                <svg width="24" height="24" viewBox="0 0 24 24">
+                    <path fill="none" stroke="#0c0" stroke-width="2"
+                        d="M17.65,6.35a8,8,0,1,1-11.3,0M12,4V1M12,1L15.2,4.2" />
+                </svg>
+                Refresh
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <p>These are the hints that you can see with the points you have collected so far.</p>
+        <ul class="list-group m-2">
+            @foreach (var hint in Model)
+            {
+                <li class="list-group-item hint compact @(string.IsNullOrEmpty(hint.Text) ? "locked" : "")">
+                    <div clss="container">
+                        <div class="row">
+                            <div class="col-1">
+                                <div class="hint-icon">
+                                    @if (string.IsNullOrEmpty(hint.Text))
+                                    {
+                                        <img src="/imgs/locked.svg">
+                                    }
+                                    else
+                                    {
+                                        <img src="/imgs/unlocked.svg">
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-11">
+                                <div class="hint-text-container">
+                                    <h4 class="hint-title compact-title">@hint.Name</h4>
+                                    <p
+                                        class="hint-description compact-description @(string.IsNullOrEmpty(hint.Text) ? "locked" : "")">
+                                        @if (string.IsNullOrEmpty(hint.Text))
+                                        {
+                                            <span>The hint is locked. It will unlock when you reach <strong>@hint.RequiredPoints</strong> points.</span>
+                                        }
+                                        else
+                                        {
+                                            <span>@hint.Text</span>
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            }
+        </ul>
+    </div>
+
+</div>

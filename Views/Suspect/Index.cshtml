@@ -1,0 +1,146 @@
+@{
+    ViewData["Title"] = "Suspects";
+}
+<div id="app">
+
+    <div class="container">
+
+        <input type="text" v-model="search" class="form-control" placeholder="Search suspects...">
+
+        <div class="row mt-3">
+
+            <div class="col-md-3 d-flex align-items-stretch" v-for="suspect in filteredSuspects">
+
+                <div class="card mb-4">
+
+                    <img class="card-img-top" :src="'/imgs/avatars/' + suspect.suspectId + '.jpeg'"
+                        alt="Card image cap">
+
+                    <div class="card-body">
+
+                        <h5 class="card-title">{{ suspect.name }}</h5>
+
+                        <p class="card-text">
+
+                            <strong>Location:</strong> {{ suspect.location }} <br />
+
+                            <strong>Operating System:</strong> {{ suspect.operatingSystem }} <br />
+
+                            <strong>Skills:</strong> {{ suspect.skills }} <br />
+
+
+                        </p>
+
+                    </div>
+                    <div class="card-footer">
+
+                        <button class="btn btn-sm btn-dark pull-right" v-if="suspect.secret"
+                            v-on:click="share(suspect)">
+                            <img src="/imgs/share.png">
+                            Share
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content bg-dark">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="shareModalLabel">Share Intel</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Use this link to share the intel about this suspect with other teams:</p>
+                        <span id="shareUrl"></span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button id="copyBtn" type="button" class="btn btn-sm btn-light" v-on:click="copyToClipboard">Copy to
+                            Clipboard</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+
+<script>
+
+    new Vue({
+
+        el: '#app',
+
+        data: {
+
+            suspects: [],
+            shareUrl: '',
+            search: ''
+
+        },
+
+        computed: {
+
+            filteredSuspects() {
+
+                return this.suspects.filter(suspect => {
+
+                    return (
+
+                        suspect.name.toLowerCase().includes(this.search.toLowerCase()) ||
+
+                        suspect.location.toLowerCase().includes(this.search.toLowerCase()) ||
+
+                        suspect.operatingSystem.toLowerCase().includes(this.search.toLowerCase()) ||
+
+                        suspect.skills.toLowerCase().includes(this.search.toLowerCase())
+
+                    );
+
+                });
+
+            }
+
+        },
+
+        methods: {
+            share(suspect) {
+                const url = window.location.origin + '/Suspect/UnlockIntel?secret=' + suspect.secret + "&suspectId=" + suspect.suspectId;
+                this.shareUrl = url;  // Save the URL in the data property
+
+                // Update the modal content
+                document.getElementById('shareUrl').innerText = url;
+
+                // Show the Bootstrap modal
+                const modal = new bootstrap.Modal(document.getElementById('shareModal'));
+                modal.show();
+            },
+            copyToClipboard() {
+                navigator.clipboard.writeText(this.shareUrl);
+            }
+        },
+
+        created() {
+
+            fetch('/Suspect/List')
+                .then(response => response.json())
+                .then(data => {
+
+                    this.suspects = data;
+
+                });
+
+        }
+
+    });
+
+</script>

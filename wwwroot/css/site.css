@@ -1,0 +1,170 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+  font-family: Monospace;
+  font-size: 14px;
+  line-height: 1.428571429;
+  color: #0c0;
+  background-color: #222;
+}
+
+.list-container {
+
+  list-style: none;
+
+
+  position: relative;
+  padding-left: 60px;
+
+}
+
+
+.list-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 20px;
+  height: 100%;
+  width: 2px;
+  background: #0c0;
+}
+
+
+.list-item::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: 5px;
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  background: #0c0;
+}
+
+
+.list-item::after {
+  content: "";
+  position: absolute;
+  left: -3px;
+  top: 7px;
+  height: 46px;
+  width: 46px;
+  border-radius: 50%;
+  background: #222;
+}
+
+.display-5 {
+  font-size: 2.5em;
+}
+
+.list-item p {
+  margin-bottom: 0px;
+  padding-bottom: 15px;
+}
+
+.card {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Hints Styles */
+.hint {
+  position: relative;
+  background-color: #444;
+  /* darker than the page background but lighter than text */
+  color: #ddd;
+  /* light grey */
+  margin-bottom: 12px;
+  /* added spacing between hints */
+}
+
+.compact {
+  padding: 8px 12px;
+  /* reduced padding for a more compact look */
+}
+
+.compact-title {
+  font-size: 1.2rem;
+  /* reduced font-size for title */
+  margin-bottom: 0.2em;
+  /* reduced margin */
+}
+
+.compact-description {
+  font-size: 1rem;
+  /* reduced font-size for description */
+}
+
+.locked {
+  background-color: #383838;
+  /* even darker background for locked */
+  color: #777;
+  /* more greyed out text */
+}
+
+.locked .hint-title,
+.locked .hint-description {
+  color: inherit;
+  /* inherit the greyed out color */
+}
+
+.locked-text {
+  font-style: italic;
+}
+
+.hint-icon img {
+  width: 50px;
+  margin: 5px;
+}
+
+.footer-bottom {
+  position: absolute;
+  width: 100%;
+  min-height: 40px;
+  bottom: 20px;
+  left: 0;
+}
+
+.disabled-row {
+  color: #6c757d; /* dark grey text */
+  background-color: #343a40; /* slightly darker grey background */
+  cursor: not-allowed; /* show a 'not allowed' cursor when hovering */
+}
+
+.pull-right {
+  float: right;
+}
+
+#shareUrl {
+  word-wrap: break-word;
+}
+
+.w-300 {
+  width: 300px;
+}
+
+a:link { color: lightskyblue; }
+a:visited { color: #6d4b8d; }
+a:hover { color: #ffffff; }
+a:active { color: #ff4040; text-decoration:none; font-weight:normal; }

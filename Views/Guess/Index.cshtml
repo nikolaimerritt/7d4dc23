@@ -1,0 +1,89 @@
+@model IEnumerable<CTFWhodunnit.Models.Guess>
+
+@{
+    ViewData["Title"] = "Guesses";
+    int remainingGuesses = int.Parse(ViewData["RemainingGuesses"].ToString());
+}
+
+<div class="container">
+    <div class="row">
+    <div class="col-md-6">    
+    
+    <form class="" method="post" action="/Guess/Submit">
+    
+        <div class="card px-5 py-5" id="form1">
+            <h2>Submit guess</h2>
+            <p>You have @ViewData["RemainingGuesses"] guesses left.</p>
+            <div class="form-data">
+                
+                @Html.DropDownList("mastermindId", (IEnumerable<SelectListItem>)ViewBag.Options, "Select from the list of suspects",
+                   new { @class = "form-select mb-4" })
+             
+                <input class="mb-3 btn btn-dark w-100" @(remainingGuesses == 0 ? "disabled" : "") type="submit" value="Submit" />
+            </div>
+            @if (ViewData.ContainsKey("Error") && ViewData["Error"] != null)
+            {
+                <div class="alert alert-danger">
+                    @ViewData["Error"]
+                </div>
+            }
+            <h4>Current guesses</h4>
+            @if (@Model.Count() <= 0) {
+                <p>You have not made any guesses yet.</p>
+            } else {
+                <p>So far you have made the current guesses: </p>
+                <ul>
+                @foreach (var guess in @Model)
+                {
+                    <li>
+                        @guess.Mastermind.Name, @guess.TimeGuessed
+                        @if (@guess.Correct) {
+                            <img src="/imgs/yes.png">
+                        } else {
+                            <img src="/imgs/cross.png">
+                        }
+                        </li>
+                }
+                </ul>
+            }
+        </div>
+    </form>
+    </div>
+        <div class="col-md-6">
+            <h3>Remaining flags</h3>
+            This is a list of all the flags available for correctly guessing the mastermind. <strong>Every wrong guess burns a flag!</strong>
+            <table class="table table-dark mt-4">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Points</th>
+                        <th scope="col">Value</th>
+                        <th scope="col">Burned?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (FlagViewModel flag in @ViewBag.Flags)
+                    {
+                        <tr class="@(flag.Burnt ? "disabled-row" : "")">
+                            <td>@flag.Name</td>
+                            <td>@flag.Points</td>
+                            <td>
+                                @if (String.IsNullOrEmpty(flag.Value)) {
+                                    <span>****</span>
+                                } else {
+                                    @flag.Value
+                                }
+                            </td>
+                            <td>@flag.Burnt</td>
+                        </tr>
+                    }
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    
+    
+
+</div>

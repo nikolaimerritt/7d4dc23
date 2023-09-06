@@ -1,0 +1,86 @@
+using CTFWhodunnit.Database;
+using Microsoft.EntityFrameworkCore;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+var mvcBuilder = builder.Services.AddControllersWithViews();
+if (builder.Environment.IsDevelopment())
+{
+    mvcBuilder.AddRazorRuntimeCompilation();
+}
+builder.Services.AddDbContext<AppDbContext>();
+builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
+
+builder.Services.AddAuthentication("CookieAuth")
+        .AddCookie("CookieAuth", config =>
+        {
+            config.Cookie.Name = "User.Cookie";
+            config.LoginPath = "/Login/Index";
+        });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("IsAdminPolicy", policy =>
+        policy.RequireClaim("IsAdmin", "True"));
+});
+
+builder.Services.AddCoreAdmin();
+
+var app = builder.Build();
+
+app.UseCoreAdminCustomAuth(async (serviceProvider) =>
+   {
+       // Get IHttpContextAccessor from serviceProvider
+       var httpContextAccessor = serviceProvider.GetService(typeof(IHttpContextAccessor)) as IHttpContextAccessor;
+
+       // Get the HttpContext
+       var httpContext = httpContextAccessor.HttpContext;
+
+       // Extract the user from the HttpContext
+       var user = httpContext.User;
+
+       // Check if the user is authenticated
+       if (user.Identity.IsAuthenticated)
+       {
+           // Assume you have a custom claim or a property that marks the user as admin
+           // Replace 'IsAdmin' with whatever you use to mark a user as admin
+           if (user.HasClaim("IsAdmin", "True"))
+           {
+               return await Task.FromResult(true);
+           }
+       }
+
+       return await Task.FromResult(false);
+   });
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
+    DbInitializer.Initialize(dbContext);
+}
+
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+}
+
+app.UseAuthentication();
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+app.UseAuthorization();
+
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapDefaultControllerRoute();
+
+
+app.Run();
