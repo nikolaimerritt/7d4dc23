@@ -1,4 +1,5 @@
 using CTFWhodunnit.Database;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,9 +26,19 @@ builder.Services.AddAuthorization(options =>
         policy.RequireClaim("IsAdmin", "True"));
 });
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders =
+            ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+        options.KnownNetworks.Clear(); 
+        options.KnownProxies.Clear();
+    });
+
 builder.Services.AddCoreAdmin();
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 app.UseCoreAdminCustomAuth(async (serviceProvider) =>
    {

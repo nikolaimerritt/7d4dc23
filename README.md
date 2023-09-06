@@ -8,4 +8,4 @@ Then run the container:
 
     docker run -p 80:80 --restart always --name whudunnit-app whudunnit
 
-You can access the app at http://localhost:8080.
+You can access the app at http://localhost:80.
