@@ -130,7 +130,7 @@ public static class DbInitializer
 
                 Name = "Hint 2",
 
-                Text = "The hacker uses a Linux-based operating system."
+                Text = "The hacker uses a Unix-based operating system."
 
             };
 
