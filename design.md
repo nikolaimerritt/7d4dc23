@@ -19,6 +19,9 @@ winner =
     team which has been winner in most rounds, seas
     | null
 
+A team can only move as many ships from a sea, that were in the sea's last outcome
+This way you can't place ships in sea A, then B, then C, etc.
+
 # API:
 // API returns JSON objects. 
 // JSON objects have their ID references resolved: e.g. outcome objects contain round, sea and team objects.
