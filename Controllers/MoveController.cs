@@ -34,7 +34,9 @@ public class MoveController : Controller
         }
         else
         {
-            var allTeamMoves = (await _moveRepository.All()).Where(move => move.Team == team);
+            var allTeamMoves = (await _moveRepository.All())
+                .Where(move => move.Team == team)
+                .Select(MoveViewModel.FromModel);
             return Json(allTeamMoves);
         }
     }
@@ -55,7 +57,7 @@ public class MoveController : Controller
         }
         else
         {
-            return Json(move);
+            return Json(MoveViewModel.FromModel(move));
         }
     }
 

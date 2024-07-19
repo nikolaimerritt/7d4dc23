@@ -23,7 +23,7 @@ public class OutcomeController : Controller
         var outcomes = (await _outcomeRepository.All())
             .OrderByDescending(outcome => outcome.Round.StartMoving)
             .ThenBy(outcome => outcome.Id);
-        return Json(outcomes);
+        return Json(outcomes.Select(OutcomeViewModel.FromModel));
     }
 
     [HttpGet("/api/outcomes/{outcomeId}")]
@@ -38,13 +38,13 @@ public class OutcomeController : Controller
         }
         else
         {
-            return Json(outcome);
+            return Json(OutcomeViewModel.FromModel(outcome));
         }
     }
 
     [HttpGet("/api/outcomes/latest")]
     public async Task<IActionResult> GetLatestOutcomes()
     {
-        return Json(await _outcomeRepository.LatestOutcomes());
+        return Json((await _outcomeRepository.LatestOutcomes()).Select(OutcomeViewModel.FromModel));
     }
 }

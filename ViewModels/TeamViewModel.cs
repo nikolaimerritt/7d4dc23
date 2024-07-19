@@ -15,10 +15,6 @@ public class TeamViewModel
             Id = team.Id,
             Name = team.Name,
             ColourHexCode = team.ColourHexCode,
-            StartingSea = new SeaViewModel()
-            {
-                Id = team.StartingSea.Id,
-                Name = team.StartingSea.Name,
-            }
+            StartingSea = SeaViewModel.FromModel(team.StartingSea)
         };
 }

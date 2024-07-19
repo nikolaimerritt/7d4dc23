@@ -36,7 +36,7 @@ public class PurchaseController : Controller
         var allTeamPurchases = (await _purchaseRepository.All()).Where(purchase =>
             purchase.Team == team
         );
-        return Json(allTeamPurchases);
+        return Json(allTeamPurchases.Select(PurchaseViewModel.FromModel));
     }
 
     [HttpGet("/api/purchases/{purchaseId}")]
@@ -57,7 +57,7 @@ public class PurchaseController : Controller
         }
         else
         {
-            return Json(purchase);
+            return Json(PurchaseViewModel.FromModel(purchase));
         }
     }
 

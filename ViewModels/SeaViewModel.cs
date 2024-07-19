@@ -17,4 +17,6 @@ public class SeaViewModel
                 .Select(sea => new SeaViewModel() { Id = sea.Id, Name = sea.Name })
                 .ToList()
         };
+
+    public static SeaViewModel FromModel(Sea sea) => new() { Id = sea.Id, Name = sea.Name, };
 }
