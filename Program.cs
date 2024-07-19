@@ -1,6 +1,7 @@
 using CTFWhodunnit.Database;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using PirateConquest.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,8 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 });
 
 builder.Services.AddCoreAdmin();
+builder.Services.AddTransient<SeaRepository>();
+builder.Services.AddTransient<OutcomeRepository>();
 
 var app = builder.Build();
 

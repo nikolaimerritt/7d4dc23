@@ -1,5 +1,7 @@
 efbundle.exe
 
+*.db-shm
+*.db-wal
 
 *.swp
 *.*~

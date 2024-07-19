@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CTFWhodunnit.Database;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CTFWhodunnit.Controllers;
 
@@ -36,31 +37,31 @@ public class LoginController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Authenticate(string username, string password)
+    public async Task<IActionResult> Authenticate(string teamName, string password)
     {
-        // Remember to hash and salt passwords in a real scenario
-        var user = _context.Users.FirstOrDefault(u =>
-            u.Username == username && u.Password == password
+        var team = await _context.Teams.FirstOrDefaultAsync(team =>
+            team.Name == teamName && team.PlainTextPassword == password
         );
 
-        if (user != null)
+        if (team is null)
+        {
+            ViewData["Error"] = "Invalid TeamViewModel Name or Password.";
+            return View("Index");
+        }
+        else
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim("IsAdmin", user.IsAdmin.ToString())
+                new(ClaimTypes.Name, team.Name),
+                new(ClaimTypes.NameIdentifier, team.Id.ToString()),
+                new(ClaimTypes.Sid, team.Id.ToString())
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, "CookieAuth");
             var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
             await HttpContext.SignInAsync("CookieAuth", claimsPrincipal);
-
             return RedirectToAction("Index", "Home");
         }
-
-        ViewData["Error"] = "Invalid username or password.";
-        return View("Index");
     }
 }

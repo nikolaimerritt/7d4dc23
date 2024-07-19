@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace PirateConquest.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240719100648_new_stuff")]
-    partial class InitialMigration
+    [Migration("20240719133705_AdjacentSeas")]
+    partial class AdjacentSeas
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -173,7 +173,7 @@ namespace PirateConquest.Migrations
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("PlainTextPassword")
+                    b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -187,6 +187,27 @@ namespace PirateConquest.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("PirateConquest.Models.AdjacentSea", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AdjacentToId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("SeaId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdjacentToId");
+
+                    b.HasIndex("SeaId");
+
+                    b.ToTable("AdjacentSeas");
                 });
 
             modelBuilder.Entity("PirateConquest.Models.Move", b =>
@@ -270,6 +291,9 @@ namespace PirateConquest.Migrations
                     b.Property<int>("RoundId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("SeaId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("ShipCount")
                         .HasColumnType("INTEGER");
 
@@ -279,6 +303,8 @@ namespace PirateConquest.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("RoundId");
+
+                    b.HasIndex("SeaId");
 
                     b.HasIndex("TeamId");
 
@@ -320,7 +346,7 @@ namespace PirateConquest.Migrations
                     b.ToTable("Seas");
                 });
 
-            modelBuilder.Entity("PirateConquest.Models.TeamViewModel", b =>
+            modelBuilder.Entity("PirateConquest.Models.Team", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -334,7 +360,16 @@ namespace PirateConquest.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("PlainTextPassword")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("StartingSeaId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("StartingSeaId");
 
                     b.ToTable("Teams", (string)null);
                 });
@@ -377,6 +412,25 @@ namespace PirateConquest.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("PirateConquest.Models.AdjacentSea", b =>
+                {
+                    b.HasOne("PirateConquest.Models.Sea", "AdjacentTo")
+                        .WithMany()
+                        .HasForeignKey("AdjacentToId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PirateConquest.Models.Sea", "Sea")
+                        .WithMany()
+                        .HasForeignKey("SeaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AdjacentTo");
+
+                    b.Navigation("Sea");
+                });
+
             modelBuilder.Entity("PirateConquest.Models.Move", b =>
                 {
                     b.HasOne("PirateConquest.Models.Sea", "FromSea")
@@ -391,7 +445,7 @@ namespace PirateConquest.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PirateConquest.Models.TeamViewModel", "TeamViewModel")
+                    b.HasOne("PirateConquest.Models.Team", "Team")
                         .WithMany()
                         .HasForeignKey("TeamId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -407,7 +461,7 @@ namespace PirateConquest.Migrations
 
                     b.Navigation("Round");
 
-                    b.Navigation("TeamViewModel");
+                    b.Navigation("Team");
 
                     b.Navigation("ToSea");
                 });
@@ -426,7 +480,7 @@ namespace PirateConquest.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PirateConquest.Models.TeamViewModel", "TeamViewModel")
+                    b.HasOne("PirateConquest.Models.Team", "Team")
                         .WithMany()
                         .HasForeignKey("TeamId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -436,7 +490,7 @@ namespace PirateConquest.Migrations
 
                     b.Navigation("Sea");
 
-                    b.Navigation("TeamViewModel");
+                    b.Navigation("Team");
                 });
 
             modelBuilder.Entity("PirateConquest.Models.Purchase", b =>
@@ -447,7 +501,13 @@ namespace PirateConquest.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PirateConquest.Models.TeamViewModel", "TeamViewModel")
+                    b.HasOne("PirateConquest.Models.Sea", "Sea")
+                        .WithMany()
+                        .HasForeignKey("SeaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PirateConquest.Models.Team", "Team")
                         .WithMany()
                         .HasForeignKey("TeamId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -455,7 +515,20 @@ namespace PirateConquest.Migrations
 
                     b.Navigation("Round");
 
-                    b.Navigation("TeamViewModel");
+                    b.Navigation("Sea");
+
+                    b.Navigation("Team");
+                });
+
+            modelBuilder.Entity("PirateConquest.Models.Team", b =>
+                {
+                    b.HasOne("PirateConquest.Models.Sea", "StartingSea")
+                        .WithMany()
+                        .HasForeignKey("StartingSeaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("StartingSea");
                 });
 #pragma warning restore 612, 618
         }

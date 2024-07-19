@@ -21,10 +21,19 @@ public class AppDbContext : DbContext
     // New
     public DbSet<Team> Teams { get; set; }
     public DbSet<Sea> Seas { get; set; }
+    public DbSet<AdjacentSea> AdjacentSeas { get; set; }
     public DbSet<Purchase> Purchases { get; set; }
     public DbSet<Round> Rounds { get; set; }
     public DbSet<Move> Moves { get; set; }
     public DbSet<Outcome> Outcomes { get; set; }
+
+    public async Task<Round?> GetMovingRoundAsync()
+    {
+        var now = DateTime.UtcNow;
+        return await Rounds.FirstOrDefaultAsync(round =>
+            round.StartMoving <= now && now < round.StartFighting
+        );
+    }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

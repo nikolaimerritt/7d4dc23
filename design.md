@@ -32,5 +32,5 @@ GET /api/seas(/id) -> { ...sea, isVisible: bool } // sea is visible to team. sea
 GET /api/moves(/id) -> moves that are in seas visible to team
 GET /api/scoreboard -> { team id, [sea id, number of rounds spent in control of sea] } 
 
-PUT /api/purchase?teamId=&points= // check whether coins can be spent, have concurrency check against number of coins before spending
+PUT /api/purchase?points= // check whether coins can be spent, have concurrency check against number of coins before spending
 PUT /api/move?teamId=&seaId=&ships= // check whether move is in sea visible to team, check whether team has enough ships

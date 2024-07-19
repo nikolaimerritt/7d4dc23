@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace PirateConquest.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240719100648_new_stuff")]
-    partial class InitialMigration
+    [Migration("20240719104251_TeamsPlainTextPassword")]
+    partial class TeamsPlainTextPassword
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -173,7 +173,7 @@ namespace PirateConquest.Migrations
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("PlainTextPassword")
+                    b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -331,6 +331,10 @@ namespace PirateConquest.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PlainTextPassword")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
