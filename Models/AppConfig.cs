@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace CTFWhodunnit.Models;
+
 public class AppConfig
 {
-
     public static readonly string CTF_ID_KEY = "CtfId";
     public static readonly string TEAM_VIEW_KEY = "TeamView";
     public static readonly string VIDEO_URL_KEY = "VideoUrl";

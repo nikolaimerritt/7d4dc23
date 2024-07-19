@@ -1,21 +1,20 @@
-
+using System.Security.Claims;
 using CTFWhodunnit.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace CTFWhodunnit.Controllers;
 
 public class AuthenticatedController : Controller
 {
     protected int? LoggedInUserId
-{
-    get
     {
-        if (User.Identity.IsAuthenticated)
+        get
         {
-            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (User.Identity.IsAuthenticated)
+            {
+                return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            }
+            return null;
         }
-        return null;
     }
-}
 }

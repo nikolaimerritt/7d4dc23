@@ -59,8 +59,9 @@ namespace CTFWhodunnit.Utils
         public static void SetFlagValues(AppDbContext context, int maxPoints)
         {
             var flags = context.Flags.OrderBy(f => f.Name).ToList();
-            var currentPoints = maxPoints/2;
-            for (int i = 0; i < flags.Count; i++) {
+            var currentPoints = maxPoints / 2;
+            for (int i = 0; i < flags.Count; i++)
+            {
                 flags[i].Points = currentPoints;
                 currentPoints /= 2;
                 context.Flags.Update(flags[i]);
@@ -70,10 +71,14 @@ namespace CTFWhodunnit.Utils
 
         public static void SetHintUnlockPoints(AppDbContext context, int maxCtfPoints)
         {
-            var hints = context.Hints.ToList().OrderBy(f => Regex.Replace(f.Name, @"\d+", m => m.Value.PadLeft(10, '0'))).ToList();
-            var step = maxCtfPoints/context.Hints.Count();
-            for (int i = 0; i < hints.Count; i++) {
-                hints[i].RequiredPoints = step*(i+1);
+            var hints = context
+                .Hints.ToList()
+                .OrderBy(f => Regex.Replace(f.Name, @"\d+", m => m.Value.PadLeft(10, '0')))
+                .ToList();
+            var step = maxCtfPoints / context.Hints.Count();
+            for (int i = 0; i < hints.Count; i++)
+            {
+                hints[i].RequiredPoints = step * (i + 1);
                 context.Hints.Update(hints[i]);
             }
             context.SaveChanges();

@@ -31,19 +31,25 @@ public class SuspectController : AuthenticatedController
     public IActionResult List()
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-        var suspects = _context.Suspects.ToList().Select(suspect =>
-        {
-            var isUnlocked = _context.UnlockedIntels.Any(ui => ui.UserId == userId && ui.Suspect.SuspectId == suspect.SuspectId);
-            return new SuspectViewModel
+        var suspects = _context
+            .Suspects.ToList()
+            .Select(suspect =>
             {
-                SuspectId = suspect.SuspectId,
-                Name = suspect.Name,
-                Location = isUnlocked ? suspect.Location : OBFUSCATION_STRING,
-                OperatingSystem = isUnlocked ? suspect.OperatingSystem : OBFUSCATION_STRING,
-                Skills = isUnlocked ? suspect.Skills : OBFUSCATION_STRING,
-                Secret = isUnlocked ? ComputeHmac(suspect.Name) : null
-            };
-        }).OrderByDescending(suspect => suspect.Secret != null).ToList();
+                var isUnlocked = _context.UnlockedIntels.Any(ui =>
+                    ui.UserId == userId && ui.Suspect.SuspectId == suspect.SuspectId
+                );
+                return new SuspectViewModel
+                {
+                    SuspectId = suspect.SuspectId,
+                    Name = suspect.Name,
+                    Location = isUnlocked ? suspect.Location : OBFUSCATION_STRING,
+                    OperatingSystem = isUnlocked ? suspect.OperatingSystem : OBFUSCATION_STRING,
+                    Skills = isUnlocked ? suspect.Skills : OBFUSCATION_STRING,
+                    Secret = isUnlocked ? ComputeHmac(suspect.Name) : null
+                };
+            })
+            .OrderByDescending(suspect => suspect.Secret != null)
+            .ToList();
         return Json(suspects);
     }
 
@@ -66,7 +72,9 @@ public class SuspectController : AuthenticatedController
             return View("Error");
         }
 
-        var alreadyUnlocked = _context.UnlockedIntels.Any(ui => ui.UserId == userId && ui.Suspect == suspect);
+        var alreadyUnlocked = _context.UnlockedIntels.Any(ui =>
+            ui.UserId == userId && ui.Suspect == suspect
+        );
         if (alreadyUnlocked)
         {
             ViewData["Message"] = "You already had this piece of intel!";
@@ -84,9 +92,8 @@ public class SuspectController : AuthenticatedController
         _context.SaveChanges();
         ViewData["Message"] = "Well done, you have unlocked new intel about a suspect!";
         return View();
-
-
     }
+
     private static String ComputeHmac(string input)
     {
         using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_secretKey)))
@@ -95,9 +102,9 @@ public class SuspectController : AuthenticatedController
             return BitConverter.ToString(hash).Replace("-", "").ToLower();
         }
     }
+
     public IActionResult Index()
     {
         return View();
     }
-
 }

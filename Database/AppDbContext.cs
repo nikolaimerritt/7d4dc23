@@ -6,6 +6,7 @@ using CTFWhodunnit.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace CTFWhodunnit.Database;
+
 public class AppDbContext : DbContext
 {
     public DbSet<User> Users { get; set; }
@@ -15,7 +16,6 @@ public class AppDbContext : DbContext
     public DbSet<Flag> Flags { get; set; }
     public DbSet<UnlockedIntel> UnlockedIntels { get; set; }
     public DbSet<AppConfig> AppConfigs { get; set; }
-
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

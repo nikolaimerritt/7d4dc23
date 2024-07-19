@@ -7,7 +7,6 @@ namespace CTFWhodunnit.Models;
 
 public class FlagViewModel
 {
-   
     public string Name { get; set; }
     public string? Value { get; set; }
     public int Points { get; set; }

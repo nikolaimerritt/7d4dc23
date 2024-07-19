@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+using CTFWhodunnit.Database;
 using CTFWhodunnit.Models;
 using Microsoft.AspNetCore.Authorization;
-using CTFWhodunnit.Database;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CTFWhodunnit.Controllers;
@@ -12,7 +12,6 @@ public class HomeController : Controller
     private readonly ILogger<HomeController> _logger;
     private readonly AppDbContext _context;
 
-
     public HomeController(ILogger<HomeController> logger, AppDbContext context)
     {
         _logger = logger;
@@ -21,11 +20,17 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var videoUrlConf = await _context.AppConfigs.FirstOrDefaultAsync(c => c.Name == AppConfig.VIDEO_URL_KEY);
+        var videoUrlConf = await _context.AppConfigs.FirstOrDefaultAsync(c =>
+            c.Name == AppConfig.VIDEO_URL_KEY
+        );
         if (videoUrlConf == null)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-
+            return View(
+                new ErrorViewModel
+                {
+                    RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+                }
+            );
         }
         ViewBag.VideoUrl = videoUrlConf.Value;
         return View();
@@ -40,6 +45,8 @@ public class HomeController : Controller
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        return View(
+            new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier }
+        );
     }
 }

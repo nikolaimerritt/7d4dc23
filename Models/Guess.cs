@@ -13,5 +13,4 @@ public class Guess
     public User User { get; set; }
     public Suspect Mastermind { get; set; }
     public DateTime TimeGuessed { get; set; }
-
 }

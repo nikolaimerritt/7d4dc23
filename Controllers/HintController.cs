@@ -26,13 +26,21 @@ public class HintController : AuthenticatedController
 
     public async Task<IActionResult> Index()
     {
-        var ctfIdConfig = await _context.AppConfigs.FirstOrDefaultAsync(c => c.Name == AppConfig.CTF_ID_KEY);
-        var teamsViewConfig = await _context.AppConfigs.FirstOrDefaultAsync(c => c.Name == AppConfig.TEAM_VIEW_KEY);
+        var ctfIdConfig = await _context.AppConfigs.FirstOrDefaultAsync(c =>
+            c.Name == AppConfig.CTF_ID_KEY
+        );
+        var teamsViewConfig = await _context.AppConfigs.FirstOrDefaultAsync(c =>
+            c.Name == AppConfig.TEAM_VIEW_KEY
+        );
 
         if (ctfIdConfig == null || teamsViewConfig == null)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-
+            return View(
+                new ErrorViewModel
+                {
+                    RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+                }
+            );
         }
 
         int ctfId = int.Parse(ctfIdConfig.Value);
@@ -54,9 +62,15 @@ public class HintController : AuthenticatedController
         return View(hints);
     }
 
-    public async Task<int> FetchUserPointsAsync(string currentUsername, int ctfEventId, bool teamView)
+    public async Task<int> FetchUserPointsAsync(
+        string currentUsername,
+        int ctfEventId,
+        bool teamView
+    )
     {
-        var playgroundLeaderboardUrl = await _context.AppConfigs.FirstOrDefaultAsync(c => c.Name == AppConfig.PLAYGROUND_LEADERBOARD_URL_KEY);
+        var playgroundLeaderboardUrl = await _context.AppConfigs.FirstOrDefaultAsync(c =>
+            c.Name == AppConfig.PLAYGROUND_LEADERBOARD_URL_KEY
+        );
         if (playgroundLeaderboardUrl == null)
         {
             return 0;
@@ -64,7 +78,10 @@ public class HintController : AuthenticatedController
 
         using (HttpClient httpClient = new HttpClient())
         {
-            string apiUrl = playgroundLeaderboardUrl.Value.Replace("$ctfEventId", ctfEventId.ToString()); 
+            string apiUrl = playgroundLeaderboardUrl.Value.Replace(
+                "$ctfEventId",
+                ctfEventId.ToString()
+            );
             if (teamView)
             {
                 apiUrl += "?teams=true";

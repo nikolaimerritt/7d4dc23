@@ -12,5 +12,4 @@ public class UnlockedIntel
     public User User { get; set; }
     public Suspect Suspect { get; set; }
     public DateTime TimeUnlocked { get; set; }
-
 }

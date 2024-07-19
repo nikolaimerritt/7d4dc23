@@ -13,26 +13,31 @@ if (builder.Environment.IsDevelopment())
 builder.Services.AddDbContext<AppDbContext>();
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
-builder.Services.AddAuthentication("CookieAuth")
-        .AddCookie("CookieAuth", config =>
+builder
+    .Services.AddAuthentication("CookieAuth")
+    .AddCookie(
+        "CookieAuth",
+        config =>
         {
             config.Cookie.Name = "User.Cookie";
             config.LoginPath = "/Login/Index";
-        });
+        }
+    );
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("IsAdminPolicy", policy =>
-        policy.RequireClaim("IsAdmin", "True"));
+    options.AddPolicy("IsAdminPolicy", policy => policy.RequireClaim("IsAdmin", "True"));
 });
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
-    {
-        options.ForwardedHeaders =
-            ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
-        options.KnownNetworks.Clear(); 
-        options.KnownProxies.Clear();
-    });
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor
+        | ForwardedHeaders.XForwardedProto
+        | ForwardedHeaders.XForwardedHost;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 builder.Services.AddCoreAdmin();
 
@@ -40,30 +45,33 @@ var app = builder.Build();
 
 app.UseForwardedHeaders();
 
-app.UseCoreAdminCustomAuth(async (serviceProvider) =>
-   {
-       // Get IHttpContextAccessor from serviceProvider
-       var httpContextAccessor = serviceProvider.GetService(typeof(IHttpContextAccessor)) as IHttpContextAccessor;
+app.UseCoreAdminCustomAuth(
+    async (serviceProvider) =>
+    {
+        // Get IHttpContextAccessor from serviceProvider
+        var httpContextAccessor =
+            serviceProvider.GetService(typeof(IHttpContextAccessor)) as IHttpContextAccessor;
 
-       // Get the HttpContext
-       var httpContext = httpContextAccessor.HttpContext;
+        // Get the HttpContext
+        var httpContext = httpContextAccessor.HttpContext;
 
-       // Extract the user from the HttpContext
-       var user = httpContext.User;
+        // Extract the user from the HttpContext
+        var user = httpContext.User;
 
-       // Check if the user is authenticated
-       if (user.Identity.IsAuthenticated)
-       {
-           // Assume you have a custom claim or a property that marks the user as admin
-           // Replace 'IsAdmin' with whatever you use to mark a user as admin
-           if (user.HasClaim("IsAdmin", "True"))
-           {
-               return await Task.FromResult(true);
-           }
-       }
+        // Check if the user is authenticated
+        if (user.Identity.IsAuthenticated)
+        {
+            // Assume you have a custom claim or a property that marks the user as admin
+            // Replace 'IsAdmin' with whatever you use to mark a user as admin
+            if (user.HasClaim("IsAdmin", "True"))
+            {
+                return await Task.FromResult(true);
+            }
+        }
 
-       return await Task.FromResult(false);
-   });
+        return await Task.FromResult(false);
+    }
+);
 
 using (var scope = app.Services.CreateScope())
 {
@@ -86,12 +94,8 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
 
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapDefaultControllerRoute();
-
 
 app.Run();

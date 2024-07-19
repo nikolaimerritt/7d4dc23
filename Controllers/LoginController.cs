@@ -39,7 +39,9 @@ public class LoginController : Controller
     public async Task<IActionResult> Authenticate(string username, string password)
     {
         // Remember to hash and salt passwords in a real scenario
-        var user = _context.Users.FirstOrDefault(u => u.Username == username && u.Password == password);
+        var user = _context.Users.FirstOrDefault(u =>
+            u.Username == username && u.Password == password
+        );
 
         if (user != null)
         {

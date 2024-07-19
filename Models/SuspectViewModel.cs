@@ -4,10 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace CTFWhodunnit.Models;
+
 public class SuspectViewModel
-
 {
-
     public int SuspectId { get; set; }
 
     public string Name { get; set; }
@@ -19,5 +18,4 @@ public class SuspectViewModel
     public string Skills { get; set; }
 
     public string Secret { get; set; }
-
 }
