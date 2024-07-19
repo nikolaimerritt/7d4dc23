@@ -12,15 +12,35 @@ public class PurchaseController : Controller
 {
     private readonly AppDbContext _context;
     private readonly SeaRepository _seaRepository;
+    private readonly PurchaseRepository _purchaseRepository;
 
-    public PurchaseController(AppDbContext context, SeaRepository seaRepository)
+    public PurchaseController(
+        AppDbContext context,
+        SeaRepository seaRepository,
+        PurchaseRepository purchaseRepository
+    )
     {
         _context = context;
         _seaRepository = seaRepository;
+        _purchaseRepository = purchaseRepository;
+    }
+
+    [HttpGet("/api/purchases")]
+    public async Task<IActionResult> GetAllTeamsPurchases()
+    {
+        var team = await User.GetTeamAsync(_context);
+        if (team is null)
+        {
+            return Unauthorized();
+        }
+        var allTeamPurchases = (await _purchaseRepository.All()).Where(purchase =>
+            purchase.Team == team
+        );
+        return Json(allTeamPurchases);
     }
 
     [HttpGet("/api/purchases/{purchaseId}")]
-    public async Task<IActionResult> GetTeamsPurchases(int? purchaseId)
+    public async Task<IActionResult> GetTeamsPurchases(int purchaseId)
     {
         var team = await User.GetTeamAsync(_context);
         if (team is null)
@@ -28,26 +48,16 @@ public class PurchaseController : Controller
             return Unauthorized();
         }
 
-        if (purchaseId is int id)
+        var purchase = (await _purchaseRepository.All()).FirstOrDefault(purchase =>
+            purchase.Team == team && purchase.Id == purchaseId
+        );
+        if (purchase is null)
         {
-            var purchase = await _context.Purchases.FirstOrDefaultAsync(purchase =>
-                purchase.Team == team && purchase.Id == id
-            );
-            if (purchase is null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return Json(purchase);
-            }
+            return NotFound();
         }
         else
         {
-            var allTeamPurchases = await _context
-                .Purchases.Where(purchase => purchase.Team == team)
-                .ToListAsync();
-            return Json(allTeamPurchases);
+            return Json(purchase);
         }
     }
 
@@ -62,7 +72,7 @@ public class PurchaseController : Controller
 
         var movingRound = await _context.GetMovingRoundAsync();
         var sea = await _context.Seas.FirstOrDefaultAsync(sea => sea.Id == seaId);
-        // TO SELF: check whether team can access sea
+
         if (sea is null || !await _seaRepository.TeamCanAccess(team, sea))
         {
             return BadRequest();

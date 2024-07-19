@@ -23,15 +23,6 @@ public class HomeController : Controller
         var videoUrlConf = await _context.AppConfigs.FirstOrDefaultAsync(c =>
             c.Name == AppConfig.VIDEO_URL_KEY
         );
-        if (videoUrlConf == null)
-        {
-            return View(
-                new ErrorViewModel
-                {
-                    RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
-                }
-            );
-        }
         ViewBag.VideoUrl = videoUrlConf.Value;
         return View();
     }
@@ -45,8 +36,6 @@ public class HomeController : Controller
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        return View(
-            new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier }
-        );
+        return View();
     }
 }

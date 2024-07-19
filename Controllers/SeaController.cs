@@ -18,25 +18,24 @@ public class SeaController : Controller
         _seaRepository = seaRepository;
     }
 
-    [HttpGet("/api/seas/{seaId}")]
-    public async Task<IActionResult> GetSeas(int? seaId)
+    [HttpGet("/api/seas")]
+    public async Task<IActionResult> GetAllSeas()
     {
-        if (seaId is int id)
+        var allSeas = await _context.Seas.ToListAsync();
+        return Json(await Task.WhenAll(allSeas.Select(GetSeaViewModel)));
+    }
+
+    [HttpGet("/api/seas/{seaId}")]
+    public async Task<IActionResult> GetSea(int seaId)
+    {
+        var sea = await _context.Seas.FirstOrDefaultAsync(sea => sea.Id == seaId);
+        if (sea is null)
         {
-            var sea = await _context.Seas.FirstOrDefaultAsync(sea => sea.Id == id);
-            if (sea is null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return Json(await GetSeaViewModel(sea));
-            }
+            return NotFound();
         }
         else
         {
-            var allSeas = await _context.Seas.ToListAsync();
-            return Json(await Task.WhenAll(allSeas.Select(GetSeaViewModel)));
+            return Json(await GetSeaViewModel(sea));
         }
     }
 

@@ -1,6 +1,7 @@
 ﻿using CTFWhodunnit.Database;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PirateConquest.Repositories;
 using PirateConquest.ViewModels;
 
 namespace PirateConquest.Controllers;
@@ -8,31 +9,32 @@ namespace PirateConquest.Controllers;
 public class TeamsController : Controller
 {
     private readonly AppDbContext _context;
+    private readonly TeamRepository _teamRepository;
 
-    public TeamsController(AppDbContext context)
+    public TeamsController(AppDbContext context, TeamRepository teamRepository)
     {
         _context = context;
+        _teamRepository = teamRepository;
+    }
+
+    [HttpGet("/api/teams")]
+    public async Task<IActionResult> GetAllTeams()
+    {
+        var allTeams = await _teamRepository.All();
+        return Json(allTeams.Select(TeamViewModel.FromModel));
     }
 
     [HttpGet("/api/teams/{teamId}")]
-    public async Task<IActionResult> GetTeams(int? teamId)
+    public async Task<IActionResult> GetTeam(int? teamId)
     {
-        if (teamId is int id)
+        var team = await _context.Teams.FirstOrDefaultAsync(team => team.Id == teamId);
+        if (team is null)
         {
-            var team = await _context.Teams.FirstOrDefaultAsync(team => team.Id == id);
-            if (team is null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return Json(TeamViewModel.FromModel(team));
-            }
+            return NotFound();
         }
         else
         {
-            var allTeams = await _context.Teams.ToListAsync();
-            return Json(allTeams.Select(TeamViewModel.FromModel));
+            return Json(TeamViewModel.FromModel(team));
         }
     }
 }

@@ -13,11 +13,20 @@ public class OutcomeRepository
         _context = context;
     }
 
+    public async Task<List<Outcome>> All() =>
+        await _context
+            .Outcomes.Include(outcome => outcome.Round)
+            .Include(outcome => outcome.Sea)
+            .Include(outcome => outcome.Team)
+            .ThenInclude(team => team.StartingSea)
+            .OrderBy(outcome => outcome.Id)
+            .ToListAsync();
+
     public async Task<List<Outcome>> LatestOutcomes()
     {
         var latestRound = await _context
             .Rounds.OrderByDescending(round => round.StartMoving)
             .FirstOrDefaultAsync();
-        return await _context.Outcomes.Where(outcome => outcome.Round == latestRound).ToListAsync();
+        return (await All()).Where(outcome => outcome.Round.Id == latestRound.Id).ToList();
     }
 }

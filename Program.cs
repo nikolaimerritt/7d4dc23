@@ -43,6 +43,9 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 builder.Services.AddCoreAdmin();
 builder.Services.AddTransient<SeaRepository>();
 builder.Services.AddTransient<OutcomeRepository>();
+builder.Services.AddTransient<PurchaseRepository>();
+builder.Services.AddTransient<MoveRepository>();
+builder.Services.AddTransient<TeamRepository>();
 
 var app = builder.Build();
 

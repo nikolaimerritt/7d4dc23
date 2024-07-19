@@ -24,11 +24,6 @@ public static class DbInitializer
             await InitializeConfig(context);
         }
 
-        if (!context.UnlockedIntels.Any())
-        {
-            Initializers.UnlockSuspectsByTeam(context);
-        }
-
         if (!await context.Seas.AnyAsync())
         {
             await CreateSeas(context);
@@ -180,7 +175,9 @@ public static class DbInitializer
             StartFighting = now,
             End = now
         };
-        var initialOutcomes = context.Teams.Select(team => new Outcome()
+        await context.Rounds.AddAsync(initialRound);
+        var teams = await context.Teams.ToListAsync();
+        var initialOutcomes = teams.Select(team => new Outcome()
         {
             Round = initialRound,
             Team = team,

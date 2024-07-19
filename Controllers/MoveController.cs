@@ -1,6 +1,7 @@
 ﻿using CTFWhodunnit.Database;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PirateConquest.Repositories;
 using PirateConquest.Utils;
 using PirateConquest.ViewModels;
 
@@ -9,14 +10,37 @@ namespace PirateConquest.Controllers;
 public class MoveController : Controller
 {
     private readonly AppDbContext _context;
+    private readonly SeaRepository _seaRepository;
+    private readonly MoveRepository _moveRepository;
 
-    public MoveController(AppDbContext context)
+    public MoveController(
+        AppDbContext context,
+        SeaRepository seaRepository,
+        MoveRepository moveRepository
+    )
     {
         _context = context;
+        _seaRepository = seaRepository;
+        _moveRepository = moveRepository;
+    }
+
+    [HttpGet("/api/moves")]
+    public async Task<IActionResult> GetTeamMoves()
+    {
+        var team = await User.GetTeamAsync(_context);
+        if (team is null)
+        {
+            return Unauthorized();
+        }
+        else
+        {
+            var allTeamMoves = (await _moveRepository.All()).Where(move => move.Team == team);
+            return Json(allTeamMoves);
+        }
     }
 
     [HttpGet("/api/moves/{moveId}")]
-    public async Task<IActionResult> GetTeamMoves(int? moveId)
+    public async Task<IActionResult> GetTeamMove(int? moveId)
     {
         var team = await User.GetTeamAsync(_context);
         if (team is null)
@@ -24,22 +48,14 @@ public class MoveController : Controller
             return Unauthorized();
         }
 
-        if (moveId is int id)
+        var move = (await _moveRepository.All()).FirstOrDefault(move => move.Id == moveId);
+        if (move is null)
         {
-            var move = await _context.Moves.FirstOrDefaultAsync(move => move.Id == id);
-            if (move is null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return Json(move);
-            }
+            return NotFound();
         }
         else
         {
-            var allTeamMoves = await _context.Moves.Where(move => move.Team == team).ToListAsync();
-            return Json(allTeamMoves);
+            return Json(move);
         }
     }
 
@@ -55,8 +71,7 @@ public class MoveController : Controller
         var fromSea = await _context.Seas.FirstOrDefaultAsync(sea => sea.Id == fromSeaId);
         var toSea = await _context.Seas.FirstOrDefaultAsync(sea => sea.Id == toSeaId);
 
-        // TO SELF: check if toSea is accessible from fromSea
-        if (fromSea is null || toSea is null)
+        if (fromSea is null || toSea is null || !await _seaRepository.AreAccessible(fromSea, toSea))
         {
             return BadRequest();
         }

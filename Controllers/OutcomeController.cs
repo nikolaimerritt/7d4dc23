@@ -1,6 +1,7 @@
 ﻿using CTFWhodunnit.Database;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PirateConquest.Repositories;
 using PirateConquest.ViewModels;
 
 namespace PirateConquest.Controllers;
@@ -8,48 +9,42 @@ namespace PirateConquest.Controllers;
 public class OutcomeController : Controller
 {
     private readonly AppDbContext _context;
+    private readonly OutcomeRepository _outcomeRepository;
 
-    public OutcomeController(AppDbContext context)
+    public OutcomeController(AppDbContext context, OutcomeRepository outcomeRepository)
     {
         _context = context;
+        _outcomeRepository = outcomeRepository;
+    }
+
+    [HttpGet("/api/outcomes")]
+    public async Task<IActionResult> GetAllOutcomes()
+    {
+        var outcomes = (await _outcomeRepository.All())
+            .OrderByDescending(outcome => outcome.Round.StartMoving)
+            .ThenBy(outcome => outcome.Id);
+        return Json(outcomes);
     }
 
     [HttpGet("/api/outcomes/{outcomeId}")]
-    public async Task<IActionResult> GetOutcomes(int? outcomeId)
+    public async Task<IActionResult> GetOutcome(int? outcomeId)
     {
-        if (outcomeId is int id)
+        var outcome = (await _outcomeRepository.All()).FirstOrDefault(outcome =>
+            outcome.Id == outcomeId
+        );
+        if (outcome is null)
         {
-            var outcome = await _context.Outcomes.FirstOrDefaultAsync(outcome => outcome.Id == id);
-            if (outcome is null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return Json(outcome);
-            }
+            return NotFound();
         }
         else
         {
-            var outcomes = await _context
-                .Outcomes.OrderByDescending(outcome => outcome.Round.StartMoving)
-                .ThenBy(outcome => outcome.Id)
-                .ToListAsync();
-            return Json(outcomes);
+            return Json(outcome);
         }
     }
 
     [HttpGet("/api/outcomes/latest")]
-    public async Task<IActionResult> GetOutcomesFromLatestRound()
+    public async Task<IActionResult> GetLatestOutcomes()
     {
-        var latestRound = await _context
-            .Rounds.OrderByDescending(round => round.StartMoving)
-            .FirstOrDefaultAsync();
-        var latestOutcomes = _context
-            .Outcomes.Where(outcome => outcome.Round == latestRound)
-            .OrderBy(outcome => outcome.Id)
-            .ToListAsync();
-
-        return Json(latestOutcomes);
+        return Json(await _outcomeRepository.LatestOutcomes());
     }
 }
