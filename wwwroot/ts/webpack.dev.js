@@ -3,8 +3,8 @@ const { VueLoaderPlugin } = require("vue-loader");
 
 module.exports = {
     entry: {
-        main: {
-            import: "./src/main.ts",
+        gameRoot: {
+            import: "./src/game-root.ts",
         },
     },
     module: {
@@ -41,6 +41,6 @@ module.exports = {
         runtimeChunk: "single",
     },
     plugins: [new VueLoaderPlugin()],
-        mode: "development",
+    mode: "development",
     devtool: "inline-source-map",
 };

@@ -5,6 +5,12 @@
       "command": "dotnet",
       "args": ["dotnet-csharpier", "${staged}"],
       "include": ["**/*.cs"]
+    },
+    {
+      "name": "format-typescript",
+      "command": "npm",
+      "args" : ["run", "format-path", "${staged}"],
+      "include": ["**/*.ts", "**/*.vue"]
     }
   ]
 }
