@@ -37,6 +37,7 @@
     "css-loader": "^6.11.0",
     "csso-cli": "^4.0.1",
     "del": "^7.0.0",
+    "file-loader": "^6.2.0",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^8.0.0",
     "gulp-cached": "^1.1.1",
