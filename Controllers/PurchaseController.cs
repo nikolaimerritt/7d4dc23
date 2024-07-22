@@ -42,6 +42,20 @@ public class PurchaseController : Controller
         return Json(allTeamPurchases.Select(PurchaseViewModel.FromModel));
     }
 
+    [HttpGet("/api/purchases/balance")]
+    public async Task<IActionResult> GetBalance()
+    {
+        var team = await _teamRepository.ByIdAsync(User.GetTeamId());
+        if (team is null)
+        {
+            return Unauthorized();
+        }
+        else
+        {
+            return Json(await AvailablePoints(team));
+        }
+    }
+
     [HttpGet("/api/purchases/{purchaseId}")]
     public async Task<IActionResult> GetTeamsPurchases(int purchaseId)
     {

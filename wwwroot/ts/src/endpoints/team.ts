@@ -1,5 +1,5 @@
 import { Connection } from "./main";
-import { Sea } from "./sea-endpoint";
+import { Sea } from "./sea";
 
 export interface Team {
     id: number;
@@ -8,7 +8,7 @@ export interface Team {
     startingSea: Sea;
 }
 
-export class TeamsEndpoint {
+export class TeamEndpoint {
     private connection: Connection;
 
     public constructor() {
