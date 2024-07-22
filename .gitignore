@@ -1,5 +1,7 @@
 efbundle.exe
 node_modules/
+**/ts/dist/
+*.db
 *.db-shm
 *.db-wal
 

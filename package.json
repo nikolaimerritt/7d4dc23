@@ -63,9 +63,7 @@
     "node": ">=0.12.0"
   },
   "scripts": {
-    "gulp": "gulp",
-    "build-ts": "cd Playground/wwwroot/ts && webpack --config webpack.prod.js",
-    "build-ts-dev": "cd Playground/wwwroot/ts && webpack --config webpack.dev.js",
+    "build-ts": "cd wwwroot/ts && webpack --config webpack.dev.js",
     "start": "http-server",
     "format-path": "prettier --write",
     "format": "prettier --write Playground/wwwroot/ts"

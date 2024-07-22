@@ -2,66 +2,17 @@
     ViewData["Title"] = "Are you up for the challenge?";
 }
 
-<div class="container-fluid">
-
-    <div class="row">
-        <div class="col-md-12 col-lg-6">
-            <video width="100%" controls>
-                <source src="@ViewBag.VideoUrl" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        </div>
-        <div class="col-md-12 col-lg-6">
-            <div class="list-container">
-                <div class="list-item">
-                    <h1 class="display-5">Mission briefing</h1>
-                    <p>We are in the midst of a cyber crisis. A series of high-profile attacks have been launched
-                        recently, and we need your help to uncover the culprit.
-
-                        A collective of hackers has been identified as potential suspects. Your mission is to infiltrate the systems of 
-                        this collective and reveal the masterminds behind these attacks.
-                    </p>
-                </div>
-            </div>
-            <div class="list-container">
-                <div class="list-item">
-                    <h1 class="display-5 list-item">The intel</h1>
-                    <p>
-                        We have given each team intel on a set of <a href="/Suspect">suspects</a> part of the hackers collective. The intel reveals the individual hacker’s
-                        characteristics, such as their tools, skills and location.
-
-                        Your task is to collect and share this intel with the other teams, building a
-                        comprehensive map of all the hackers within the collective. 
-                        
-                        This will be your first step towards unmasking the masterminds.
-                    </p>
-                </div>
-            </div>
-            <div class="list-container">
-                <div class="list-item">
-                    <h1 class="display-5">Identify the mastermind</h1>
-                    <p>
-                        Once you've compiled a list of all hackers in the collective by sharing intel with other teams, the real challenge begins. Teams
-                        will
-                        start
-                        tackling individual challenges on Playground, each one designed to test your hacking skills and knowledge.
-
-                        Completing a challenge will not only award your team points
-                        but
-                        also reveal crucial <a href="/Hint">hints</a> to help you identify the masterminds.
-                    </p>
-                </div>
-            </div>
-            <div class="list-container">
-                <div class="list-item">
-                    <h1 class="display-5">Submit your guesses</h1>
-                    <p>
-                        Once you've got enough intel and hints, go to the <a href="/Guess">Guesses</a> page and submit your guess for who the mastermind is. Be
-                        careful though, you
-                        only have a limited number of guesses and every wrong guess burns a flag. reducing the maximum number of points you can get from solving the mystery.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
+<div id="seaMap">
+    <sea-map></sea-map>
 </div>
+
+<div class="container-fluid">
+    Hello from Home index
+</div>
+
+@section Scripts 
+{
+    <script src="~/ts/dist/runtime.bundle.js"></script>
+    <script src="~/ts/dist/main.bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js" integrity="sha256-chlNFSVx3TdcQ2Xlw7SvnbLAavAQLO0Y/LBiWX04viY= sha384-8t+aLluUVnn5SPPG/NbeZCH6TWIvaXIm/gDbutRvtEeElzxxWaZN+G/ZIEdI/f+y sha512-PwQ5+jgXxxprNGc80ycHE3spgj6TuDieHe/yTkbEJ+U5aol7dTupi/4VbwHHzlQVW77Vb0GLOIsiYigHgC5vcg==" crossorigin="anonymous"></script>
+}

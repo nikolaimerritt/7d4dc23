@@ -3,12 +3,8 @@ const { VueLoaderPlugin } = require("vue-loader");
 
 module.exports = {
     entry: {
-        labs: {
-            import: "./src/labs/main.ts",
-            dependOn: "endpoints",
-        },
-        endpoints: {
-            import: "./src/endpoints/main.ts",
+        main: {
+            import: "./src/main.ts",
         },
     },
     module: {
