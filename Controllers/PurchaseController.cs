@@ -13,22 +13,25 @@ public class PurchaseController : Controller
     private readonly AppDbContext _context;
     private readonly SeaRepository _seaRepository;
     private readonly PurchaseRepository _purchaseRepository;
+    private readonly TeamRepository _teamRepository;
 
     public PurchaseController(
         AppDbContext context,
         SeaRepository seaRepository,
-        PurchaseRepository purchaseRepository
+        PurchaseRepository purchaseRepository,
+        TeamRepository teamRepository
     )
     {
         _context = context;
         _seaRepository = seaRepository;
         _purchaseRepository = purchaseRepository;
+        _teamRepository = teamRepository;
     }
 
     [HttpGet("/api/purchases")]
     public async Task<IActionResult> GetAllTeamsPurchases()
     {
-        var team = await User.GetTeamAsync(_context);
+        var team = await _teamRepository.ByIdAsync(User.GetTeamId());
         if (team is null)
         {
             return Unauthorized();
@@ -42,7 +45,7 @@ public class PurchaseController : Controller
     [HttpGet("/api/purchases/{purchaseId}")]
     public async Task<IActionResult> GetTeamsPurchases(int purchaseId)
     {
-        var team = await User.GetTeamAsync(_context);
+        var team = await _teamRepository.ByIdAsync(User.GetTeamId());
         if (team is null)
         {
             return Unauthorized();
@@ -64,7 +67,7 @@ public class PurchaseController : Controller
     [HttpPut("/api/purchases")]
     public async Task<IActionResult> PutPurchase(int points, int seaId)
     {
-        var team = await User.GetTeamAsync(_context);
+        var team = await _teamRepository.ByIdAsync(User.GetTeamId());
         if (team is null)
         {
             return Unauthorized();

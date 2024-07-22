@@ -15,4 +15,18 @@ public class TeamRepository
 
     public async Task<List<Team>> All() =>
         await _context.Teams.Include(team => team.StartingSea).ToListAsync();
+
+    public async Task<Team?> ByIdAsync(int? id)
+    {
+        if (id is null)
+        {
+            return null;
+        }
+        else
+        {
+            return await _context
+                .Teams.Include(team => team.StartingSea)
+                .FirstOrDefaultAsync(team => team.Id == id);
+        }
+    }
 }

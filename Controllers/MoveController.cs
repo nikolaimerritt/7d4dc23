@@ -12,22 +12,25 @@ public class MoveController : Controller
     private readonly AppDbContext _context;
     private readonly SeaRepository _seaRepository;
     private readonly MoveRepository _moveRepository;
+    private readonly TeamRepository _teamRepository;
 
     public MoveController(
         AppDbContext context,
         SeaRepository seaRepository,
-        MoveRepository moveRepository
+        MoveRepository moveRepository,
+        TeamRepository teamRepository
     )
     {
         _context = context;
         _seaRepository = seaRepository;
         _moveRepository = moveRepository;
+        _teamRepository = teamRepository;
     }
 
     [HttpGet("/api/moves")]
     public async Task<IActionResult> GetTeamMoves()
     {
-        var team = await User.GetTeamAsync(_context);
+        var team = await _teamRepository.ByIdAsync(User.GetTeamId());
         if (team is null)
         {
             return Unauthorized();
@@ -44,7 +47,7 @@ public class MoveController : Controller
     [HttpGet("/api/moves/{moveId}")]
     public async Task<IActionResult> GetTeamMove(int? moveId)
     {
-        var team = await User.GetTeamAsync(_context);
+        var team = await _teamRepository.ByIdAsync(User.GetTeamId());
         if (team is null)
         {
             return Unauthorized();
@@ -64,7 +67,7 @@ public class MoveController : Controller
     [HttpPut("/api/moves")]
     public async Task<IActionResult> PutMove(int fromSeaId, int toSeaId, int shipCount)
     {
-        var team = await User.GetTeamAsync(_context);
+        var team = await _teamRepository.ByIdAsync(User.GetTeamId());
         if (team is null)
         {
             return BadRequest();

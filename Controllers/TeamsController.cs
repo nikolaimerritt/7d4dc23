@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PirateConquest.Repositories;
+using PirateConquest.Utils;
 using PirateConquest.ViewModels;
 
 namespace PirateConquest.Controllers;
@@ -24,8 +25,22 @@ public class TeamsController : Controller
         return Json(allTeams.Select(TeamViewModel.FromModel));
     }
 
+    [HttpGet("/api/teams/self")]
+    public async Task<IActionResult> GetOwnTeam()
+    {
+        var team = await _teamRepository.ByIdAsync(User.GetTeamId());
+        if (team is null)
+        {
+            return NotFound();
+        }
+        else
+        {
+            return Json(TeamViewModel.FromModel(team));
+        }
+    }
+
     [HttpGet("/api/teams/{teamId}")]
-    public async Task<IActionResult> GetTeam(int? teamId)
+    public async Task<IActionResult> GetTeam(int teamId)
     {
         var team = await _context.Teams.FirstOrDefaultAsync(team => team.Id == teamId);
         if (team is null)

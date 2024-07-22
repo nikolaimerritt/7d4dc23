@@ -119,7 +119,7 @@ public static class DbInitializer
         await context.Teams.AddRangeAsync(
             new Team()
             {
-                Name = "TeamViewModel Drake",
+                Name = "Team Drake",
                 PlainTextPassword = "AwardTrafficSteeple",
                 ColourHexCode = "#FAECDB",
                 StartingSea = await context.Seas.FirstOrDefaultAsync(sea =>
@@ -128,7 +128,7 @@ public static class DbInitializer
             },
             new Team()
             {
-                Name = "TeamViewModel Morgan",
+                Name = "Team Morgan",
                 PlainTextPassword = "NorthBesiegeSpine",
                 ColourHexCode = "#C9E4DE",
                 StartingSea = await context.Seas.FirstOrDefaultAsync(sea =>
@@ -137,7 +137,7 @@ public static class DbInitializer
             },
             new Team()
             {
-                Name = "TeamViewModel Kidd",
+                Name = "Team Kidd",
                 PlainTextPassword = "UnequalGoodbyePossess",
                 ColourHexCode = "#C6DEF1",
                 StartingSea = await context.Seas.FirstOrDefaultAsync(sea =>
@@ -146,7 +146,7 @@ public static class DbInitializer
             },
             new Team()
             {
-                Name = "TeamViewModel Blackbeard",
+                Name = "Team Blackbeard",
                 PlainTextPassword = "SpeakBraveWelcome",
                 ColourHexCode = "#DBCDF0",
                 StartingSea = await context.Seas.FirstOrDefaultAsync(sea =>
@@ -155,7 +155,7 @@ public static class DbInitializer
             },
             new Team()
             {
-                Name = "TeamViewModel Jack",
+                Name = "Team Jack",
                 PlainTextPassword = "ShallotSupposePreach",
                 ColourHexCode = "#F7D9C4",
                 StartingSea = await context.Seas.FirstOrDefaultAsync(sea =>

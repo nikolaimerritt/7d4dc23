@@ -5,7 +5,11 @@ module.exports = {
     entry: {
         gameRoot: {
             import: "./src/game-root.ts",
+            // dependOn: "endpoints"
         },
+        endpoints: {
+            import: "./src/endpoints/main.ts"
+        }
     },
     module: {
         rules: [
