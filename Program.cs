@@ -1,7 +1,11 @@
+using System.Runtime.CompilerServices;
 using CTFWhodunnit.Database;
+using Hangfire;
+using Hangfire.Storage.SQLite;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using PirateConquest.Repositories;
+using PirateConquest.ViewModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +43,8 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownNetworks.Clear();
     options.KnownProxies.Clear();
 });
+
+builder.Services.AddHangfire(options => options.UseSQLiteStorage());
 
 builder.Services.AddCoreAdmin();
 builder.Services.AddTransient<SeaRepository>();
@@ -96,6 +102,11 @@ if (!app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+app.UseHangfireServer();
+
+// TO SELF: debug
+app.UseHangfireDashboard("/hangfire");
 
 app.UseRouting();
 app.UseAuthorization();
