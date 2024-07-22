@@ -6,7 +6,7 @@ namespace PirateConquest.Repositories;
 
 public class OutcomeRepository
 {
-    public readonly AppDbContext _context;
+    private readonly AppDbContext _context;
 
     public OutcomeRepository(AppDbContext context)
     {
@@ -22,11 +22,25 @@ public class OutcomeRepository
             .OrderBy(outcome => outcome.Id)
             .ToListAsync();
 
-    public async Task<List<Outcome>> LatestOutcomes()
+    public async Task<List<Outcome>> FromLatestRound()
     {
         var latestRound = await _context
             .Rounds.OrderByDescending(round => round.StartMoving)
             .FirstOrDefaultAsync();
-        return (await All()).Where(outcome => outcome.Round.Id == latestRound.Id).ToList();
+        return await FromRound(latestRound);
+    }
+
+    public async Task<List<Outcome>> FromRound(Round round) =>
+        (await All()).Where(outcome => outcome.Round.Id == round.Id).ToList();
+
+    public async Task Add(IEnumerable<Outcome> outcomes)
+    {
+        foreach (var outcome in outcomes)
+        {
+            outcome.RoundId = outcome.Round.Id;
+            outcome.Round = null;
+        }
+        await _context.Outcomes.AddRangeAsync(outcomes);
+        await _context.SaveChangesAsync();
     }
 }

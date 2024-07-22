@@ -4,7 +4,7 @@ namespace PirateConquest.ViewModels;
 
 public class OutcomeViewModel
 {
-    public int Id { get; set; }
+    public int? Id { get; set; }
     public RoundViewModel Round { get; set; }
     public TeamViewModel Team { get; set; }
     public SeaViewModel Sea { get; set; }

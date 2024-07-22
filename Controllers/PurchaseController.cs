@@ -14,18 +14,21 @@ public class PurchaseController : Controller
     private readonly SeaRepository _seaRepository;
     private readonly PurchaseRepository _purchaseRepository;
     private readonly TeamRepository _teamRepository;
+    private readonly RoundRepository _roundRepository;
 
     public PurchaseController(
         AppDbContext context,
         SeaRepository seaRepository,
         PurchaseRepository purchaseRepository,
-        TeamRepository teamRepository
+        TeamRepository teamRepository,
+        RoundRepository roundRepository
     )
     {
         _context = context;
         _seaRepository = seaRepository;
         _purchaseRepository = purchaseRepository;
         _teamRepository = teamRepository;
+        _roundRepository = roundRepository;
     }
 
     [HttpGet("/api/purchases")]
@@ -87,7 +90,7 @@ public class PurchaseController : Controller
             return Unauthorized();
         }
 
-        var movingRound = await _context.GetMovingRoundAsync();
+        var currentRound = await _roundRepository.GetCurrentRound();
         var sea = await _context.Seas.FirstOrDefaultAsync(sea => sea.Id == seaId);
 
         if (sea is null || !await _seaRepository.TeamCanAccess(team, sea))
@@ -95,7 +98,7 @@ public class PurchaseController : Controller
             return BadRequest();
         }
 
-        if (movingRound is null)
+        if (currentRound is null)
         {
             return BadRequest();
         }
@@ -108,7 +111,7 @@ public class PurchaseController : Controller
             new Purchase()
             {
                 Team = team,
-                Round = movingRound,
+                Round = currentRound,
                 Points = points,
                 ShipCount = points,
                 Creation = DateTime.UtcNow

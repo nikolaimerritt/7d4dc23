@@ -13,18 +13,21 @@ public class MoveController : Controller
     private readonly SeaRepository _seaRepository;
     private readonly MoveRepository _moveRepository;
     private readonly TeamRepository _teamRepository;
+    private readonly RoundRepository _roundRepository;
 
     public MoveController(
         AppDbContext context,
         SeaRepository seaRepository,
         MoveRepository moveRepository,
-        TeamRepository teamRepository
+        TeamRepository teamRepository,
+        RoundRepository roundRepository
     )
     {
         _context = context;
         _seaRepository = seaRepository;
         _moveRepository = moveRepository;
         _teamRepository = teamRepository;
+        _roundRepository = roundRepository;
     }
 
     [HttpGet("/api/moves")]
@@ -98,7 +101,7 @@ public class MoveController : Controller
         await _context.Moves.AddAsync(
             new()
             {
-                Round = await _context.GetMovingRoundAsync(),
+                Round = await _roundRepository.GetCurrentRound(),
                 Team = team,
                 FromSea = fromSea,
                 ToSea = toSea,

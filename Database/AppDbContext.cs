@@ -11,8 +11,6 @@ namespace CTFWhodunnit.Database;
 public class AppDbContext : DbContext
 {
     public DbSet<AppConfig> AppConfigs { get; set; }
-
-    // New
     public DbSet<Team> Teams { get; set; }
     public DbSet<Sea> Seas { get; set; }
     public DbSet<AdjacentSea> AdjacentSeas { get; set; }
@@ -20,14 +18,6 @@ public class AppDbContext : DbContext
     public DbSet<Round> Rounds { get; set; }
     public DbSet<Move> Moves { get; set; }
     public DbSet<Outcome> Outcomes { get; set; }
-
-    public async Task<Round?> GetMovingRoundAsync()
-    {
-        var now = DateTime.UtcNow;
-        return await Rounds.FirstOrDefaultAsync(round =>
-            round.StartMoving <= now && now < round.StartFighting
-        );
-    }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

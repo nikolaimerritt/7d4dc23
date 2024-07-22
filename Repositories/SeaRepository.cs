@@ -16,6 +16,8 @@ public class SeaRepository
         _outcomeRepository = outcomeRepository;
     }
 
+    public async Task<List<Sea>> All() => await _context.Seas.ToListAsync();
+
     public async Task<List<Sea>> AdjacentSeas(Sea sea) =>
         await _context
             .AdjacentSeas.Where(adjacentSea => adjacentSea.Sea == sea)
@@ -32,7 +34,7 @@ public class SeaRepository
             return true;
         }
 
-        var latestTeamOutcomes = (await _outcomeRepository.LatestOutcomes()).Where(outcome =>
+        var latestTeamOutcomes = (await _outcomeRepository.FromLatestRound()).Where(outcome =>
             outcome.Team.Id == team.Id
         );
         return latestTeamOutcomes.Any(outcome => outcome.Sea.Id == sea.Id);

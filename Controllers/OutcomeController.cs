@@ -45,6 +45,8 @@ public class OutcomeController : Controller
     [HttpGet("/api/outcomes/latest")]
     public async Task<IActionResult> GetLatestOutcomes()
     {
-        return Json((await _outcomeRepository.LatestOutcomes()).Select(OutcomeViewModel.FromModel));
+        return Json(
+            (await _outcomeRepository.FromLatestRound()).Select(OutcomeViewModel.FromModel)
+        );
     }
 }

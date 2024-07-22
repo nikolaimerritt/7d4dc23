@@ -6,6 +6,8 @@ using CTFWhodunnit.Models;
 using CTFWhodunnit.Utils;
 using Microsoft.EntityFrameworkCore;
 using PirateConquest.Models;
+using PirateConquest.ViewModels;
+using SQLitePCL;
 
 namespace CTFWhodunnit.Database;
 
@@ -13,9 +15,14 @@ public static class DbInitializer
 {
     public static readonly int DEFAULT_MAX_CTF_POINTS = 100;
     public static readonly int DEFAULT_MAX_FLAG_POINTS = 100;
-    public static readonly int STARTING_SHIPS = 10;
+    public static readonly int StartingShips = 10;
 
-    public static async Task Initialize(AppDbContext context)
+    private static readonly int RoundCount = 5;
+    private static readonly TimeSpan RoundDuration = TimeSpan.FromSeconds(20);
+    private static readonly TimeSpan RoundMovingDuration = TimeSpan.FromSeconds(10);
+    private static readonly DateTime FirstRoundStart = DateTime.Now + TimeSpan.FromSeconds(30);
+
+    public static async Task Initialise(AppDbContext context)
     {
         context.Database.EnsureCreated();
 
@@ -42,6 +49,11 @@ public static class DbInitializer
         if (!await context.Outcomes.AnyAsync())
         {
             await CreateInitialOutcome(context);
+        }
+
+        if (!await context.Rounds.Where(round => !round.IsInitial).AnyAsync())
+        {
+            await CreateRounds(context);
         }
     }
 
@@ -116,7 +128,8 @@ public static class DbInitializer
 
     private static async Task CreateTeams(AppDbContext context)
     {
-        await context.Teams.AddRangeAsync(
+        var teams = new List<Team>()
+        {
             new Team()
             {
                 Name = "Team Drake",
@@ -162,7 +175,8 @@ public static class DbInitializer
                     sea.Name == Sea.Names.Southern
                 )
             }
-        );
+        };
+        await context.AddRangeAsync(teams);
         await context.SaveChangesAsync();
     }
 
@@ -171,20 +185,44 @@ public static class DbInitializer
         var now = DateTime.UtcNow;
         var initialRound = new Round()
         {
+            IsInitial = true,
             StartMoving = now,
             StartFighting = now,
-            End = now
+            End = now,
         };
         await context.Rounds.AddAsync(initialRound);
-        var teams = await context.Teams.ToListAsync();
+        var teams = await context.Teams.Include(team => team.StartingSea).ToListAsync();
         var initialOutcomes = teams.Select(team => new Outcome()
         {
             Round = initialRound,
             Team = team,
             Sea = team.StartingSea,
-            ShipCount = STARTING_SHIPS
+            ShipCount = StartingShips
         });
         await context.Outcomes.AddRangeAsync(initialOutcomes);
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task CreateRounds(AppDbContext context)
+    {
+        var lastRound = new Round()
+        {
+            StartMoving = FirstRoundStart,
+            StartFighting = FirstRoundStart + RoundMovingDuration,
+            End = FirstRoundStart + RoundDuration
+        };
+        await context.Rounds.AddAsync(lastRound);
+        for (var n = 1; n < RoundCount; n++)
+        {
+            var roundStart = lastRound.End + TimeSpan.FromSeconds(1);
+            lastRound = new Round()
+            {
+                StartMoving = roundStart,
+                StartFighting = roundStart + RoundMovingDuration,
+                End = roundStart + RoundDuration,
+            };
+            await context.Rounds.AddAsync(lastRound);
+        }
         await context.SaveChangesAsync();
     }
 }

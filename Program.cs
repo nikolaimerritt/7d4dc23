@@ -3,8 +3,10 @@ using CTFWhodunnit.Database;
 using Hangfire;
 using Hangfire.Storage.SQLite;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.EntityFrameworkCore;
 using PirateConquest.Repositories;
+using PirateConquest.Services;
 using PirateConquest.ViewModels;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -51,12 +53,13 @@ builder.Services.AddTransient<SeaRepository>();
 builder.Services.AddTransient<OutcomeRepository>();
 builder.Services.AddTransient<PurchaseRepository>();
 builder.Services.AddTransient<MoveRepository>();
+builder.Services.AddTransient<RoundRepository>();
 builder.Services.AddTransient<TeamRepository>();
+builder.Services.AddTransient<OutcomeService>();
+builder.Services.AddTransient<BackgroundJobClient>();
 
 var app = builder.Build();
-
 app.UseForwardedHeaders();
-
 app.UseCoreAdminCustomAuth(
     async (serviceProvider) =>
     {
@@ -88,7 +91,27 @@ app.UseCoreAdminCustomAuth(
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
-    DbInitializer.Initialize(dbContext);
+    await DbInitializer.Initialise(dbContext);
+}
+
+app.UseHangfireServer();
+
+// TO SELF: debug
+app.UseHangfireDashboard("/hangfire");
+
+using (var scope = app.Services.CreateScope())
+{
+    var backgroundJobClient = scope.ServiceProvider.GetService<BackgroundJobClient>();
+    var roundRepository = scope.ServiceProvider.GetService<RoundRepository>();
+    var outcomeService = scope.ServiceProvider.GetService<OutcomeService>();
+
+    foreach (var round in await roundRepository.AllPlayableRounds())
+    {
+        backgroundJobClient.Schedule(
+            () => outcomeService.WriteOutcomes(round),
+            round.StartFighting
+        );
+    }
 }
 
 // Configure the HTTP request pipeline.
@@ -102,17 +125,8 @@ if (!app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
-app.UseHangfireServer();
-
-// TO SELF: debug
-app.UseHangfireDashboard("/hangfire");
-
 app.UseRouting();
 app.UseAuthorization();
-
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
-
 app.MapDefaultControllerRoute();
-
 app.Run();
