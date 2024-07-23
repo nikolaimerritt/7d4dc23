@@ -13,7 +13,7 @@ public class RoundRepository
         _context = context;
     }
 
-    public async Task<Round?> GetCurrentRound()
+    public async Task<Round?> GetCurrentRoundAsync()
     {
         var now = DateTime.UtcNow;
         return await _context.Rounds.FirstOrDefaultAsync(round =>

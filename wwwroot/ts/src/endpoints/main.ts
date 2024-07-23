@@ -24,12 +24,26 @@ export class Connection {
     }
 
     public async post(endpoint: string, body: object): Promise<any> {
-        let url = `/api/${endpoint}`;
+        let url = this.apiUrl(endpoint);
         const response = await fetch(url, {
             method: "POST",
             credentials: "same-origin",
             headers: this.jsonRequestHeaders(),
             body: JSON.stringify(body),
+        });
+        return response.json();
+    }
+
+    public async put(endpoint: string, queryParams: QueryParams) {
+        let url = this.apiUrl(endpoint);
+        const searchParams = this.searchParams(queryParams).toString();
+        if (searchParams.length > 0) {
+            url += `?${searchParams}`;
+        }
+        const response = await fetch(url, {
+            method: "PUT",
+            credentials: "same-origin",
+            headers: this.jsonRequestHeaders(),
         });
         return response.json();
     }

@@ -90,7 +90,7 @@ public class PurchaseController : Controller
             return Unauthorized();
         }
 
-        var currentRound = await _roundRepository.GetCurrentRound();
+        var currentRound = await _roundRepository.GetCurrentRoundAsync();
         var sea = await _context.Seas.FirstOrDefaultAsync(sea => sea.Id == seaId);
 
         if (sea is null || !await _seaRepository.TeamCanAccess(team, sea))
@@ -112,13 +112,14 @@ public class PurchaseController : Controller
             {
                 Team = team,
                 Round = currentRound,
+                Sea = sea,
                 Points = points,
                 ShipCount = points,
                 Creation = DateTime.UtcNow
             }
         );
         await _context.SaveChangesAsync();
-        return Ok();
+        return Json(null);
     }
 
     private async Task<int> AvailablePoints(Team team)

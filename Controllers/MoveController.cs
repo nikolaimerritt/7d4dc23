@@ -101,7 +101,7 @@ public class MoveController : Controller
         await _context.Moves.AddAsync(
             new()
             {
-                Round = await _roundRepository.GetCurrentRound(),
+                Round = await _roundRepository.GetCurrentRoundAsync(),
                 Team = team,
                 FromSea = fromSea,
                 ToSea = toSea,

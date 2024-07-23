@@ -1,10 +1,11 @@
 <template>
-    <div class="circle">
-        <!-- <span> {{ this.name }} </span> -->
-        <div class="ship" v-for="(ship, index) in teamShips" :key="index">
-            <img :src="'../../imgs/ship.png'" />
-            <span> {{ ship.shipCount }} </span>
-            <span> {{ ship.team.name }} </span>
+    <div class="circle" v-on:click="emitClick()" :class="this.actionClass">
+        <div v-if="this.action === 'none'">
+            <div class="ship" v-for="(ship, index) in teamShips" :key="index">
+                <img :src="'../../imgs/ship.png'" />
+                <span> {{ ship.shipCount }} </span>
+                <span> {{ ship.team.name }} </span>
+            </div>
         </div>
     </div>
 </template>
@@ -19,8 +20,23 @@ interface TeamShips {
 export default {
     props: {
         name: String,
+        action: String,
         teamShips: {
             type: Array<TeamShips>,
+        },
+    },
+    methods: {
+        emitClick() {
+            this.$emit("sea-centre-click", this.name);
+        },
+    },
+    computed: {
+        actionClass(this) {
+            if (this.action === "none") {
+                return "action-none";
+            } else {
+                return "action-purchase";
+            }
         },
     },
 };
@@ -30,7 +46,6 @@ export default {
 .circle {
     position: absolute;
     border-radius: 50%;
-    background: red;
     width: 50px;
     height: 50px;
     margin-left: -25px;
@@ -41,5 +56,13 @@ export default {
     position: relative;
     display: flex;
     flex-direction: column;
+}
+
+.action-none {
+    background: transparent;
+}
+
+.action-purchase {
+    background: lightgreen;
 }
 </style>

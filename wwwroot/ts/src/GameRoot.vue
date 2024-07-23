@@ -3,6 +3,12 @@
         <div class="menu-bar">
             <span> {{ this.team?.name }} </span>
             <span> {{ this.balance }} Coins </span>
+            <span
+                style="border-radius: 4px; background-color: beige"
+                v-on:click="onPurchaseShipsClick()"
+            >
+                Purchase ships
+            </span>
         </div>
         <div class="map-container">
             <sea-centre
@@ -10,7 +16,9 @@
                 :key="index"
                 :name="seaCentre.name"
                 :teamShips="seaCentre.teamShips"
+                :action="ui.action"
                 class="sea-centre"
+                v-on:sea-centre-click="onSeaCentreClick(seaCentre)"
                 :style="{
                     left: `${seaCentre.xCoord}%`,
                     top: `${seaCentre.yCoord}%`,
@@ -23,6 +31,12 @@
                 ref="mapBackground"
             />
         </div>
+        <div v-if="ui.showPurchaseModal" class="modal-wrapper">
+            <div class="modal-box">
+                <input v-model="ui.pointsToSpendOnShips" />
+                <button v-on:click="onSubmitPurchase()">Purchase</button>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -32,8 +46,8 @@ import { PurchaseEndpoint } from "./endpoints/purchase";
 import { Sea, SeaEndpoint } from "./endpoints/sea";
 import { OutcomeEndpoint, Outcome } from "./endpoints/outcome";
 
+type Action = "none" | "purchase" | "move";
 type TeamShips = { team: Team; shipCount: number };
-
 type SeaCentre = Sea & {
     teamShips: TeamShips[];
     xCoord: number;
@@ -46,6 +60,12 @@ interface Data {
         purchase: PurchaseEndpoint;
         sea: SeaEndpoint;
         outcome: OutcomeEndpoint;
+    };
+    ui: {
+        action: Action;
+        showPurchaseModal: boolean;
+        pointsToSpendOnShips: string;
+        seaToPurchaseShipsIn?: Sea;
     };
     team?: Team;
     balance?: number;
@@ -76,6 +96,12 @@ export default {
                 outcome: new OutcomeEndpoint(),
             },
             seaCentres: [],
+            ui: {
+                action: "none",
+                showPurchaseModal: false,
+                pointsToSpendOnShips: "",
+                seaToPurchaseShipsIn: undefined,
+            },
         };
     },
     async mounted(this: This) {
@@ -84,21 +110,6 @@ export default {
         this.seaCentres = await this.getSeaCentres();
     },
     methods: {
-        // async getSeaCentres(this: This): Promise<SeaCentre[]> {
-        //     const seas = await this.endpoints.sea.getAllSeas();
-        //     const mapImage = this.$refs.mapBackground;
-        //     return seas.map((sea) => {
-        //         if (!(sea.name in normalisedSeaCoords)) {
-        //             console.error(
-        //                 `There is no position config for a sea named ${sea.name}`
-        //             );
-        //         }
-        //         const seaCentre: SeaCentre = {
-        //             ...sea,
-        //         };
-        //         return seaCentre;
-        //     });
-        // },
         async getSeaCentres(this: This): Promise<SeaCentre[]> {
             const latestOutcomes =
                 await this.endpoints.outcome.getLatestOutcomes();
@@ -123,7 +134,38 @@ export default {
             console.log("seaCentres", seaCentres);
             return seaCentres;
         },
-
+        onPurchaseShipsClick(this: This) {
+            if (this.ui.action === "none") {
+                this.ui.action = "purchase";
+            }
+        },
+        onSeaCentreClick(this: This, seaCentre: SeaCentre) {
+            if (this.ui.action === "purchase") {
+                this.ui.action = "none";
+                this.ui.pointsToSpendOnShips = "";
+                this.ui.seaToPurchaseShipsIn = seaCentre;
+                this.ui.showPurchaseModal = true;
+            }
+        },
+        async onSubmitPurchase(this: This) {
+            if (this.ui.showPurchaseModal) {
+                this.ui.showPurchaseModal = false;
+            }
+            const points = parseInt(this.ui.pointsToSpendOnShips);
+            if (isNaN(points)) {
+                alert("Please choose an integer number of points.");
+            } else {
+                await this.endpoints.purchase.purchaseShips(
+                    this.ui.seaToPurchaseShipsIn,
+                    points
+                );
+                console.log(
+                    "Purchase submitted",
+                    this.ui.seaToPurchaseShipsIn,
+                    this.ui.pointsToSpendOnShips
+                );
+            }
+        },
         uniqueByKey(items: object[], keySelector: (item) => object): object[] {
             return [
                 ...new Map(
@@ -156,5 +198,31 @@ export default {
     /* TO SELF: tweak this programatically to reposition */
     /* margin-top: -14px;
     margin-left: -50px; */
+}
+
+.modal-wrapper {
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.modal-box {
+    position: relative;
+    top: 50%;
+    left: 50%;
+    width: 300px;
+    height: 200px;
+    margin-left: -150px;
+    margin-right: -100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
 }
 </style>
