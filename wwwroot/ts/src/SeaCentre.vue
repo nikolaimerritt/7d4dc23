@@ -1,6 +1,6 @@
 <template>
     <div class="circle">
-        <span> {{ this.name }} </span>
+        <!-- <span> {{ this.name }} </span> -->
     </div>
 </template>
 
@@ -14,7 +14,11 @@ export default {
 
 <style scoped>
 .circle {
-    background-color: red;
-    border-radius: 30px;
+    border-radius: 50%;
+    background: red;
+    width: 50px;
+    height: 50px;
+    margin-left: -25px;
+    margin-top: -25px;
 }
 </style>

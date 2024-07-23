@@ -57,6 +57,7 @@ builder.Services.AddTransient<RoundRepository>();
 builder.Services.AddTransient<TeamRepository>();
 builder.Services.AddTransient<OutcomeService>();
 builder.Services.AddTransient<BackgroundJobClient>();
+builder.Services.AddTransient<DatabaseInitialiser>();
 
 var app = builder.Build();
 app.UseForwardedHeaders();
@@ -90,8 +91,8 @@ app.UseCoreAdminCustomAuth(
 
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
-    await DbInitializer.Initialise(dbContext);
+    var databaseInitialiser = scope.ServiceProvider.GetService<DatabaseInitialiser>();
+    await databaseInitialiser.Initialise();
 }
 
 app.UseHangfireServer();
