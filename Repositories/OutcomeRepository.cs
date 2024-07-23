@@ -7,10 +7,12 @@ namespace PirateConquest.Repositories;
 public class OutcomeRepository
 {
     private readonly AppDbContext _context;
+    private readonly RoundRepository _roundRepository;
 
-    public OutcomeRepository(AppDbContext context)
+    public OutcomeRepository(AppDbContext context, RoundRepository roundRepository)
     {
         _context = context;
+        _roundRepository = roundRepository;
     }
 
     public async Task<List<Outcome>> All() =>
@@ -24,13 +26,11 @@ public class OutcomeRepository
 
     public async Task<List<Outcome>> FromLatestRound()
     {
-        var latestRound = await _context
-            .Rounds.OrderByDescending(round => round.StartMoving)
-            .FirstOrDefaultAsync();
-        return await FromRound(latestRound);
+        var latestRound = await _roundRepository.GetLatestRoundAsync();
+        return await FromRoundAsync(latestRound);
     }
 
-    public async Task<List<Outcome>> FromRound(Round round) =>
+    public async Task<List<Outcome>> FromRoundAsync(Round round) =>
         (await All()).Where(outcome => outcome.Round.Id == round.Id).ToList();
 
     public async Task Add(IEnumerable<Outcome> outcomes)

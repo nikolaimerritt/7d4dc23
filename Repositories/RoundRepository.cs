@@ -21,28 +21,41 @@ public class RoundRepository
         );
     }
 
+    //public async Task<List<Round>> AllPlayableRounds() =>
+    //    await _context
+    //        .Rounds.Where(round => !round.IsInitial)
+    //        .OrderBy(round => round.End)
+    //        .ToListAsync();
+
     public async Task<List<Round>> AllPlayableRounds() =>
         await _context
             .Rounds.Where(round => !round.IsInitial)
             .OrderBy(round => round.End)
             .ToListAsync();
 
-    public async Task<Round?> GetLastRound()
+    public async Task<Round?> GetLatestRoundAsync()
     {
-        var now = DateTime.UtcNow;
-        return await _context
-            .Rounds.OrderByDescending(round => round.End)
-            .FirstOrDefaultAsync(round => round.End < now);
+        var rounds = await _context
+            .Rounds.OrderByDescending(round => round.StartMoving)
+            .ToListAsync();
+        foreach (var round in rounds)
+        {
+            if (await _context.Outcomes.AnyAsync(outcome => outcome.RoundId == round.Id))
+            {
+                return round;
+            }
+        }
+        return null;
     }
 
-    public async Task<Round?> RoundBefore(Round round) =>
+    public async Task<Round?> RoundBeforeAsync(Round round) =>
         await _context
             .Rounds.OrderByDescending(roundBefore => roundBefore.End)
             .FirstOrDefaultAsync(roundBefore => roundBefore.End < round.End);
 
-    public async Task<int> TeamShipCount(Round round, Sea sea, Team team)
+    public async Task<int> TeamShipCountAsync(Round round, Sea sea, Team team)
     {
-        var previousRound = await RoundBefore(round);
+        var previousRound = await RoundBeforeAsync(round);
         var prevoousOutcome = await _context
             .Outcomes.Include(outcome => outcome.Round)
             .Include(outcome => outcome.Team)

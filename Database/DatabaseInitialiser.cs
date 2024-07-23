@@ -20,8 +20,8 @@ public class DatabaseInitialiser
     private readonly AppDbContext _context;
 
     private static readonly int RoundCount = 5;
-    private static readonly TimeSpan RoundDuration = TimeSpan.FromSeconds(20);
-    private static readonly TimeSpan RoundMovingDuration = TimeSpan.FromSeconds(10);
+    private static readonly TimeSpan RoundDuration = TimeSpan.FromSeconds(2);
+    private static readonly TimeSpan RoundMovingDuration = TimeSpan.FromSeconds(1);
     private static readonly DateTime FirstRoundStart = DateTime.Now + TimeSpan.FromSeconds(30);
 
     public DatabaseInitialiser(AppDbContext context)
@@ -64,7 +64,6 @@ public class DatabaseInitialiser
         }
     }
 
-
     private async Task CreateSeas()
     {
         await _context.Seas.AddRangeAsync(Sea.Names.All.Select(name => new Sea() { Name = name }));
@@ -75,7 +74,9 @@ public class DatabaseInitialiser
     {
         foreach (var (sea, adjacentSeas) in Sea.Names.AdjacentSeas.AsEnumerable())
         {
-            var seaEntry = await _context.Seas.FirstOrDefaultAsync(seaEntry => seaEntry.Name == sea);
+            var seaEntry = await _context.Seas.FirstOrDefaultAsync(seaEntry =>
+                seaEntry.Name == sea
+            );
             var adjacentSeaEntries = await Task.WhenAll(
                 adjacentSeas.Select(
                     async (adjacentSea) =>
@@ -117,7 +118,7 @@ public class DatabaseInitialiser
                     sea.Name == Sea.Names.SouthPacific
                 )
             },
-            new ()
+            new()
             {
                 Name = "Team Kidd",
                 PlainTextPassword = "UnequalGoodbyePossess",
@@ -126,7 +127,7 @@ public class DatabaseInitialiser
                     sea.Name == Sea.Names.NorthAtlantic
                 )
             },
-            new ()
+            new()
             {
                 Name = "Team Blackbeard",
                 PlainTextPassword = "SpeakBraveWelcome",
@@ -135,7 +136,7 @@ public class DatabaseInitialiser
                     sea.Name == Sea.Names.SouthAtlantic
                 )
             },
-            new ()
+            new()
             {
                 Name = "Team O'Malley",
                 PlainTextPassword = "ShallotSupposePreach",
@@ -151,13 +152,13 @@ public class DatabaseInitialiser
 
     private async Task CreateInitialOutcome()
     {
-        var now = DateTime.UtcNow;
+        var past = DateTime.UtcNow - TimeSpan.FromDays(1);
         var initialRound = new Round()
         {
             IsInitial = true,
-            StartMoving = now,
-            StartFighting = now,
-            End = now,
+            StartMoving = past,
+            StartFighting = past,
+            End = past,
         };
         await _context.Rounds.AddAsync(initialRound);
         var teams = await _context.Teams.Include(team => team.StartingSea).ToListAsync();
@@ -194,6 +195,7 @@ public class DatabaseInitialiser
         }
         await _context.SaveChangesAsync();
     }
+
     private async Task InitializeConfig()
     {
         var conf = new AppConfig { Name = AppConfig.CTF_ID_KEY, Value = "93" };

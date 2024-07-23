@@ -6,11 +6,15 @@
         </div>
         <div class="map-container">
             <sea-centre
-                v-for="sea in this.seas"
-                :key="sea.id"
-                :name="sea.name"
+                v-for="(seaCentre, index) in this.seaCentres"
+                :key="index"
+                :name="seaCentre.name"
+                :teamShips="seaCentre.teamShips"
                 class="sea-centre"
-                :style="{ left: `${sea.xCoord}%`, top: `${sea.yCoord}%` }"
+                :style="{
+                    left: `${seaCentre.xCoord}%`,
+                    top: `${seaCentre.yCoord}%`,
+                }"
             >
             </sea-centre>
             <img
@@ -26,8 +30,12 @@
 import { TeamEndpoint, Team } from "./endpoints/team";
 import { PurchaseEndpoint } from "./endpoints/purchase";
 import { Sea, SeaEndpoint } from "./endpoints/sea";
+import { OutcomeEndpoint, Outcome } from "./endpoints/outcome";
+
+type TeamShips = { team: Team; shipCount: number };
 
 type SeaCentre = Sea & {
+    teamShips: TeamShips[];
     xCoord: number;
     yCoord: number;
 };
@@ -37,10 +45,11 @@ interface Data {
         team: TeamEndpoint;
         purchase: PurchaseEndpoint;
         sea: SeaEndpoint;
+        outcome: OutcomeEndpoint;
     };
     team?: Team;
     balance?: number;
-    seas?: SeaCentre[];
+    seaCentres: SeaCentre[];
 }
 
 type This = Data & { [functionName: string]: Function } & { $refs: any };
@@ -60,36 +69,67 @@ export default {
         return {
             team: undefined,
             balance: undefined,
-            seas: [],
             endpoints: {
                 team: new TeamEndpoint(),
                 purchase: new PurchaseEndpoint(),
                 sea: new SeaEndpoint(),
+                outcome: new OutcomeEndpoint(),
             },
+            seaCentres: [],
         };
     },
     async mounted(this: This) {
         this.team = await this.endpoints.team.getTeam();
         this.balance = await this.endpoints.purchase.getBalance();
-        this.seas = await this.getSeaCentres();
+        this.seaCentres = await this.getSeaCentres();
     },
     methods: {
+        // async getSeaCentres(this: This): Promise<SeaCentre[]> {
+        //     const seas = await this.endpoints.sea.getAllSeas();
+        //     const mapImage = this.$refs.mapBackground;
+        //     return seas.map((sea) => {
+        //         if (!(sea.name in normalisedSeaCoords)) {
+        //             console.error(
+        //                 `There is no position config for a sea named ${sea.name}`
+        //             );
+        //         }
+        //         const seaCentre: SeaCentre = {
+        //             ...sea,
+        //         };
+        //         return seaCentre;
+        //     });
+        // },
         async getSeaCentres(this: This): Promise<SeaCentre[]> {
-            const seas = await this.endpoints.sea.getAllSeas();
-            const mapImage = this.$refs.mapBackground;
-            return seas.map((sea) => {
-                if (!(sea.name in normalisedSeaCoords)) {
-                    console.error(
-                        `There is no position config for a sea named ${sea.name}`
-                    );
-                }
+            const latestOutcomes =
+                await this.endpoints.outcome.getLatestOutcomes();
+            const seas = this.uniqueByKey(
+                latestOutcomes.map((outcome) => outcome.sea),
+                (sea) => sea.id
+            ) as Sea[];
+            const seaCentres: SeaCentre[] = [];
+            for (const sea of seas) {
+                const outcomesInSea = latestOutcomes.filter(
+                    (outcome) =>
+                        outcome.sea.id == sea.id && outcome.shipCount > 0
+                );
                 const seaCentre: SeaCentre = {
                     xCoord: 100 * normalisedSeaCoords[sea.name][0],
                     yCoord: 100 * normalisedSeaCoords[sea.name][1],
                     ...sea,
+                    teamShips: outcomesInSea,
                 };
-                return seaCentre;
-            });
+                seaCentres.push(seaCentre);
+            }
+            console.log("seaCentres", seaCentres);
+            return seaCentres;
+        },
+
+        uniqueByKey(items: object[], keySelector: (item) => object): object[] {
+            return [
+                ...new Map(
+                    items.map((item) => [keySelector(item), item])
+                ).values(),
+            ];
         },
     },
 };

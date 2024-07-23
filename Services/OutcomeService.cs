@@ -23,8 +23,16 @@ public class OutcomeService
         _roundRepository = roundRepository;
     }
 
-    public async Task WriteOutcomes(Round round) =>
-        await _outcomeRepository.Add(await ComputeOutcomes(round));
+    public async Task WriteOutcomes(Round round)
+    {
+        var roundHasOutcomes = (await _outcomeRepository.All())
+            .Where(outcome => outcome.Round.Id == round.Id)
+            .Any();
+        if (!roundHasOutcomes)
+        {
+            await _outcomeRepository.Add(await ComputeOutcomes(round));
+        }
+    }
 
     private async Task<List<Outcome>> ComputeOutcomes(Round round)
     {
@@ -37,7 +45,7 @@ public class OutcomeService
             var teamsWithShips = await Task.WhenAll(
                 teams.Select(async team =>
                 {
-                    var shipCount = await _roundRepository.TeamShipCount(round, sea, team);
+                    var shipCount = await _roundRepository.TeamShipCountAsync(round, sea, team);
                     return (Team: team, ShipCount: shipCount);
                 })
             );

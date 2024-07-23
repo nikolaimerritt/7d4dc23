@@ -26,6 +26,14 @@ public class OutcomeController : Controller
         return Json(outcomes.Select(OutcomeViewModel.FromModel));
     }
 
+    [HttpGet("/api/outcomes/latest")]
+    public async Task<IActionResult> GetLatestOutcomes()
+    {
+        return Json(
+            (await _outcomeRepository.FromLatestRound()).Select(OutcomeViewModel.FromModel)
+        );
+    }
+
     [HttpGet("/api/outcomes/{outcomeId}")]
     public async Task<IActionResult> GetOutcome(int? outcomeId)
     {
@@ -40,13 +48,5 @@ public class OutcomeController : Controller
         {
             return Json(OutcomeViewModel.FromModel(outcome));
         }
-    }
-
-    [HttpGet("/api/outcomes/latest")]
-    public async Task<IActionResult> GetLatestOutcomes()
-    {
-        return Json(
-            (await _outcomeRepository.FromLatestRound()).Select(OutcomeViewModel.FromModel)
-        );
     }
 }
