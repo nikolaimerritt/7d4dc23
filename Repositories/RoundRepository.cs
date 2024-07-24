@@ -16,9 +16,9 @@ public class RoundRepository
     public async Task<Round?> GetCurrentRoundAsync()
     {
         var now = DateTime.UtcNow;
-        return await _context.Rounds.FirstOrDefaultAsync(round =>
-            round.StartMoving <= now && now < round.StartFighting
-        );
+        return await _context
+            .Rounds.OrderByDescending(round => round.StartMoving)
+            .FirstOrDefaultAsync(round => round.StartMoving <= now);
     }
 
     public async Task<List<Round>> AllPlayableRounds() =>
@@ -40,12 +40,13 @@ public class RoundRepository
             .Rounds.OrderByDescending(roundBefore => roundBefore.End)
             .FirstOrDefaultAsync(roundBefore => roundBefore.End < round.End);
 
-    public async Task<int> CountTeamShipsAsync(Round round, Sea sea, Team team)
+    public async Task<int> CountTeamShipsAsync(Sea sea, Team team, Round round = null)
     {
         //if ((sea.Name == "North Pacific" && team.Name == "Team Drake"))
         //{
         //    Console.WriteLine();
         //}
+        round ??= await GetCurrentRoundAsync();
         var previousRound = await RoundBeforeAsync(round);
         var previousOutcome = await _context
             .Outcomes.Include(outcome => outcome.Round)

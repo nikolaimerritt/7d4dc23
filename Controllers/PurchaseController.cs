@@ -89,6 +89,11 @@ public class PurchaseController : Controller
         {
             return Unauthorized();
         }
+        var round = await _roundRepository.GetCurrentRoundAsync();
+        if (round?.StartFighting < DateTime.UtcNow)
+        {
+            return BadRequest();
+        }
 
         var currentRound = await _roundRepository.GetCurrentRoundAsync();
         var sea = await _context.Seas.FirstOrDefaultAsync(sea => sea.Id == seaId);

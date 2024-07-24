@@ -15,20 +15,27 @@ export class SeaEndpoint {
 
     public async getAllSeas(): Promise<Sea[]> {
         const response = await this.connection.get("seas");
-        return response.map((item) => {
-            const sea: Sea = {
-                id: item.id,
-                name: item.name,
-                adjacentSeas: item.adjacentSeas.map((inner) => {
-                    const adjacentSea: Sea = {
-                        id: inner.id,
-                        name: inner.name,
-                        adjacentSeas: [],
-                    };
-                    return adjacentSea;
-                }),
-            };
-            return sea;
-        });
+        return response.map((item) => this.toSea(item));
+    }
+
+    public async getAccessibleSeas(): Promise<Sea[]> {
+        const response = await this.connection.get("seas/accessible");
+        return response.map((item) => this.toSea(item));
+    }
+
+    private toSea(object: any): Sea {
+        const sea: Sea = {
+            id: object.id,
+            name: object.name,
+            adjacentSeas: object.adjacentSeas.map((inner) => {
+                const adjacentSea: Sea = {
+                    id: inner.id,
+                    name: inner.name,
+                    adjacentSeas: [],
+                };
+                return adjacentSea;
+            }),
+        };
+        return sea;
     }
 }

@@ -39,9 +39,9 @@ public class OutcomeService
                     teams.Select(async team =>
                     {
                         var shipCount = await _roundRepository.CountTeamShipsAsync(
-                            round,
                             sea,
-                            team
+                            team,
+                            round
                         );
                         return (Team: team, ShipCount: shipCount);
                     })

@@ -1,6 +1,6 @@
 <template>
-    <div class="circle" v-on:click="emitClick()" :class="this.actionClass">
-        <div v-if="this.action === 'none'">
+    <div class="circle" v-on:click="emitClick()" :class="this.highlightedClass">
+        <div v-if="!this.highlighted">
             <div class="ship" v-for="(ship, index) in teamShips" :key="index">
                 <img :src="'../../imgs/ship.png'" />
                 <span> {{ ship.shipCount }} </span>
@@ -20,7 +20,7 @@ interface TeamShips {
 export default {
     props: {
         name: String,
-        action: String,
+        highlighted: Boolean,
         teamShips: {
             type: Array<TeamShips>,
         },
@@ -31,11 +31,11 @@ export default {
         },
     },
     computed: {
-        actionClass(this) {
-            if (this.action === "none") {
-                return "action-none";
+        highlightedClass(this) {
+            if (this.highlighted) {
+                return "state-highlighted";
             } else {
-                return "action-purchase";
+                return "";
             }
         },
     },
@@ -58,11 +58,10 @@ export default {
     flex-direction: column;
 }
 
-.action-none {
-    background: transparent;
-}
-
-.action-purchase {
+.state-highlighted {
     background: lightgreen;
+}
+:not(.state-highlighted) {
+    background: transparent;
 }
 </style>

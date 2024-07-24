@@ -29,6 +29,20 @@ public class SeaRepository
         || (await AdjacentSeas(first)).Any(sea => sea.Id == second.Id)
         || (await AdjacentSeas(second)).Any(sea => sea.Id == first.Id);
 
+    public async Task<List<Sea>> GetAccessibleSeasAsync(Team team)
+    {
+        // TO SELF: very inefficient!
+        var accessibleSeas = new List<Sea>();
+        foreach (var sea in await All())
+        {
+            if (await TeamCanAccess(team, sea))
+            {
+                accessibleSeas.Add(sea);
+            }
+        }
+        return accessibleSeas;
+    }
+
     public async Task<bool> TeamCanAccess(Team team, Sea sea)
     {
         if (await AreAccessible(team.StartingSea, sea))

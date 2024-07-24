@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PirateConquest.Models;
 using PirateConquest.Repositories;
+using PirateConquest.Utils;
 using PirateConquest.ViewModels;
 
 namespace PirateConquest.Controllers;
@@ -11,11 +12,17 @@ public class SeaController : Controller
 {
     private readonly AppDbContext _context;
     private readonly SeaRepository _seaRepository;
+    private readonly TeamRepository _teamRepository;
 
-    public SeaController(AppDbContext context, SeaRepository seaRepository)
+    public SeaController(
+        AppDbContext context,
+        SeaRepository seaRepository,
+        TeamRepository teamRepository
+    )
     {
         _context = context;
         _seaRepository = seaRepository;
+        _teamRepository = teamRepository;
     }
 
     [HttpGet("/api/seas")]
@@ -23,6 +30,18 @@ public class SeaController : Controller
     {
         var allSeas = await _context.Seas.ToListAsync();
         return Json(await Task.WhenAll(allSeas.Select(GetSeaViewModel)));
+    }
+
+    [HttpGet("/api/seas/accessible")]
+    public async Task<IActionResult> GetAccessibleSeas()
+    {
+        var team = await _teamRepository.ByIdAsync(User.GetTeamId());
+        if (team is null)
+        {
+            return Unauthorized();
+        }
+        var accessibleSeas = await _seaRepository.GetAccessibleSeasAsync(team);
+        return Json(await Task.WhenAll(accessibleSeas.Select(GetSeaViewModel)));
     }
 
     [HttpGet("/api/seas/{seaId}")]

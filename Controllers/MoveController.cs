@@ -73,6 +73,11 @@ public class MoveController : Controller
         var team = await _teamRepository.ByIdAsync(User.GetTeamId());
         if (team is null)
         {
+            return Unauthorized();
+        }
+        var round = await _roundRepository.GetCurrentRoundAsync();
+        if (round?.StartFighting < DateTime.UtcNow)
+        {
             return BadRequest();
         }
 
@@ -84,16 +89,8 @@ public class MoveController : Controller
             return BadRequest();
         }
 
-        var fromOutcome = await _context
-            .Outcomes.Where(outcome => outcome.Team == team && outcome.Sea == fromSea)
-            .OrderBy(outcome => outcome.Round.End)
-            .FirstOrDefaultAsync();
-        if (fromOutcome is null)
-        {
-            // TO SELF; figure out how to return server error
-            return BadRequest();
-        }
-        if (shipCount < 0 || shipCount > fromOutcome?.ShipCount)
+        var availableShips = await _roundRepository.CountTeamShipsAsync(fromSea, team);
+        if (shipCount < 0 || shipCount > availableShips)
         {
             return BadRequest();
         }

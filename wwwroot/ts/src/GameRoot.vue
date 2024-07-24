@@ -22,7 +22,7 @@
                 :key="index"
                 :name="seaCentre.name"
                 :teamShips="seaCentre.teamShips"
-                :action="ui.action"
+                :highlighted="isHighlighted(seaCentre)"
                 class="sea-centre"
                 v-on:sea-centre-click="onSeaCentreClick(seaCentre)"
                 :style="{
@@ -92,6 +92,7 @@ interface Data {
     team?: Team;
     balance?: number;
     seaCentres: SeaCentre[];
+    accessibleSeas: Sea[];
 }
 
 type This = Data & { [functionName: string]: Function } & { $refs: any };
@@ -133,14 +134,19 @@ export default {
                     shipsToMove: "",
                 },
             },
+            accessibleSeas: [],
         };
     },
     async mounted(this: This) {
         this.team = await this.endpoints.team.getTeam();
-        this.balance = await this.endpoints.purchase.getBalance();
-        this.seaCentres = await this.getSeaCentres();
+        await this.refreshMap();
     },
     methods: {
+        async refreshMap(this: This) {
+            this.balance = await this.endpoints.purchase.getBalance();
+            this.seaCentres = await this.getSeaCentres();
+            this.accessibleSeas = await this.endpoints.sea.getAccessibleSeas();
+        },
         async getSeaCentres(this: This): Promise<SeaCentre[]> {
             const latestOutcomes =
                 await this.endpoints.outcome.getLatestOutcomes();
@@ -168,14 +174,22 @@ export default {
         onPurchaseShipsClick(this: This) {
             if (this.ui.action === "none") {
                 this.ui.action = "purchase";
+            } else if (this.ui.action === "purchase") {
+                this.ui.action = "none";
             }
         },
         onMoveShipsClick(this: This) {
             if (this.ui.action === "none") {
                 this.ui.action = "move";
+            } else if (this.ui.action === "move") {
+                this.ui.action = "none";
             }
         },
         onSeaCentreClick(this: This, seaCentre: SeaCentre) {
+            if (!this.isHighlighted(seaCentre)) {
+                alert("This sea cannot be used.");
+                return;
+            }
             if (this.ui.action === "purchase") {
                 this.ui.purchase.pointsToSpendOnShips = "";
                 this.ui.purchase.seaToPurchaseIn = seaCentre;
@@ -195,15 +209,16 @@ export default {
                 if (isNaN(points)) {
                     alert("Please choose an integer number of points.");
                 } else {
-                    this.ui.purchase.showModal = false;
-                    this.ui.action = "none";
                     await this.endpoints.purchase.purchaseShips(
                         this.ui.purchase.seaToPurchaseIn,
                         points
                     );
                     this.ui.purchase.showModal = false;
+                    this.ui.action = "none";
+                    this.ui.purchase.showModal = false;
                     this.ui.purchase.pointsToSpendOnShips = "";
                     this.ui.purchase.seaToPurchaseIn = undefined;
+                    await this.refreshMap();
                 }
             }
         },
@@ -218,13 +233,40 @@ export default {
                         this.ui.move.seaToMoveTo,
                         ships
                     );
-                    console.log("move submitted");
                     this.ui.move.showModal = false;
                     this.ui.action = "none";
                     this.ui.move.seaToMoveFrom = undefined;
                     this.ui.move.seaToMoveTo = undefined;
                     this.ui.move.shipsToMove = "";
+                    await this.refreshMap();
                 }
+            }
+        },
+        isHighlighted(this: This, sea: Sea) {
+            if (this.ui.action === "purchase") {
+                return this.accessibleSeas.some(
+                    (accessibleSea) => sea.id === accessibleSea.id
+                );
+            } else if (this.ui.action === "move") {
+                if (this.ui.move.seaToMoveFrom === undefined) {
+                    return this.seaCentres.some(
+                        (seaCentre) =>
+                            seaCentre.id === sea.id &&
+                            seaCentre.teamShips.some(
+                                (teamShip) =>
+                                    teamShip.team.id === this.team.id &&
+                                    teamShip.shipCount > 0
+                            )
+                    );
+                } else if (this.ui.move.seaToMoveTo === undefined) {
+                    return this.accessibleSeas.some(
+                        (accessibleSea) => sea.id === accessibleSea.id
+                    );
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
             }
         },
         uniqueByKey(items: object[], keySelector: (item) => object): object[] {
