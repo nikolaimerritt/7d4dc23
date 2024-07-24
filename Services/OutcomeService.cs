@@ -30,56 +30,57 @@ public class OutcomeService
             .Any();
         if (!roundHasOutcomes)
         {
-            await _outcomeRepository.Add(await ComputeOutcomes(round));
-        }
-    }
+            var teams = await _teamRepository.All();
+            var seas = await _seaRepository.All();
 
-    private async Task<List<Outcome>> ComputeOutcomes(Round round)
-    {
-        var teams = await _teamRepository.All();
-        var seas = await _seaRepository.All();
-
-        var outcomes = new List<Outcome>();
-        foreach (var sea in seas)
-        {
-            var teamsWithShips = await Task.WhenAll(
-                teams.Select(async team =>
-                {
-                    var shipCount = await _roundRepository.TeamShipCountAsync(round, sea, team);
-                    return (Team: team, ShipCount: shipCount);
-                })
-            );
-            var teamsRankedByShips = teamsWithShips
-                .Where(teamWithShips => teamWithShips.ShipCount > 0)
-                .OrderByDescending(teamWithShips => teamWithShips.ShipCount)
-                .ToList();
-            if (teamsRankedByShips.Count > 0)
+            foreach (var sea in seas)
             {
-                var winningTeam = teamsRankedByShips.FirstOrDefault();
-                var losingTeams = teamsRankedByShips.Skip(1);
-                outcomes.Add(
-                    new Outcome()
+                var teamsWithShips = await Task.WhenAll(
+                    teams.Select(async team =>
                     {
-                        RoundId = round.Id,
-                        SeaId = sea.Id,
-                        TeamId = winningTeam.Team.Id,
-                        ShipCount = Math.Max(
-                            1,
-                            winningTeam.ShipCount - losingTeams.Sum(team => team.ShipCount)
-                        )
-                    }
-                );
-                outcomes.AddRange(
-                    losingTeams.Select(team => new Outcome()
-                    {
-                        RoundId = round.Id,
-                        SeaId = sea.Id,
-                        TeamId = team.Team.Id,
-                        ShipCount = 0
+                        var shipCount = await _roundRepository.CountTeamShipsAsync(
+                            round,
+                            sea,
+                            team
+                        );
+                        return (Team: team, ShipCount: shipCount);
                     })
                 );
+                var teamsRankedByShips = teamsWithShips
+                    .Where(teamWithShips => teamWithShips.ShipCount > 0)
+                    .OrderByDescending(teamWithShips => teamWithShips.ShipCount)
+                    .ToList();
+                if (teamsRankedByShips.Count > 0)
+                {
+                    var winningTeam = teamsRankedByShips.FirstOrDefault();
+                    var losingTeams = teamsRankedByShips.Skip(1);
+                    await _outcomeRepository.AddIfNotExists(
+                        new Outcome()
+                        {
+                            RoundId = round.Id,
+                            SeaId = sea.Id,
+                            TeamId = winningTeam.Team.Id,
+                            ShipCount = Math.Max(
+                                1,
+                                winningTeam.ShipCount - losingTeams.Sum(team => team.ShipCount)
+                            )
+                        }
+                    );
+
+                    foreach (var team in losingTeams)
+                    {
+                        await _outcomeRepository.AddIfNotExists(
+                            new Outcome()
+                            {
+                                RoundId = round.Id,
+                                SeaId = sea.Id,
+                                TeamId = team.Team.Id,
+                                ShipCount = 0
+                            }
+                        );
+                    }
+                }
             }
         }
-        return outcomes;
     }
 }

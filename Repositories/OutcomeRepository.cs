@@ -33,9 +33,18 @@ public class OutcomeRepository
     public async Task<List<Outcome>> FromRoundAsync(Round round) =>
         (await All()).Where(outcome => outcome.Round.Id == round.Id).ToList();
 
-    public async Task Add(IEnumerable<Outcome> outcomes)
+    public async Task AddIfNotExists(Outcome toAdd)
     {
-        await _context.Outcomes.AddRangeAsync(outcomes);
-        await _context.SaveChangesAsync();
+        if (
+            !await _context.Outcomes.AnyAsync(outcome =>
+                outcome.SeaId == toAdd.SeaId
+                && outcome.RoundId == toAdd.RoundId
+                && outcome.TeamId == toAdd.TeamId
+            )
+        )
+        {
+            await _context.Outcomes.AddAsync(toAdd);
+            await _context.SaveChangesAsync();
+        }
     }
 }

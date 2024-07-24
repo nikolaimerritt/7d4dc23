@@ -53,8 +53,12 @@ public class RoundRepository
             .Rounds.OrderByDescending(roundBefore => roundBefore.End)
             .FirstOrDefaultAsync(roundBefore => roundBefore.End < round.End);
 
-    public async Task<int> TeamShipCountAsync(Round round, Sea sea, Team team)
+    public async Task<int> CountTeamShipsAsync(Round round, Sea sea, Team team)
     {
+        //if ((sea.Name == "North Pacific" && team.Name == "Team Drake"))
+        //{
+        //    Console.WriteLine();
+        //}
         var previousRound = await RoundBeforeAsync(round);
         var previousOutcome = await _context
             .Outcomes.Include(outcome => outcome.Round)

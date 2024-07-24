@@ -111,6 +111,6 @@ public class MoveController : Controller
         );
         await _context.SaveChangesAsync();
 
-        return Ok();
+        return Json(null);
     }
 }

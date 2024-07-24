@@ -24,8 +24,10 @@ public class SeaRepository
             .Select(adjacentSea => adjacentSea.AdjacentTo)
             .ToListAsync();
 
-    public async Task<bool> AreAccessible(Sea sea, Sea other) =>
-        sea.Id == other.Id || (await AdjacentSeas(sea)).Any(sea => sea.Id == other.Id);
+    public async Task<bool> AreAccessible(Sea first, Sea second) =>
+        first.Id == second.Id
+        || (await AdjacentSeas(first)).Any(sea => sea.Id == second.Id)
+        || (await AdjacentSeas(second)).Any(sea => sea.Id == first.Id);
 
     public async Task<bool> TeamCanAccess(Team team, Sea sea)
     {

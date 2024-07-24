@@ -9,6 +9,12 @@
             >
                 Purchase ships
             </span>
+            <span
+                style="border-radius: 4px; background-color: beige"
+                v-on:click="onMoveShipsClick()"
+            >
+                Move ships
+            </span>
         </div>
         <div class="map-container">
             <sea-centre
@@ -31,10 +37,16 @@
                 ref="mapBackground"
             />
         </div>
-        <div v-if="ui.showPurchaseModal" class="modal-wrapper">
+        <div v-if="ui.purchase.showModal" class="modal-wrapper">
             <div class="modal-box">
-                <input v-model="ui.pointsToSpendOnShips" />
-                <button v-on:click="onSubmitPurchase()">Purchase</button>
+                <input v-model="ui.purchase.pointsToSpendOnShips" />
+                <button v-on:click="onSubmitPurchase()">Points to spend</button>
+            </div>
+        </div>
+        <div v-if="ui.move.showModal" class="modal-wrapper">
+            <div class="modal-box">
+                <input v-model="ui.move.shipsToMove" />
+                <button v-on:click="onSubmitMove()">Ships to move</button>
             </div>
         </div>
     </div>
@@ -45,6 +57,7 @@ import { TeamEndpoint, Team } from "./endpoints/team";
 import { PurchaseEndpoint } from "./endpoints/purchase";
 import { Sea, SeaEndpoint } from "./endpoints/sea";
 import { OutcomeEndpoint, Outcome } from "./endpoints/outcome";
+import { MoveEndpoint } from "./endpoints/move";
 
 type Action = "none" | "purchase" | "move";
 type TeamShips = { team: Team; shipCount: number };
@@ -60,12 +73,21 @@ interface Data {
         purchase: PurchaseEndpoint;
         sea: SeaEndpoint;
         outcome: OutcomeEndpoint;
+        move: MoveEndpoint;
     };
     ui: {
         action: Action;
-        showPurchaseModal: boolean;
-        pointsToSpendOnShips: string;
-        seaToPurchaseShipsIn?: Sea;
+        purchase: {
+            showModal: boolean;
+            pointsToSpendOnShips: string;
+            seaToPurchaseIn?: Sea;
+        };
+        move: {
+            showModal: boolean;
+            seaToMoveFrom?: Sea;
+            seaToMoveTo?: Sea;
+            shipsToMove: string;
+        };
     };
     team?: Team;
     balance?: number;
@@ -94,13 +116,22 @@ export default {
                 purchase: new PurchaseEndpoint(),
                 sea: new SeaEndpoint(),
                 outcome: new OutcomeEndpoint(),
+                move: new MoveEndpoint(),
             },
             seaCentres: [],
             ui: {
                 action: "none",
-                showPurchaseModal: false,
-                pointsToSpendOnShips: "",
-                seaToPurchaseShipsIn: undefined,
+                purchase: {
+                    showModal: false,
+                    pointsToSpendOnShips: "",
+                    seaToPurchaseIn: undefined,
+                },
+                move: {
+                    showModal: false,
+                    seaToMoveFrom: undefined,
+                    seaToMoveTo: undefined,
+                    shipsToMove: "",
+                },
             },
         };
     },
@@ -139,31 +170,61 @@ export default {
                 this.ui.action = "purchase";
             }
         },
+        onMoveShipsClick(this: This) {
+            if (this.ui.action === "none") {
+                this.ui.action = "move";
+            }
+        },
         onSeaCentreClick(this: This, seaCentre: SeaCentre) {
             if (this.ui.action === "purchase") {
-                this.ui.action = "none";
-                this.ui.pointsToSpendOnShips = "";
-                this.ui.seaToPurchaseShipsIn = seaCentre;
-                this.ui.showPurchaseModal = true;
+                this.ui.purchase.pointsToSpendOnShips = "";
+                this.ui.purchase.seaToPurchaseIn = seaCentre;
+                this.ui.purchase.showModal = true;
+            } else if (this.ui.action === "move") {
+                if (this.ui.move.seaToMoveFrom === undefined) {
+                    this.ui.move.seaToMoveFrom = seaCentre;
+                } else if (this.ui.move.seaToMoveTo === undefined) {
+                    this.ui.move.seaToMoveTo = seaCentre;
+                    this.ui.move.showModal = true;
+                }
             }
         },
         async onSubmitPurchase(this: This) {
-            if (this.ui.showPurchaseModal) {
-                this.ui.showPurchaseModal = false;
+            if (this.ui.purchase.showModal) {
+                const points = parseInt(this.ui.purchase.pointsToSpendOnShips);
+                if (isNaN(points)) {
+                    alert("Please choose an integer number of points.");
+                } else {
+                    this.ui.purchase.showModal = false;
+                    this.ui.action = "none";
+                    await this.endpoints.purchase.purchaseShips(
+                        this.ui.purchase.seaToPurchaseIn,
+                        points
+                    );
+                    this.ui.purchase.showModal = false;
+                    this.ui.purchase.pointsToSpendOnShips = "";
+                    this.ui.purchase.seaToPurchaseIn = undefined;
+                }
             }
-            const points = parseInt(this.ui.pointsToSpendOnShips);
-            if (isNaN(points)) {
-                alert("Please choose an integer number of points.");
-            } else {
-                await this.endpoints.purchase.purchaseShips(
-                    this.ui.seaToPurchaseShipsIn,
-                    points
-                );
-                console.log(
-                    "Purchase submitted",
-                    this.ui.seaToPurchaseShipsIn,
-                    this.ui.pointsToSpendOnShips
-                );
+        },
+        async onSubmitMove(this: This) {
+            if (this.ui.move.showModal) {
+                const ships = parseInt(this.ui.move.shipsToMove);
+                if (isNaN(ships)) {
+                    alert("Please choose an integer number of ships to move.");
+                } else {
+                    await this.endpoints.move.moveShips(
+                        this.ui.move.seaToMoveFrom,
+                        this.ui.move.seaToMoveTo,
+                        ships
+                    );
+                    console.log("move submitted");
+                    this.ui.move.showModal = false;
+                    this.ui.action = "none";
+                    this.ui.move.seaToMoveFrom = undefined;
+                    this.ui.move.seaToMoveTo = undefined;
+                    this.ui.move.shipsToMove = "";
+                }
             }
         },
         uniqueByKey(items: object[], keySelector: (item) => object): object[] {
