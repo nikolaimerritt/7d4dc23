@@ -35,11 +35,6 @@ public class OutcomeRepository
 
     public async Task Add(IEnumerable<Outcome> outcomes)
     {
-        foreach (var outcome in outcomes)
-        {
-            outcome.RoundId = outcome.Round.Id;
-            outcome.Round = null;
-        }
         await _context.Outcomes.AddRangeAsync(outcomes);
         await _context.SaveChangesAsync();
     }

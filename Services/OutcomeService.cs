@@ -60,9 +60,9 @@ public class OutcomeService
                 outcomes.Add(
                     new Outcome()
                     {
-                        Round = round,
-                        Sea = sea,
-                        Team = winningTeam.Team,
+                        RoundId = round.Id,
+                        SeaId = sea.Id,
+                        TeamId = winningTeam.Team.Id,
                         ShipCount = Math.Max(
                             1,
                             winningTeam.ShipCount - losingTeams.Sum(team => team.ShipCount)
@@ -72,9 +72,9 @@ public class OutcomeService
                 outcomes.AddRange(
                     losingTeams.Select(team => new Outcome()
                     {
-                        Round = round,
-                        Sea = sea,
-                        Team = team.Team,
+                        RoundId = round.Id,
+                        SeaId = sea.Id,
+                        TeamId = team.Team.Id,
                         ShipCount = 0
                     })
                 );

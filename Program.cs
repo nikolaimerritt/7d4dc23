@@ -1,12 +1,15 @@
 using System.Runtime.CompilerServices;
 using CTFWhodunnit.Database;
 using Hangfire;
+using Hangfire.Storage;
 using Hangfire.Storage.SQLite;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.EntityFrameworkCore;
 using PirateConquest.Repositories;
 using PirateConquest.Services;
+using PirateConquest.Utils;
 using PirateConquest.ViewModels;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -89,16 +92,19 @@ app.UseCoreAdminCustomAuth(
     }
 );
 
+app.UseHangfireServer();
+
+// TO SELF: debug
+app.UseHangfireDashboard("/hangfire");
+
+// TO SELF: debug! Purging all previously created jobs
+JobStorage.Current?.GetMonitoringApi().PurgeJobs();
+
 using (var scope = app.Services.CreateScope())
 {
     var databaseInitialiser = scope.ServiceProvider.GetService<DatabaseInitialiser>();
     await databaseInitialiser.Initialise();
 }
-
-app.UseHangfireServer();
-
-// TO SELF: debug
-app.UseHangfireDashboard("/hangfire");
 
 using (var scope = app.Services.CreateScope())
 {

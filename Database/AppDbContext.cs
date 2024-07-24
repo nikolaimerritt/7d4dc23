@@ -25,6 +25,9 @@ public class AppDbContext : DbContext
         optionsBuilder.UseSqlite("Data Source=ctfchallenge.db;");
     }
 
+    // SQLite does not store DateTime timezones.
+    // This is a workaround that reads all datetimes from the database as UTC.
+    // All datetimes written to the database are assumed to be in UTC.
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

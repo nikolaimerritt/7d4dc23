@@ -20,9 +20,9 @@ public class DatabaseInitialiser
     private readonly AppDbContext _context;
 
     private static readonly int RoundCount = 5;
-    private static readonly TimeSpan RoundDuration = TimeSpan.FromMinutes(30);
-    private static readonly TimeSpan RoundMovingDuration = TimeSpan.FromMinutes(20);
-    private static readonly DateTime FirstRoundStart = DateTime.UtcNow + TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan RoundDuration = TimeSpan.FromSeconds(60);
+    private static readonly TimeSpan RoundMovingDuration = TimeSpan.FromSeconds(50);
+    private static readonly DateTime FirstRoundStart = DateTime.UtcNow + TimeSpan.FromSeconds(20);
 
     public DatabaseInitialiser(AppDbContext context)
     {
