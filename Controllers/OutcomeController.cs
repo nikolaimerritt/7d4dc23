@@ -57,7 +57,7 @@ public class OutcomeController : Controller
         var team = await _teamRepository.ByIdAsync(User.GetTeamId());
         if (team is null)
         {
-            return Unauthorized();
+            return Json(ErrorViewModel.Unauthorized);
         }
 
         var round = await _roundRepository.GetCurrentRoundAsync();

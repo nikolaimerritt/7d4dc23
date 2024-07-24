@@ -45,7 +45,7 @@ public class LoginController : Controller
 
         if (team is null)
         {
-            ViewData["Error"] = "Invalid TeamViewModel Name or Password.";
+            ViewData["ErrorViewModel"] = "Invalid TeamViewModel Name or Password.";
             return View("Index");
         }
         else

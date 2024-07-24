@@ -1,4 +1,4 @@
-import { Connection } from "./main";
+import { Connection, Fallible } from "./main";
 import { Sea } from "./sea";
 
 export class PurchaseEndpoint {
@@ -13,8 +13,11 @@ export class PurchaseEndpoint {
         return parseInt(response);
     }
 
-    public async purchaseShips(sea: Sea, pointsToSpend: number) {
-        await this.connection.put("purchases", {
+    public async purchaseShips(
+        sea: Sea,
+        pointsToSpend: number
+    ): Promise<Fallible> {
+        return await this.connection.put("purchases", {
             seaId: sea.id,
             points: pointsToSpend,
         });

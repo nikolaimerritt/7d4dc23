@@ -11,10 +11,10 @@
                     </div>
                     <input class="mb-3 btn btn-dark w-100" type="submit" value="Login" />
                 </div> 
-                @if (ViewData.ContainsKey("Error") && ViewData["Error"] != null)
+                @if (ViewData.ContainsKey("ErrorViewModel") && ViewData["ErrorViewModel"] != null)
                 {
                     <div class="alert alert-danger">
-                        @ViewData["Error"]
+                        @ViewData["ErrorViewModel"]
                     </div>
             }           
             </div>

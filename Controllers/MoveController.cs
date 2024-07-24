@@ -1,6 +1,7 @@
 ﻿using CTFWhodunnit.Database;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PirateConquest.Models;
 using PirateConquest.Repositories;
 using PirateConquest.Utils;
 using PirateConquest.ViewModels;
@@ -36,7 +37,7 @@ public class MoveController : Controller
         var team = await _teamRepository.ByIdAsync(User.GetTeamId());
         if (team is null)
         {
-            return Unauthorized();
+            return Json(ErrorViewModel.Unauthorized);
         }
         else
         {
@@ -47,13 +48,24 @@ public class MoveController : Controller
         }
     }
 
+    [HttpGet("/api/moves/can-move")]
+    public async Task<IActionResult> CanMove()
+    {
+        var team = await _teamRepository.ByIdAsync(User.GetTeamId());
+        if (team is null)
+        {
+            return Json(ErrorViewModel.Unauthorized);
+        }
+        return Json(await CanMoveAsync(team));
+    }
+
     [HttpGet("/api/moves/{moveId}")]
     public async Task<IActionResult> GetTeamMove(int? moveId)
     {
         var team = await _teamRepository.ByIdAsync(User.GetTeamId());
         if (team is null)
         {
-            return Unauthorized();
+            return Json(ErrorViewModel.Unauthorized);
         }
 
         var move = (await _moveRepository.All()).FirstOrDefault(move => move.Id == moveId);
@@ -71,14 +83,14 @@ public class MoveController : Controller
     public async Task<IActionResult> PutMove(int fromSeaId, int toSeaId, int shipCount)
     {
         var team = await _teamRepository.ByIdAsync(User.GetTeamId());
-        if (team is null)
+        if (team is null || !await CanMoveAsync(team))
         {
-            return Unauthorized();
+            return Json(ErrorViewModel.Unauthorized);
         }
         var round = await _roundRepository.GetCurrentRoundAsync();
         if (round?.StartFighting < DateTime.UtcNow)
         {
-            return BadRequest();
+            return Json(ErrorViewModel.MoveWindowHasEnded);
         }
 
         var fromSea = await _context.Seas.FirstOrDefaultAsync(sea => sea.Id == fromSeaId);
@@ -86,13 +98,13 @@ public class MoveController : Controller
 
         if (fromSea is null || toSea is null || !await _seaRepository.AreAccessible(fromSea, toSea))
         {
-            return BadRequest();
+            return Json(ErrorViewModel.SeasAreInaccessible);
         }
 
         var availableShips = await _roundRepository.CountTeamShipsAsync(fromSea, team);
         if (shipCount < 0 || shipCount > availableShips)
         {
-            return BadRequest();
+            return Json(ErrorViewModel.NotEnoughShips);
         }
 
         await _moveRepository.AddIfNotExistsAsync(
@@ -106,6 +118,12 @@ public class MoveController : Controller
                 Creation = DateTime.UtcNow
             }
         );
-        return Json(null);
+        return Json(new OkViewModel());
+    }
+
+    private async Task<bool> CanMoveAsync(Team team)
+    {
+        var round = await _roundRepository.GetCurrentRoundAsync();
+        return !await _moveRepository.AnyInRoundAsync(team, round);
     }
 }

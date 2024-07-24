@@ -23,6 +23,12 @@ public class MoveRepository
             .ThenInclude(team => team.StartingSea)
             .ToListAsync();
 
+    public async Task<bool> AnyInRoundAsync(Team team, Round round) =>
+        await _context
+            .Moves.Include(move => move.Round)
+            .Include(move => move.Team)
+            .AnyAsync(move => move.TeamId == team.Id && move.RoundId == round.Id);
+
     public async Task AddIfNotExistsAsync(Move move)
     {
         var moveToAdd = new Move()

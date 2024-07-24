@@ -38,7 +38,7 @@ public class SeaController : Controller
         var team = await _teamRepository.ByIdAsync(User.GetTeamId());
         if (team is null)
         {
-            return Unauthorized();
+            return Json(ErrorViewModel.Unauthorized);
         }
         var accessibleSeas = await _seaRepository.GetAccessibleSeasAsync(team);
         return Json(await Task.WhenAll(accessibleSeas.Select(GetSeaViewModel)));

@@ -37,7 +37,7 @@ public class PurchaseController : Controller
         var team = await _teamRepository.ByIdAsync(User.GetTeamId());
         if (team is null)
         {
-            return Unauthorized();
+            return Json(ErrorViewModel.Unauthorized);
         }
         var allTeamPurchases = (await _purchaseRepository.All()).Where(purchase =>
             purchase.Team == team
@@ -51,7 +51,7 @@ public class PurchaseController : Controller
         var team = await _teamRepository.ByIdAsync(User.GetTeamId());
         if (team is null)
         {
-            return Unauthorized();
+            return Json(ErrorViewModel.Unauthorized);
         }
         else
         {
@@ -65,7 +65,7 @@ public class PurchaseController : Controller
         var team = await _teamRepository.ByIdAsync(User.GetTeamId());
         if (team is null)
         {
-            return Unauthorized();
+            return Json(ErrorViewModel.Unauthorized);
         }
 
         var purchase = (await _purchaseRepository.All()).FirstOrDefault(purchase =>
@@ -87,29 +87,27 @@ public class PurchaseController : Controller
         var team = await _teamRepository.ByIdAsync(User.GetTeamId());
         if (team is null)
         {
-            return Unauthorized();
+            return Json(ErrorViewModel.Unauthorized);
         }
         var round = await _roundRepository.GetCurrentRoundAsync();
         if (round?.StartFighting < DateTime.UtcNow)
         {
-            return BadRequest();
+            return Json(ErrorViewModel.MoveWindowHasEnded);
         }
 
         var currentRound = await _roundRepository.GetCurrentRoundAsync();
-        var sea = await _context.Seas.FirstOrDefaultAsync(sea => sea.Id == seaId);
-
-        if (sea is null || !await _seaRepository.TeamCanAccess(team, sea))
-        {
-            return BadRequest();
-        }
-
         if (currentRound is null)
         {
             return BadRequest();
         }
         if (points < 0 || points > await AvailablePoints(team))
         {
-            return BadRequest();
+            return Json(ErrorViewModel.NotEnoughPoints);
+        }
+        var sea = await _context.Seas.FirstOrDefaultAsync(sea => sea.Id == seaId);
+        if (sea is null || !await _seaRepository.TeamCanAccess(team, sea))
+        {
+            return Json(ErrorViewModel.SeasAreInaccessible);
         }
 
         await _context.Purchases.AddAsync(
@@ -124,7 +122,7 @@ public class PurchaseController : Controller
             }
         );
         await _context.SaveChangesAsync();
-        return Json(null);
+        return Json(new OkViewModel());
     }
 
     private async Task<int> AvailablePoints(Team team)
