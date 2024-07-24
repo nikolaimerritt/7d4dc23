@@ -36,8 +36,8 @@ public class SeaRepository
             return true;
         }
 
-        var latestTeamOutcomes = (await _outcomeRepository.FromLatestRound()).Where(outcome =>
-            outcome.Team.Id == team.Id
+        var latestTeamOutcomes = (await _outcomeRepository.FromPreviousRoundAsync()).Where(
+            outcome => outcome.Team.Id == team.Id
         );
         return latestTeamOutcomes.Any(outcome => outcome.Sea.Id == sea.Id);
     }

@@ -22,4 +22,31 @@ public class MoveRepository
             .Include(move => move.Team)
             .ThenInclude(team => team.StartingSea)
             .ToListAsync();
+
+    public async Task AddIfNotExistsAsync(Move move)
+    {
+        var moveToAdd = new Move()
+        {
+            Id = move.Id,
+            RoundId = move.Round.Id,
+            TeamId = move.Team.Id,
+            FromSeaId = move.FromSea.Id,
+            ToSeaId = move.ToSea.Id,
+            ShipCount = move.ShipCount,
+            Creation = move.Creation
+        };
+        if (
+            !await _context.Moves.AnyAsync(move =>
+                move.RoundId == moveToAdd.RoundId
+                && move.TeamId == moveToAdd.TeamId
+                && move.FromSeaId == moveToAdd.FromSeaId
+                && move.ToSeaId == moveToAdd.ToSeaId
+                && move.ShipCount == moveToAdd.ShipCount
+            )
+        )
+        {
+            await _context.Moves.AddAsync(moveToAdd);
+            await _context.SaveChangesAsync();
+        }
+    }
 }

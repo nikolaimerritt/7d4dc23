@@ -98,7 +98,7 @@ public class MoveController : Controller
             return BadRequest();
         }
 
-        await _context.Moves.AddAsync(
+        await _moveRepository.AddIfNotExistsAsync(
             new()
             {
                 Round = await _roundRepository.GetCurrentRoundAsync(),
@@ -109,8 +109,6 @@ public class MoveController : Controller
                 Creation = DateTime.UtcNow
             }
         );
-        await _context.SaveChangesAsync();
-
         return Json(null);
     }
 }

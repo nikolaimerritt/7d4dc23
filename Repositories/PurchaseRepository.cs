@@ -21,4 +21,7 @@ public class PurchaseRepository
             .Include(purchase => purchase.Team)
             .ThenInclude(team => team.StartingSea)
             .ToListAsync();
+
+    public async Task<List<Purchase>> TeamPurchasesAsync(Team team) =>
+        (await All()).Where(purchase => purchase.Team.Id == team.Id).ToList();
 }

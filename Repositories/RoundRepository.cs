@@ -21,31 +21,18 @@ public class RoundRepository
         );
     }
 
-    //public async Task<List<Round>> AllPlayableRounds() =>
-    //    await _context
-    //        .Rounds.Where(round => !round.IsInitial)
-    //        .OrderBy(round => round.End)
-    //        .ToListAsync();
-
     public async Task<List<Round>> AllPlayableRounds() =>
         await _context
             .Rounds.Where(round => !round.IsInitial)
             .OrderBy(round => round.End)
             .ToListAsync();
 
-    public async Task<Round?> GetLatestRoundAsync()
+    public async Task<Round?> GetPreviousRoundAsync()
     {
-        var rounds = await _context
+        var now = DateTime.UtcNow;
+        return await _context
             .Rounds.OrderByDescending(round => round.StartMoving)
-            .ToListAsync();
-        foreach (var round in rounds)
-        {
-            if (await _context.Outcomes.AnyAsync(outcome => outcome.RoundId == round.Id))
-            {
-                return round;
-            }
-        }
-        return null;
+            .FirstOrDefaultAsync(round => round.End < now);
     }
 
     public async Task<Round?> RoundBeforeAsync(Round round) =>

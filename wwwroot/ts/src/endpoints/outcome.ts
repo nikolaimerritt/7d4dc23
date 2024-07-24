@@ -25,7 +25,7 @@ export class OutcomeEndpoint {
     }
 
     public async getLatestOutcomes(): Promise<Outcome[]> {
-        const response = await this.connection.get("outcomes/latest");
+        const response = await this.connection.get("outcomes/virtual/latest");
         return response.map((item) => {
             const outcome: Outcome = {
                 id: item.id,
