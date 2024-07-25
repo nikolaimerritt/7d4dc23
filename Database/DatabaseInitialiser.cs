@@ -21,7 +21,7 @@ public class DatabaseInitialiser
 
     private static readonly int RoundCount = 5;
     private static readonly TimeSpan RoundDuration = TimeSpan.FromMinutes(30);
-    private static readonly TimeSpan RoundMovingDuration = TimeSpan.FromMinutes(29);
+    private static readonly TimeSpan RoundMovingDuration = TimeSpan.FromSeconds(50);
     private static readonly DateTime FirstRoundStart = DateTime.UtcNow + TimeSpan.FromSeconds(5);
 
     public DatabaseInitialiser(AppDbContext context)

@@ -64,12 +64,10 @@ public class OutcomeController : Controller
         var outcomes = await _outcomeRepository.FromPreviousRoundAsync();
         var virtualOutcomes = outcomes.Select(OutcomeViewModel.FromModel).ToList();
 
-        // TO SELF: debug allMoves
-        var allMoves = (await _moveRepository.All()).ToList();
         var moves = (await _moveRepository.All())
             .Where(move => move.Round.Id == round.Id && move.Team.Id == team.Id)
             .ToList();
-        var purchases = await _purchaseRepository.TeamPurchasesAsync(team);
+        var purchases = await _purchaseRepository.TeamPurchasesAsync(round, team);
         foreach (var purchase in purchases)
         {
             var outcomeInPurchaseDestination = virtualOutcomes.FirstOrDefault(outcome =>
