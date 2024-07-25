@@ -15,7 +15,7 @@ public class OutcomeRepository
         _roundRepository = roundRepository;
     }
 
-    public async Task<List<Outcome>> All() =>
+    public async Task<List<Outcome>> AllAsync() =>
         await _context
             .Outcomes.Include(outcome => outcome.Round)
             .Include(outcome => outcome.Sea)
@@ -27,11 +27,11 @@ public class OutcomeRepository
     public async Task<List<Outcome>> FromPreviousRoundAsync()
     {
         var latestRound = await _roundRepository.GetPreviousRoundAsync();
-        return await FromRoundAsync(latestRound);
+        return await WithinAsync(latestRound);
     }
 
-    public async Task<List<Outcome>> FromRoundAsync(Round round) =>
-        (await All()).Where(outcome => outcome.Round.Id == round.Id).ToList();
+    public async Task<List<Outcome>> WithinAsync(Round round) =>
+        (await AllAsync()).Where(outcome => outcome.Round.Id == round.Id).ToList();
 
     public async Task AddIfNotExists(Outcome toAdd)
     {
@@ -47,4 +47,9 @@ public class OutcomeRepository
             await _context.SaveChangesAsync();
         }
     }
+
+    public async Task<List<Outcome>> WithinAsync(Round round, Sea sea) =>
+        (await AllAsync())
+            .Where(outcome => outcome.RoundId == round.Id && outcome.SeaId == sea.Id)
+            .ToList();
 }

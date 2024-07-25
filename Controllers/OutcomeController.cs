@@ -37,7 +37,7 @@ public class OutcomeController : Controller
     [HttpGet("/api/outcomes")]
     public async Task<IActionResult> GetAllOutcomes()
     {
-        var outcomes = (await _outcomeRepository.All())
+        var outcomes = (await _outcomeRepository.AllAsync())
             .OrderByDescending(outcome => outcome.Round.StartMoving)
             .ThenBy(outcome => outcome.Id);
         return Json(outcomes.Select(OutcomeViewModel.FromModel));
@@ -135,7 +135,7 @@ public class OutcomeController : Controller
     [HttpGet("/api/outcomes/{outcomeId}")]
     public async Task<IActionResult> GetOutcome(int? outcomeId)
     {
-        var outcome = (await _outcomeRepository.All()).FirstOrDefault(outcome =>
+        var outcome = (await _outcomeRepository.AllAsync()).FirstOrDefault(outcome =>
             outcome.Id == outcomeId
         );
         if (outcome is null)

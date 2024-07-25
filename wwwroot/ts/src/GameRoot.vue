@@ -47,8 +47,8 @@
                 </span>
                 <input v-model="ui.purchase.pointsToSpendOnShips" />
                 <button v-on:click="onSubmitPurchase()">Points to spend</button>
-                <span v-if="ui.purchase.errorMessage">
-                    {{ ui.purchase.errorMessage }}
+                <span v-if="ui.purchase.error">
+                    {{ ui.purchase.error }}
                 </span>
             </div>
         </div>
@@ -57,8 +57,8 @@
                 <span> How many ships would you like to move? </span>
                 <input v-model="ui.move.shipsToMove" />
                 <button v-on:click="onSubmitMove()">Ships to move</button>
-                <span v-if="ui.move.errorMessage">
-                    {{ ui.move.errorMessage }}
+                <span v-if="ui.move.error">
+                    {{ ui.move.error }}
                 </span>
             </div>
         </div>
@@ -72,6 +72,8 @@ import { Sea, SeaEndpoint } from "./endpoints/sea";
 import { OutcomeEndpoint, Outcome } from "./endpoints/outcome";
 import { MoveEndpoint } from "./endpoints/move";
 import { Connection } from "./endpoints/main";
+import { LeaderboardEndpoint, LeaderboardEntry } from "./endpoints/leaderboard";
+import { Round, RoundEndpoint } from "./endpoints/round";
 
 type Action = "none" | "purchase" | "move";
 type TeamShips = { team: Team; shipCount: number };
@@ -88,6 +90,8 @@ interface Data {
         sea: SeaEndpoint;
         outcome: OutcomeEndpoint;
         move: MoveEndpoint;
+        leaderboard: LeaderboardEndpoint;
+        round: RoundEndpoint;
     };
     ui: {
         action: Action;
@@ -95,14 +99,14 @@ interface Data {
             showModal: boolean;
             pointsToSpendOnShips: string;
             seaToPurchaseIn?: Sea;
-            errorMessage: string;
+            error: string;
         };
         move: {
             showModal: boolean;
             seaToMoveFrom?: Sea;
             seaToMoveTo?: Sea;
             shipsToMove: string;
-            errorMessage: string;
+            error: string;
         };
     };
     team?: Team;
@@ -110,6 +114,8 @@ interface Data {
     seaCentres: SeaCentre[];
     accessibleSeas: Sea[];
     canMove: boolean;
+    leaderboard: LeaderboardEntry[];
+    rounds: Round[];
 }
 
 type This = Data & { [functionName: string]: Function } & { $refs: any };
@@ -131,12 +137,16 @@ export default {
             balance: undefined,
             accessibleSeas: [],
             canMove: false,
+            leaderboard: [],
+            rounds: [],
             endpoints: {
                 team: new TeamEndpoint(),
                 purchase: new PurchaseEndpoint(),
                 sea: new SeaEndpoint(),
                 outcome: new OutcomeEndpoint(),
                 move: new MoveEndpoint(),
+                leaderboard: new LeaderboardEndpoint(),
+                round: new RoundEndpoint(),
             },
             seaCentres: [],
             ui: {
@@ -145,14 +155,14 @@ export default {
                     showModal: false,
                     pointsToSpendOnShips: "",
                     seaToPurchaseIn: undefined,
-                    errorMessage: "",
+                    error: "",
                 },
                 move: {
                     showModal: false,
                     seaToMoveFrom: undefined,
                     seaToMoveTo: undefined,
                     shipsToMove: "",
-                    errorMessage: "",
+                    error: "",
                 },
             },
         };
@@ -167,6 +177,11 @@ export default {
             this.seaCentres = await this.getSeaCentres();
             this.accessibleSeas = await this.endpoints.sea.getAccessibleSeas();
             this.canMove = await this.endpoints.move.canMove();
+            this.rounds = await this.endpoints.round.getRounds();
+            this.leaderboard =
+                await this.endpoints.leaderboard.getLeaderboard();
+            console.log("Rounds", this.rounds);
+            console.log("Leaderboard", this.leaderboard);
         },
         async getSeaCentres(this: This): Promise<SeaCentre[]> {
             const latestOutcomes =
@@ -223,21 +238,22 @@ export default {
             if (this.ui.purchase.showModal) {
                 const points = parseInt(this.ui.purchase.pointsToSpendOnShips);
                 if (isNaN(points)) {
-                    // this.ui.dialog = "Please choose a valid number of points.";
+                    this.ui.purchase.error =
+                        "Please choose a valid number of points.";
                 } else {
                     const result = await this.endpoints.purchase.purchaseShips(
                         this.ui.purchase.seaToPurchaseIn,
                         points
                     );
                     if (Connection.isError(result)) {
-                        this.ui.purchase.errorMessage = result.message;
+                        this.ui.purchase.error = result.error;
                     } else {
                         this.ui.purchase.showModal = false;
                         this.ui.action = "none";
                         this.ui.purchase.showModal = false;
                         this.ui.purchase.pointsToSpendOnShips = "";
                         this.ui.purchase.seaToPurchaseIn = undefined;
-                        this.ui.purchase.errorMessage = "";
+                        this.ui.purchase.error = "";
                         await this.refreshMap();
                     }
                 }
@@ -247,7 +263,8 @@ export default {
             if (this.ui.move.showModal) {
                 const ships = parseInt(this.ui.move.shipsToMove);
                 if (isNaN(ships)) {
-                    // this.ui.dialog = "Please choose a valid number of ships to move.";
+                    this.ui.move.error =
+                        "Please choose a valid number of ships to move.";
                 } else {
                     const result = await this.endpoints.move.moveShips(
                         this.ui.move.seaToMoveFrom,
@@ -255,14 +272,14 @@ export default {
                         ships
                     );
                     if (Connection.isError(result)) {
-                        this.ui.move.errorMessage = result.message;
+                        this.ui.move.error = result.error;
                     } else {
                         this.ui.move.showModal = false;
                         this.ui.action = "none";
                         this.ui.move.seaToMoveFrom = undefined;
                         this.ui.move.seaToMoveTo = undefined;
                         this.ui.move.shipsToMove = "";
-                        this.ui.move.errorMessage = "";
+                        this.ui.move.error = "";
                         await this.refreshMap();
                     }
                 }

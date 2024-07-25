@@ -25,13 +25,13 @@ public class OutcomeService
 
     public async Task WriteOutcomes(Round round)
     {
-        var roundHasOutcomes = (await _outcomeRepository.All())
+        var roundHasOutcomes = (await _outcomeRepository.AllAsync())
             .Where(outcome => outcome.Round.Id == round.Id)
             .Any();
         if (!roundHasOutcomes)
         {
-            var teams = await _teamRepository.All();
-            var seas = await _seaRepository.All();
+            var teams = await _teamRepository.AllAsync();
+            var seas = await _seaRepository.AllAsync();
 
             foreach (var sea in seas)
             {

@@ -1,13 +1,7 @@
 import { Connection } from "./main";
 import { Sea } from "./sea";
-import { Team } from "./team";
-
-export interface Round {
-    id: number;
-    startMoving: Date;
-    startFighting: Date;
-    end: Date;
-}
+import { Team, TeamEndpoint } from "./team";
+import { Round, RoundEndpoint } from "./round";
 
 export interface Outcome {
     id: number;
@@ -30,18 +24,8 @@ export class OutcomeEndpoint {
             const outcome: Outcome = {
                 id: item.id,
                 shipCount: item.shipCount,
-                round: {
-                    id: item.round.id,
-                    startMoving: item.round.startMoving,
-                    startFighting: item.round.startFighting,
-                    end: item.round.end,
-                },
-                team: {
-                    id: item.team.id,
-                    name: item.team.name,
-                    colourHexCode: item.team.colourHexCode,
-                    startingSea: item.team.startingSea,
-                },
+                round: RoundEndpoint.toRound(item.round),
+                team: TeamEndpoint.toTeam(item.team),
                 sea: {
                     id: item.sea.id,
                     name: item.sea.name,

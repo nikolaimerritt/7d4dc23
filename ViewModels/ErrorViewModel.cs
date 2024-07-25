@@ -2,19 +2,19 @@
 
 public class ErrorViewModel
 {
-    public string Message { get; set; }
+    public string Error { get; set; }
 
-    public static ErrorViewModel Unauthorized = new() { Message = "Unauthorized." };
+    public static readonly ErrorViewModel Unauthorized = new() { Error = "Unauthorized." };
 
-    public static ErrorViewModel MoveWindowHasEnded =
-        new() { Message = "The movement window of the current round has ended." };
+    public static readonly ErrorViewModel MoveWindowHasEnded =
+        new() { Error = "The movement window of the current round has ended." };
 
-    public static ErrorViewModel SeasAreInaccessible =
-        new() { Message = "The seas are inaccessible." };
+    public static readonly ErrorViewModel SeasAreInaccessible =
+        new() { Error = "The seas are inaccessible." };
 
-    public static ErrorViewModel NotEnoughPoints =
-        new() { Message = "You do not have enough points." };
+    public static readonly ErrorViewModel NotEnoughPoints =
+        new() { Error = "You do not have enough points." };
 
-    public static ErrorViewModel NotEnoughShips =
-        new() { Message = "You do not have enough ships." };
+    public static readonly ErrorViewModel NotEnoughShips =
+        new() { Error = "You do not have enough ships." };
 }

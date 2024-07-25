@@ -132,7 +132,7 @@ namespace PirateConquest.Migrations
                     b.Property<DateTime>("Creation")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Points")
+                    b.Property<int>("SeasHeld")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("RoundId")

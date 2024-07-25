@@ -21,7 +21,7 @@ public class TeamsController : Controller
     [HttpGet("/api/teams")]
     public async Task<IActionResult> GetAllTeams()
     {
-        var allTeams = await _teamRepository.All();
+        var allTeams = await _teamRepository.AllAsync();
         return Json(allTeams.Select(TeamViewModel.FromModel));
     }
 

@@ -112,7 +112,7 @@ using (var scope = app.Services.CreateScope())
     var roundRepository = scope.ServiceProvider.GetService<RoundRepository>();
     var outcomeService = scope.ServiceProvider.GetService<OutcomeService>();
 
-    foreach (var round in await roundRepository.AllPlayableRounds())
+    foreach (var round in await roundRepository.AllPlayableRoundsAsync())
     {
         backgroundJobClient.Schedule(
             () => outcomeService.WriteOutcomes(round),

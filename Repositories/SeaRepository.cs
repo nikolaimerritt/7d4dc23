@@ -16,7 +16,7 @@ public class SeaRepository
         _outcomeRepository = outcomeRepository;
     }
 
-    public async Task<List<Sea>> All() => await _context.Seas.ToListAsync();
+    public async Task<List<Sea>> AllAsync() => await _context.Seas.ToListAsync();
 
     public async Task<List<Sea>> AdjacentSeas(Sea sea) =>
         await _context
@@ -33,7 +33,7 @@ public class SeaRepository
     {
         // TO SELF: very inefficient!
         var accessibleSeas = new List<Sea>();
-        foreach (var sea in await All())
+        foreach (var sea in await AllAsync())
         {
             if (await TeamCanAccess(team, sea))
             {

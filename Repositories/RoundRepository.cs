@@ -21,10 +21,10 @@ public class RoundRepository
             .FirstOrDefaultAsync(round => round.StartMoving <= now);
     }
 
-    public async Task<List<Round>> AllPlayableRounds() =>
+    public async Task<List<Round>> AllPlayableRoundsAsync() =>
         await _context
             .Rounds.Where(round => !round.IsInitial)
-            .OrderBy(round => round.End)
+            .OrderBy(round => round.StartMoving)
             .ToListAsync();
 
     public async Task<Round?> GetPreviousRoundAsync()
@@ -42,10 +42,6 @@ public class RoundRepository
 
     public async Task<int> CountTeamShipsAsync(Sea sea, Team team, Round round = null)
     {
-        //if ((sea.Name == "North Pacific" && team.Name == "Team Drake"))
-        //{
-        //    Console.WriteLine();
-        //}
         round ??= await GetCurrentRoundAsync();
         var previousRound = await RoundBeforeAsync(round);
         var previousOutcome = await _context

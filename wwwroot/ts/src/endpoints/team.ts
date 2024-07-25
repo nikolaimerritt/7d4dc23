@@ -15,14 +15,18 @@ export class TeamEndpoint {
         this.connection = new Connection();
     }
 
-    public async getTeam(): Promise<Team> {
-        const response = await this.connection.get("teams/self");
+    public static toTeam(object: any): Team {
         const team: Team = {
-            id: response.id,
-            name: response.name,
-            colourHexCode: response.colourHexCode,
-            startingSea: response.startingSea,
+            id: object.id,
+            name: object.name,
+            colourHexCode: object.colourHexCode,
+            startingSea: object.startingSea,
         };
         return team;
+    }
+
+    public async getTeam(): Promise<Team> {
+        const response = await this.connection.get("teams/self");
+        return TeamEndpoint.toTeam(response);
     }
 }

@@ -4,7 +4,7 @@ export type QueryParams = Record<
 >;
 
 export type Ok = {};
-export type Error = { message: string };
+export type Error = { error: string };
 export type Result<T> = T | Error;
 export type Fallible = Ok | Error;
 
@@ -12,7 +12,7 @@ export class Connection {
     public constructor() {}
 
     public static isError(response: Fallible): response is Error {
-        return "message" in response;
+        return "error" in response;
     }
 
     public async get(

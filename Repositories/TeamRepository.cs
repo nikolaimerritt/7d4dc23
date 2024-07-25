@@ -13,7 +13,7 @@ public class TeamRepository
         _context = context;
     }
 
-    public async Task<List<Team>> All() =>
+    public async Task<List<Team>> AllAsync() =>
         await _context.Teams.Include(team => team.StartingSea).ToListAsync();
 
     public async Task<Team?> ByIdAsync(int? id)

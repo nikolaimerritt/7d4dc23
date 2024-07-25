@@ -49,7 +49,7 @@ namespace PirateConquest.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Points")
+                    b.Property<int>("SeasHeld")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Value")
@@ -177,7 +177,7 @@ namespace PirateConquest.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Points")
+                    b.Property<int>("SeasHeld")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Username")
@@ -264,7 +264,7 @@ namespace PirateConquest.Migrations
                     b.Property<DateTime>("Creation")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Points")
+                    b.Property<int>("SeasHeld")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("RoundId")
