@@ -17,6 +17,9 @@
             >
                 Move ships
             </span>
+            <span v-if="this.ui.round.timeRemaining">
+                {{ this.ui.round.timeRemaining }}
+            </span>
             <span v-if="dialogText()"> {{ dialogText() }} </span>
         </div>
         <div class="map-container">
@@ -74,6 +77,8 @@ import { MoveEndpoint } from "./endpoints/move";
 import { Connection } from "./endpoints/main";
 import { LeaderboardEndpoint, LeaderboardEntry } from "./endpoints/leaderboard";
 import { Round, RoundEndpoint } from "./endpoints/round";
+import { Util } from "./util";
+import { onUnmounted } from "vue";
 
 type Action = "none" | "purchase" | "move";
 type TeamShips = { team: Team; shipCount: number };
@@ -108,6 +113,10 @@ interface Data {
             shipsToMove: string;
             error: string;
         };
+        round: {
+            timeRemaining: string;
+            updateTimeRemainingHandle?: number;
+        };
     };
     team?: Team;
     balance?: number;
@@ -115,7 +124,7 @@ interface Data {
     accessibleSeas: Sea[];
     canMove: boolean;
     leaderboard: LeaderboardEntry[];
-    rounds: Round[];
+    round?: Round;
 }
 
 type This = Data & { [functionName: string]: Function } & { $refs: any };
@@ -138,7 +147,7 @@ export default {
             accessibleSeas: [],
             canMove: false,
             leaderboard: [],
-            rounds: [],
+            round: undefined,
             endpoints: {
                 team: new TeamEndpoint(),
                 purchase: new PurchaseEndpoint(),
@@ -164,12 +173,21 @@ export default {
                     shipsToMove: "",
                     error: "",
                 },
+                round: {
+                    timeRemaining: "",
+                    updateTimeRemainingHandle: undefined,
+                },
             },
         };
     },
     async mounted(this: This) {
         this.team = await this.endpoints.team.getTeam();
         await this.refreshMap();
+        this.updateTimeRemaining();
+        this.ui.round.updateTimeRemainingHandle = window.setInterval(
+            () => this.updateTimeRemaining(),
+            10_000
+        );
     },
     methods: {
         async refreshMap(this: This) {
@@ -177,10 +195,10 @@ export default {
             this.seaCentres = await this.getSeaCentres();
             this.accessibleSeas = await this.endpoints.sea.getAccessibleSeas();
             this.canMove = await this.endpoints.move.canMove();
-            this.rounds = await this.endpoints.round.getRounds();
+            this.round = await this.endpoints.round.getCurrentRound();
             this.leaderboard =
                 await this.endpoints.leaderboard.getLeaderboard();
-            console.log("Rounds", this.rounds);
+            console.log("Rounds", this.round);
             console.log("Leaderboard", this.leaderboard);
         },
         async getSeaCentres(this: This): Promise<SeaCentre[]> {
@@ -332,13 +350,15 @@ export default {
             }
             return "";
         },
-        uniqueByKey(items: object[], keySelector: (item) => object): object[] {
-            return [
-                ...new Map(
-                    items.map((item) => [keySelector(item), item])
-                ).values(),
-            ];
+        updateTimeRemaining(this: This) {
+            this.ui.round.timeRemaining = Util.timeBetween(
+                this.round.startFighting,
+                new Date()
+            );
         },
+    },
+    unmounted(this: This) {
+        window.clearInterval(this.ui.round.updateTimeRemainingHandle);
     },
 };
 </script>

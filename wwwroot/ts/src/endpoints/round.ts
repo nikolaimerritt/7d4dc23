@@ -21,11 +21,18 @@ export class RoundEndpoint {
             startFighting: new Date(object.startFighting),
             end: new Date(object.end),
         };
+        console.log("toRound", object, round);
         return round;
     }
 
     public async getRounds(): Promise<Round[]> {
         const response = await this.connection.get("rounds");
         return response.map(RoundEndpoint.toRound);
+    }
+
+    public async getCurrentRound(): Promise<Round> {
+        return await RoundEndpoint.toRound(
+            await this.connection.get("rounds/current")
+        );
     }
 }

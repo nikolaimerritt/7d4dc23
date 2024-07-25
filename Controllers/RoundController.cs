@@ -19,4 +19,8 @@ public class RoundController : Controller
         var rounds = await _roundRepository.AllPlayableRoundsAsync();
         return Json(rounds.Select(RoundViewModel.FromModel));
     }
+
+    [HttpGet("/api/rounds/current")]
+    public async Task<IActionResult> GetCurrentRound() =>
+        Json(RoundViewModel.FromModel(await _roundRepository.GetCurrentRoundAsync()));
 }
