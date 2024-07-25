@@ -69,6 +69,33 @@ public class OutcomeController : Controller
         var moves = (await _moveRepository.All())
             .Where(move => move.Round.Id == round.Id && move.Team.Id == team.Id)
             .ToList();
+        var purchases = await _purchaseRepository.TeamPurchasesAsync(team);
+        foreach (var purchase in purchases)
+        {
+            var outcomeInPurchaseDestination = virtualOutcomes.FirstOrDefault(outcome =>
+                outcome.Team.Id == team.Id && outcome.Sea.Id == purchase.Sea.Id
+            );
+            if (outcomeInPurchaseDestination is null)
+            {
+                virtualOutcomes.Add(
+                    OutcomeViewModel.FromModel(
+                        new()
+                        {
+                            Id = -1,
+                            Round = round,
+                            Team = team,
+                            Sea = purchase.Sea,
+                            ShipCount = purchase.ShipCount,
+                        }
+                    )
+                );
+            }
+            else
+            {
+                outcomeInPurchaseDestination.ShipCount += purchase.ShipCount;
+            }
+        }
+
         foreach (var move in moves)
         {
             var outcomeInExitSea = virtualOutcomes.FirstOrDefault(outcome =>
@@ -99,33 +126,6 @@ public class OutcomeController : Controller
             else
             {
                 outcomeInEntranceSea.ShipCount += move.ShipCount;
-            }
-        }
-
-        var purchases = await _purchaseRepository.TeamPurchasesAsync(team);
-        foreach (var purchase in purchases)
-        {
-            var outcomeInPurchaseDestination = virtualOutcomes.FirstOrDefault(outcome =>
-                outcome.Team.Id == team.Id && outcome.Sea.Id == purchase.Sea.Id
-            );
-            if (outcomeInPurchaseDestination is null)
-            {
-                virtualOutcomes.Add(
-                    OutcomeViewModel.FromModel(
-                        new()
-                        {
-                            Id = -1,
-                            Round = round,
-                            Team = team,
-                            Sea = purchase.Sea,
-                            ShipCount = purchase.ShipCount,
-                        }
-                    )
-                );
-            }
-            else
-            {
-                outcomeInPurchaseDestination.ShipCount += purchase.ShipCount;
             }
         }
 
