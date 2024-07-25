@@ -18,7 +18,7 @@
                 Move ships
             </span>
             <span v-if="this.ui.round.timeRemaining">
-                {{ this.ui.round.timeRemaining }}
+                {{ "Round ends in " + this.ui.round.timeRemaining }}
             </span>
             <span v-if="dialogText()"> {{ dialogText() }} </span>
         </div>
@@ -80,6 +80,7 @@ import { Round, RoundEndpoint } from "./endpoints/round";
 import { Util } from "./util";
 import { onUnmounted } from "vue";
 
+const updateTimeRemainingMs = 2_000;
 type Action = "none" | "purchase" | "move";
 type TeamShips = { team: Team; shipCount: number };
 type SeaCentre = Sea & {
@@ -186,7 +187,7 @@ export default {
         this.updateTimeRemaining();
         this.ui.round.updateTimeRemainingHandle = window.setInterval(
             () => this.updateTimeRemaining(),
-            10_000
+            updateTimeRemainingMs
         );
     },
     methods: {
