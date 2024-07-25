@@ -380,11 +380,6 @@ export default {
 
 .sea-centre {
     position: absolute;
-    /* top: 50%;
-    left: 50%; */
-    /* TO SELF: tweak this programatically to reposition */
-    /* margin-top: -14px;
-    margin-left: -50px; */
 }
 
 .modal-wrapper {

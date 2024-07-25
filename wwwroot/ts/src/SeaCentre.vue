@@ -1,11 +1,17 @@
 <template>
-    <div class="circle" v-on:click="emitClick()" :class="this.highlightedClass">
-        <div v-if="!this.highlighted">
-            <div class="ship" v-for="(ship, index) in teamShips" :key="index">
+    <div
+        v-if="this.highlighted"
+        class="circle"
+        v-on:click="emitClick()"
+        :class="this.highlightedClass"
+    ></div>
+    <div v-else>
+        <div v-for="(ship, index) in teamShips" :key="index" class="ship">
+            <div style="position: absolute">
                 <img :src="'../../imgs/ship.png'" />
-                <span> {{ ship.shipCount }} </span>
-                <span> {{ ship.team.name }} </span>
+                <span class="ship-count"> {{ ship.shipCount }} </span>
             </div>
+            <div class="team-name">{{ ship.team.name }}</div>
         </div>
     </div>
 </template>
@@ -53,9 +59,10 @@ export default {
 }
 
 .ship {
-    position: relative;
     display: flex;
+    width: 60px;
     flex-direction: column;
+    align-items: center;
 }
 
 .state-highlighted {
@@ -63,5 +70,22 @@ export default {
 }
 :not(.state-highlighted) {
     background: transparent;
+}
+.ship-count {
+    position: relative;
+    top: -45px;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+}
+
+.team-name {
+    margin-top: 60px;
+    text-align: center;
+    width: max-content;
+}
+
+img {
+    width: 100%;
 }
 </style>
