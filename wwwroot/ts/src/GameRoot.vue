@@ -49,8 +49,8 @@
             <object
                 v-for="(seaCentre, index) in this.seaCentres"
                 :key="`sea-background-${index}`"
-                :id="`seaBackground${index}`"
-                :data="seaImageSource(seaCentre)"
+                :id="seaImageData[seaCentre.name].id"
+                :data="`imgs/seas/${seaImageData[seaCentre.name].file}`"
                 class="sea-background"
                 :style="{ zIndex: 10 + index }"
             ></object>
@@ -91,6 +91,7 @@ import { LeaderboardEndpoint, LeaderboardEntry } from "./endpoints/leaderboard";
 import { Round, RoundEndpoint } from "./endpoints/round";
 import { Util } from "./util";
 import { onUnmounted } from "vue";
+import { InlineSvgPlugin } from "vue-inline-svg";
 
 const updateTimeRemainingMs = 2_000;
 type Action = "none" | "purchase" | "move";
@@ -138,6 +139,7 @@ interface Data {
     canMove: boolean;
     leaderboard: LeaderboardEntry[];
     round?: Round;
+    seaImageData: { [seaName: string]: { file: string; id: string } };
 }
 
 type This = Data & { [functionName: string]: Function } & { $refs: any };
@@ -150,16 +152,6 @@ const normalisedSeaCoords = {
     Southern: [0.628, 0.919],
     Indian: [0.694, 0.747],
     Arctic: [0.527, 0.153],
-};
-
-const imageSources = {
-    "North Pacific": "world-map-no-borders-north-pacific.svg",
-    "South Pacific": "world-map-no-borders-south-pacific.svg",
-    "North Atlantic": "world-map-no-borders-north-atlantic.svg",
-    "South Atlantic": "world-map-no-borders-south-atlantic.svg",
-    Southern: "world-map-no-borders-southern.svg",
-    Indian: "world-map-no-borders-indian.svg",
-    Arctic: "world-map-no-borders-arctic.svg",
 };
 
 export default {
@@ -201,7 +193,41 @@ export default {
                     updateTimeRemainingHandle: undefined,
                 },
             },
+            seaImageData: {
+                "North Pacific": {
+                    file: "world-map-no-borders-north-pacific.svg",
+                    id: "seaNorthPacific",
+                },
+
+                "South Pacific": {
+                    file: "world-map-no-borders-south-pacific.svg",
+                    id: "seaSouthPacific",
+                },
+                "North Atlantic": {
+                    file: "world-map-no-borders-north-atlantic.svg",
+                    id: "seaNorthAtlantic",
+                },
+                "South Atlantic": {
+                    file: "world-map-no-borders-south-atlantic.svg",
+                    id: "seaSouthAtlantic",
+                },
+                Southern: {
+                    file: "world-map-no-borders-southern.svg",
+                    id: "seaSouthern",
+                },
+                Indian: {
+                    file: "world-map-no-borders-indian.svg",
+                    id: "seaIndian",
+                },
+                Arctic: {
+                    file: "world-map-no-borders-arctic.svg",
+                    id: "seaArctic",
+                },
+            },
         };
+    },
+    components: {
+        InlineSvgPlugin,
     },
     async mounted(this: This) {
         this.team = await this.endpoints.team.getTeam();
@@ -211,10 +237,14 @@ export default {
             () => this.updateTimeRemaining(),
             updateTimeRemainingMs
         );
-        const x = window.document.getElementById("seaBackground1");
-        console.log("Sea background 1", x);
-        console.log(x.getElementsByTagName("svg"));
-        console.log(x.getElementsByTagName("path")[0].getTotalLength());
+        for (const seaCentre of this.seaCentres) {
+            const imageId = this.seaImageData[seaCentre.name].id;
+            const imageObject = Util.getHtmlObjectContent(
+                window.document.getElementById(imageId)
+            );
+            const imagePath = imageObject.querySelector("svg path");
+            console.log(seaCentre.name, imagePath.getBoundingClientRect());
+        }
     },
     methods: {
         async refreshMap(this: This) {
@@ -376,9 +406,6 @@ export default {
                 }
             }
             return "";
-        },
-        seaImageSource(seaCentre: SeaCentre): string {
-            return `imgs/seas/${imageSources[seaCentre.name]}`;
         },
         updateTimeRemaining(this: This) {
             this.ui.round.timeRemaining = Util.timeBetween(
