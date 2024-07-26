@@ -37,11 +37,23 @@
                 }"
             >
             </sea-centre>
-            <img
-                :src="'../../imgs/map-cropped.jpg'"
+            <!-- <img
+                :src="'../../imgs/map.png'"
                 class="map-background"
                 ref="mapBackground"
-            />
+            /> -->
+            <object
+                :data="'../../imgs/map.svg'"
+                class="map-background"
+            ></object>
+            <object
+                v-for="(seaCentre, index) in this.seaCentres"
+                :key="`sea-background-${index}`"
+                :id="`seaBackground${index}`"
+                :data="seaImageSource(seaCentre)"
+                class="sea-background"
+                :style="{ zIndex: 10 + index }"
+            ></object>
         </div>
         <div v-if="ui.purchase.showModal" class="modal-wrapper">
             <div class="modal-box">
@@ -140,6 +152,16 @@ const normalisedSeaCoords = {
     Arctic: [0.527, 0.153],
 };
 
+const imageSources = {
+    "North Pacific": "world-map-no-borders-north-pacific.svg",
+    "South Pacific": "world-map-no-borders-south-pacific.svg",
+    "North Atlantic": "world-map-no-borders-north-atlantic.svg",
+    "South Atlantic": "world-map-no-borders-south-atlantic.svg",
+    Southern: "world-map-no-borders-southern.svg",
+    Indian: "world-map-no-borders-indian.svg",
+    Arctic: "world-map-no-borders-arctic.svg",
+};
+
 export default {
     data(): Data {
         return {
@@ -189,6 +211,10 @@ export default {
             () => this.updateTimeRemaining(),
             updateTimeRemainingMs
         );
+        const x = window.document.getElementById("seaBackground1");
+        console.log("Sea background 1", x);
+        console.log(x.getElementsByTagName("svg"));
+        console.log(x.getElementsByTagName("path")[0].getTotalLength());
     },
     methods: {
         async refreshMap(this: This) {
@@ -351,6 +377,9 @@ export default {
             }
             return "";
         },
+        seaImageSource(seaCentre: SeaCentre): string {
+            return `imgs/seas/${imageSources[seaCentre.name]}`;
+        },
         updateTimeRemaining(this: This) {
             this.ui.round.timeRemaining = Util.timeBetween(
                 this.round.startFighting,
@@ -373,6 +402,18 @@ export default {
     width: 100%;
 }
 
+.sea-background {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.sea-background:hover {
+    filter: invert(10%) sepia(11%) saturate(532%) hue-rotate(191deg)
+        brightness(95%) contrast(95%);
+}
+
 .map-container {
     position: relative;
     display: inline-block;
@@ -380,6 +421,7 @@ export default {
 
 .sea-centre {
     position: absolute;
+    z-index: 100;
 }
 
 .modal-wrapper {

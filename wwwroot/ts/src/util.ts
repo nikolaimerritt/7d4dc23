@@ -15,7 +15,6 @@ export class Util {
             bigger = smaller;
         }
         let duration = moment.duration(moment(bigger).diff(moment(smaller)));
-        console.log("bigger", bigger, "smaller", smaller, "duration", duration);
         return moment.utc(duration.asMilliseconds()).format("HH:mm:ss");
 
         // // get total seconds between the times

@@ -21,7 +21,6 @@ export class RoundEndpoint {
             startFighting: new Date(object.startFighting),
             end: new Date(object.end),
         };
-        console.log("toRound", object, round);
         return round;
     }
 
