@@ -1,3 +1,7 @@
+TO SELF: idea is to either: - detect hovering over SVG path elements by manually
+registering events - create invisible divs with same position and size of paths
+and detect over on those
+
 <template>
     <div>
         <div class="menu-bar">
