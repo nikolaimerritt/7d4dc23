@@ -27,6 +27,12 @@ and detect over on those
             <span v-if="dialogText()"> {{ dialogText() }} </span>
         </div>
         <div class="map-container">
+            <span v-on:click="onHello()"> Hello </span>
+            <object
+                :data="'../../imgs/map.svg'"
+                class="map-background"
+                style="width: 100%"
+            ></object>
             <sea-centre
                 v-for="(seaCentre, index) in this.seaCentres"
                 :key="index"
@@ -36,18 +42,13 @@ and detect over on those
                 class="sea-centre"
                 v-on:sea-centre-click="onSeaCentreClick(seaCentre)"
                 :style="{
-                    left: `${seaCentre.xCoord}%`,
-                    top: `${seaCentre.yCoord}%`,
+                    top: `${100 * seaImageData[seaCentre.name].top}%`,
+                    left: `${100 * seaImageData[seaCentre.name].left}%`,
                 }"
             >
             </sea-centre>
             <!-- TO SELF: turn this into components -->
-            <object
-                :data="'../../imgs/map.svg'"
-                class="map-background"
-                style="width: 100%"
-            ></object>
-            <object
+            <!-- <object
                 v-for="(seaCentre, index) in this.seaCentres"
                 :key="`sea-background-${index}`"
                 :id="seaImageData[seaCentre.name].id"
@@ -57,7 +58,7 @@ and detect over on those
                     left: `${100 * seaImageData[seaCentre.name].left}%`,
                 }"
                 class="sea-background"
-            ></object>
+            ></object> -->
         </div>
         <div v-if="ui.purchase.showModal" class="modal-wrapper">
             <div class="modal-box">
@@ -253,23 +254,11 @@ export default {
             () => this.updateTimeRemaining(),
             updateTimeRemainingMs
         );
-        for (const seaCentre of this.seaCentres) {
-            const imageId = this.seaImageData[seaCentre.name].id;
-            const imageObject = Util.getHtmlObjectContent(
-                window.document.getElementById(imageId)
-            );
-
-            imageObject
-                .querySelectorAll("svg path")
-                .forEach((svgPath: SVGPathElement) => {
-                    console.log("Adding mouse over for ", seaCentre.name);
-                    svgPath.addEventListener("mouseover", () =>
-                        console.log(`Hovered over sea`, seaCentre.name)
-                    );
-                });
-        }
     },
     methods: {
+        onHello() {
+            console.log("TO SELF: debug (hello)");
+        },
         async refreshMap(this: This) {
             this.balance = await this.endpoints.purchase.getBalance();
             this.seaCentres = await this.getSeaCentres();
@@ -319,6 +308,7 @@ export default {
             }
         },
         onSeaCentreClick(this: This, seaCentre: SeaCentre) {
+            console.log("click from gameroot", seaCentre.name);
             if (this.ui.action === "none") {
                 return;
             }
@@ -472,7 +462,7 @@ export default {
 
 .sea-centre {
     position: absolute;
-    z-index: 100;
+    z-index: 10;
 }
 
 .modal-wrapper {
@@ -481,6 +471,7 @@ export default {
     top: 0;
     width: 100%;
     height: 100%;
+    z-index: 20;
     display: table-cell;
     vertical-align: middle;
 }

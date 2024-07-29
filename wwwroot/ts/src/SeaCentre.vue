@@ -1,11 +1,13 @@
 <template>
-    <div
-        v-if="this.highlighted"
-        class="circle"
-        v-on:click="emitClick()"
-        :class="this.highlightedClass"
-    ></div>
-    <div v-else>
+    <!-- TO SELF: debug -->
+    <div>
+        <object
+            type="image/svg+xml"
+            ref="imageContainer"
+            :data="`/imgs/seas/${seaImages[name]}`"
+            :class="imageClass"
+            v-on:click="emitClick()"
+        ></object>
         <div v-for="(ship, index) in teamShips" :key="index" class="ship">
             <div style="position: absolute">
                 <img :src="'../../imgs/ship.png'" />
@@ -14,13 +16,30 @@
             <div class="team-name">{{ ship.team.name }}</div>
         </div>
     </div>
+
+    <!-- <div
+        v-if="this.highlighted"
+        class="circle"
+        v-on:click="emitClick()"
+        :class="this.highlightedClass"
+    ></div>
+    <div v-else>
+    </div> -->
 </template>
 
 <script lang="ts">
 import { Team } from "./endpoints/team";
+import { Util } from "./util";
 interface TeamShips {
     team: Team;
     shipCount: number;
+}
+
+type SeaImage = { [seaName: string]: string };
+
+interface Data {
+    seaImages: SeaImage;
+    hover: boolean;
 }
 
 export default {
@@ -31,17 +50,59 @@ export default {
             type: Array<TeamShips>,
         },
     },
+    data(): Data {
+        return {
+            seaImages: {
+                "North Pacific": "north-pacific-cropped.svg",
+                "South Pacific": "south-pacific-cropped.svg",
+                "North Atlantic": "north-atlantic-cropped.svg",
+                "South Atlantic": "south-atlantic-cropped.svg",
+                Southern: "southern-cropped.svg",
+                Indian: "indian-cropped.svg",
+                Arctic: "arctic-cropped.svg",
+            },
+            hover: false,
+        };
+    },
+    mounted() {
+        window.setTimeout(() => {
+            const imageObject = this.$refs.imageContainer.contentDocument;
+            imageObject
+                .querySelectorAll("svg path")
+                .forEach((svgPath: SVGPathElement) => {
+                    svgPath.addEventListener(
+                        "mouseover",
+                        () => (this.hover = true)
+                    );
+                    svgPath.addEventListener(
+                        "mouseleave",
+                        () => (this.hover = false)
+                    );
+                    svgPath.addEventListener("mousedown", () =>
+                        this.emitClick()
+                    );
+                });
+        }, 1000);
+    },
     methods: {
         emitClick() {
-            this.$emit("sea-centre-click", this.name);
+            console.log("sea centre clicked", this.name, this.highlighted);
+            if (this.highlighted) {
+                this.$emit("sea-centre-click", this.name);
+            }
+        },
+        onHover() {
+            console.log(`Hovered over sea`, this.name);
         },
     },
     computed: {
-        highlightedClass(this) {
+        imageClass(this) {
             if (this.highlighted) {
                 return "state-highlighted";
+            } else if (this.hover) {
+                return "state-hover";
             } else {
-                return "";
+                return "state-none";
             }
         },
     },
@@ -66,9 +127,14 @@ export default {
 }
 
 .state-highlighted {
-    background: lightgreen;
+    filter: invert(82%) sepia(72%) saturate(2841%) hue-rotate(62deg)
+        brightness(92%) contrast(128%);
 }
-:not(.state-highlighted) {
+.state-hover {
+    filter: invert(56%) sepia(71%) saturate(3468%) hue-rotate(213deg)
+        brightness(100%) contrast(90%);
+}
+.state-none {
     background: transparent;
 }
 .ship-count {
