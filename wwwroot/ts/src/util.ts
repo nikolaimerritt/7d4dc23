@@ -1,5 +1,9 @@
 import * as moment from "moment";
 
+export type VueThis<Data> = Data & {
+    $refs: { [refName: string]: HTMLElement };
+} & { [functionName: string]: Function };
+
 export class Util {
     public static uniqueByKey(
         items: object[],

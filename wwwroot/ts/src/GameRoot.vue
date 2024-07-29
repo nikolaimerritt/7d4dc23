@@ -1,7 +1,3 @@
-TO SELF: idea is to either: - detect hovering over SVG path elements by manually
-registering events - create invisible divs with same position and size of paths
-and detect over on those
-
 <template>
     <div>
         <div class="menu-bar">
@@ -27,12 +23,11 @@ and detect over on those
             <span v-if="dialogText()"> {{ dialogText() }} </span>
         </div>
         <div class="map-container">
-            <span v-on:click="onHello()"> Hello </span>
-            <object
-                :data="'../../imgs/map.svg'"
+            <img :src="'/imgs/seas/map.png'" class="map-background" />
+            <!-- <object
+                :data="'../../imgs/seas/map.png'"
                 class="map-background"
-                style="width: 100%"
-            ></object>
+            ></object> -->
             <sea-centre
                 v-for="(seaCentre, index) in this.seaCentres"
                 :key="index"
@@ -47,18 +42,6 @@ and detect over on those
                 }"
             >
             </sea-centre>
-            <!-- TO SELF: turn this into components -->
-            <!-- <object
-                v-for="(seaCentre, index) in this.seaCentres"
-                :key="`sea-background-${index}`"
-                :id="seaImageData[seaCentre.name].id"
-                :data="`imgs/seas/${seaImageData[seaCentre.name].file}`"
-                :style="{
-                    top: `${100 * seaImageData[seaCentre.name].top}%`,
-                    left: `${100 * seaImageData[seaCentre.name].left}%`,
-                }"
-                class="sea-background"
-            ></object> -->
         </div>
         <div v-if="ui.purchase.showModal" class="modal-wrapper">
             <div class="modal-box">
@@ -442,7 +425,7 @@ export default {
 }
 
 .map-background {
-    width: 100%;
+    width: 1357px;
 }
 
 .sea-background {

@@ -1,35 +1,25 @@
 <template>
-    <!-- TO SELF: debug -->
-    <div>
+    <div ref="container" class="container">
         <object
             type="image/svg+xml"
             ref="imageContainer"
             :data="`/imgs/seas/${seaImages[name]}`"
-            :class="imageClass"
+            :class="['image-container', imageClass]"
             v-on:click="emitClick()"
         ></object>
         <div v-for="(ship, index) in teamShips" :key="index" class="ship">
-            <div style="position: absolute">
+            <div class="icon-container">
                 <img :src="'../../imgs/ship.png'" />
                 <span class="ship-count"> {{ ship.shipCount }} </span>
             </div>
             <div class="team-name">{{ ship.team.name }}</div>
         </div>
     </div>
-
-    <!-- <div
-        v-if="this.highlighted"
-        class="circle"
-        v-on:click="emitClick()"
-        :class="this.highlightedClass"
-    ></div>
-    <div v-else>
-    </div> -->
 </template>
 
 <script lang="ts">
 import { Team } from "./endpoints/team";
-import { Util } from "./util";
+import { Util, VueThis } from "./util";
 interface TeamShips {
     team: Team;
     shipCount: number;
@@ -41,6 +31,8 @@ interface Data {
     seaImages: SeaImage;
     hover: boolean;
 }
+
+type This = VueThis<Data>;
 
 export default {
     props: {
@@ -64,9 +56,11 @@ export default {
             hover: false,
         };
     },
-    mounted() {
+    mounted(this: This) {
         window.setTimeout(() => {
-            const imageObject = this.$refs.imageContainer.contentDocument;
+            const imageObject = Util.getHtmlObjectContent(
+                this.$refs.imageContainer
+            );
             imageObject
                 .querySelectorAll("svg path")
                 .forEach((svgPath: SVGPathElement) => {
@@ -82,6 +76,11 @@ export default {
                         this.emitClick()
                     );
                 });
+            const firstPath = imageObject
+                .querySelector("svg path")
+                .getBoundingClientRect();
+            this.$refs.container.style.width = `${firstPath.width}px`;
+            this.$refs.container.style.height = `${firstPath.height}px`;
         }, 1000);
     },
     methods: {
@@ -110,32 +109,35 @@ export default {
 </script>
 
 <style scoped>
-.circle {
-    position: absolute;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    margin-left: -25px;
-    margin-top: -25px;
-}
-
 .ship {
     display: flex;
     width: 60px;
     flex-direction: column;
     align-items: center;
+    z-index: 30;
 }
 
+/* .container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+} */
+
+.image-container {
+    position: relative;
+    top: 0;
+    left: 0;
+}
 .state-highlighted {
-    filter: invert(82%) sepia(72%) saturate(2841%) hue-rotate(62deg)
-        brightness(92%) contrast(128%);
+    filter: brightness(80%);
 }
 .state-hover {
-    filter: invert(56%) sepia(71%) saturate(3468%) hue-rotate(213deg)
-        brightness(100%) contrast(90%);
+    filter: brightness(90%);
 }
 .state-none {
-    background: transparent;
+    filter: brightness(90%);
+    /* background: transparent; */
 }
 .ship-count {
     position: relative;
@@ -151,7 +153,12 @@ export default {
     width: max-content;
 }
 
+.icon-container {
+    position: absolute;
+    width: min-content;
+}
+
 img {
-    width: 100%;
+    width: 60px;
 }
 </style>
