@@ -46,18 +46,27 @@ and detect over on those
                 class="map-background"
                 ref="mapBackground"
             /> -->
+            <!-- TO SELF: turn this into components -->
             <object
                 :data="'../../imgs/map.svg'"
                 class="map-background"
+                style="width: 100%"
             ></object>
             <object
                 v-for="(seaCentre, index) in this.seaCentres"
                 :key="`sea-background-${index}`"
                 :id="seaImageData[seaCentre.name].id"
                 :data="`imgs/seas/${seaImageData[seaCentre.name].file}`"
+                :style="{
+                    top: `${100 * seaImageData[seaCentre.name].top}%`,
+                    left: `${100 * seaImageData[seaCentre.name].left}%`,
+                }"
                 class="sea-background"
-                :style="{ zIndex: 10 + index }"
             ></object>
+            <!-- TO SELF: have proper id for area -->
+            <!-- <map name="seas-map">
+                <area v-for="(seaCentre, index) in this.seaCentres" :key="`sea-area-${index}`" :id="`area-${seaImageData[seaCentre.name].id}`" shape="poly" coords="" href="#" @mouseover="onSeaAreaHover(seaCentre)">
+            </map> -->
         </div>
         <div v-if="ui.purchase.showModal" class="modal-wrapper">
             <div class="modal-box">
@@ -94,8 +103,6 @@ import { Connection } from "./endpoints/main";
 import { LeaderboardEndpoint, LeaderboardEntry } from "./endpoints/leaderboard";
 import { Round, RoundEndpoint } from "./endpoints/round";
 import { Util } from "./util";
-import { onUnmounted } from "vue";
-import { InlineSvgPlugin } from "vue-inline-svg";
 
 const updateTimeRemainingMs = 2_000;
 type Action = "none" | "purchase" | "move";
@@ -104,6 +111,10 @@ type SeaCentre = Sea & {
     teamShips: TeamShips[];
     xCoord: number;
     yCoord: number;
+};
+
+type SeaImageData = {
+    [seaName: string]: { file: string; id: string; top: number; left: number };
 };
 
 interface Data {
@@ -143,7 +154,7 @@ interface Data {
     canMove: boolean;
     leaderboard: LeaderboardEntry[];
     round?: Round;
-    seaImageData: { [seaName: string]: { file: string; id: string } };
+    seaImageData: SeaImageData;
 }
 
 type This = Data & { [functionName: string]: Function } & { $refs: any };
@@ -199,39 +210,49 @@ export default {
             },
             seaImageData: {
                 "North Pacific": {
-                    file: "world-map-no-borders-north-pacific.svg",
+                    file: "north-pacific-cropped.svg",
                     id: "seaNorthPacific",
+                    top: 0.24,
+                    left: 0,
                 },
-
                 "South Pacific": {
-                    file: "world-map-no-borders-south-pacific.svg",
+                    file: "south-pacific-cropped.svg",
                     id: "seaSouthPacific",
+                    top: 0.529,
+                    left: 0,
                 },
                 "North Atlantic": {
-                    file: "world-map-no-borders-north-atlantic.svg",
+                    file: "north-atlantic-cropped.svg",
                     id: "seaNorthAtlantic",
+                    top: 0.213,
+                    left: 0.134,
                 },
                 "South Atlantic": {
-                    file: "world-map-no-borders-south-atlantic.svg",
+                    file: "south-atlantic-cropped.svg",
                     id: "seaSouthAtlantic",
+                    top: 0.534,
+                    left: 0.223,
                 },
                 Southern: {
-                    file: "world-map-no-borders-southern.svg",
+                    file: "southern-cropped.svg",
                     id: "seaSouthern",
+                    top: 0.862,
+                    left: 0,
                 },
                 Indian: {
-                    file: "world-map-no-borders-indian.svg",
+                    file: "indian-cropped.svg",
                     id: "seaIndian",
+                    top: 0.4,
+                    left: 0.473,
                 },
                 Arctic: {
-                    file: "world-map-no-borders-arctic.svg",
+                    file: "arctic-cropped.svg",
                     id: "seaArctic",
+                    top: 0,
+                    left: 0,
                 },
             },
         };
-    },
-    components: {
-        InlineSvgPlugin,
     },
     async mounted(this: This) {
         this.team = await this.endpoints.team.getTeam();
@@ -246,8 +267,23 @@ export default {
             const imageObject = Util.getHtmlObjectContent(
                 window.document.getElementById(imageId)
             );
-            const imagePath = imageObject.querySelector("svg path");
-            console.log(seaCentre.name, imagePath.getBoundingClientRect());
+            const imagePath = imageObject.querySelector(
+                "svg path"
+            ) as SVGGeometryElement;
+            const areaElement = window.document.getElementById(
+                `area-${imageId}`
+            );
+            const pathCoords = [] as string[];
+            for (let i = 0; i < imagePath.getTotalLength(); i++) {
+                const point = imagePath.getPointAtLength(i);
+                pathCoords.push(`${point.x}${point.y}`);
+            }
+            console.log(
+                seaCentre.name,
+                imagePath.getBoundingClientRect(),
+                pathCoords
+            );
+            areaElement.setAttribute("coords", pathCoords.join(","));
         }
     },
     methods: {
@@ -281,6 +317,9 @@ export default {
                 seaCentres.push(seaCentre);
             }
             return seaCentres;
+        },
+        onSeaAreaHover(this: This, seaCentre: SeaCentre) {
+            console.log("Sea area hovered over", seaCentre);
         },
         onPurchaseShipsClick(this: This) {
             if (this.ui.action === "none") {
@@ -457,13 +496,16 @@ export default {
 
 .modal-wrapper {
     position: fixed;
-    z-index: 9999;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     display: table-cell;
     vertical-align: middle;
+}
+
+svg path {
+    z-index: 100;
 }
 
 .modal-box {
