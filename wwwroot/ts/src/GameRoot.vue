@@ -58,6 +58,7 @@ and detect over on those
                 :id="seaImageData[seaCentre.name].id"
                 :data="`imgs/seas/${seaImageData[seaCentre.name].file}`"
                 :style="{
+                    width: 'min-content',
                     top: `${100 * seaImageData[seaCentre.name].top}%`,
                     left: `${100 * seaImageData[seaCentre.name].left}%`,
                 }"
@@ -267,23 +268,15 @@ export default {
             const imageObject = Util.getHtmlObjectContent(
                 window.document.getElementById(imageId)
             );
-            const imagePath = imageObject.querySelector(
-                "svg path"
-            ) as SVGGeometryElement;
-            const areaElement = window.document.getElementById(
-                `area-${imageId}`
-            );
-            const pathCoords = [] as string[];
-            for (let i = 0; i < imagePath.getTotalLength(); i++) {
-                const point = imagePath.getPointAtLength(i);
-                pathCoords.push(`${point.x}${point.y}`);
-            }
-            console.log(
-                seaCentre.name,
-                imagePath.getBoundingClientRect(),
-                pathCoords
-            );
-            areaElement.setAttribute("coords", pathCoords.join(","));
+
+            imageObject
+                .querySelectorAll("svg path")
+                .forEach((svgPath: SVGPathElement) => {
+                    console.log("Adding mouse over for ", seaCentre.name);
+                    svgPath.addEventListener("mouseover", () =>
+                        console.log(`Hovered over sea`, seaCentre.name)
+                    );
+                });
         }
     },
     methods: {
