@@ -213,7 +213,7 @@ export default {
                 "North Pacific": {
                     file: "north-pacific-cropped.svg",
                     id: "seaNorthPacific",
-                    top: 0.24,
+                    top: 0.22,
                     left: 0,
                 },
                 "South Pacific": {
@@ -225,14 +225,14 @@ export default {
                 "North Atlantic": {
                     file: "north-atlantic-cropped.svg",
                     id: "seaNorthAtlantic",
-                    top: 0.213,
-                    left: 0.134,
+                    top: 0.22,
+                    left: 0.122,
                 },
                 "South Atlantic": {
                     file: "south-atlantic-cropped.svg",
                     id: "seaSouthAtlantic",
-                    top: 0.534,
-                    left: 0.223,
+                    top: 0.555,
+                    left: 0.233,
                 },
                 Southern: {
                     file: "southern-cropped.svg",
@@ -243,8 +243,8 @@ export default {
                 Indian: {
                     file: "indian-cropped.svg",
                     id: "seaIndian",
-                    top: 0.4,
-                    left: 0.473,
+                    top: 0.41,
+                    left: 0.494,
                 },
                 Arctic: {
                     file: "arctic-cropped.svg",
