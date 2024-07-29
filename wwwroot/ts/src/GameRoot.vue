@@ -41,11 +41,6 @@ and detect over on those
                 }"
             >
             </sea-centre>
-            <!-- <img
-                :src="'../../imgs/map.png'"
-                class="map-background"
-                ref="mapBackground"
-            /> -->
             <!-- TO SELF: turn this into components -->
             <object
                 :data="'../../imgs/map.svg'"
@@ -58,16 +53,11 @@ and detect over on those
                 :id="seaImageData[seaCentre.name].id"
                 :data="`imgs/seas/${seaImageData[seaCentre.name].file}`"
                 :style="{
-                    width: 'min-content',
                     top: `${100 * seaImageData[seaCentre.name].top}%`,
                     left: `${100 * seaImageData[seaCentre.name].left}%`,
                 }"
                 class="sea-background"
             ></object>
-            <!-- TO SELF: have proper id for area -->
-            <!-- <map name="seas-map">
-                <area v-for="(seaCentre, index) in this.seaCentres" :key="`sea-area-${index}`" :id="`area-${seaImageData[seaCentre.name].id}`" shape="poly" coords="" href="#" @mouseover="onSeaAreaHover(seaCentre)">
-            </map> -->
         </div>
         <div v-if="ui.purchase.showModal" class="modal-wrapper">
             <div class="modal-box">
@@ -466,15 +456,13 @@ export default {
 }
 
 .sea-background {
-    width: 100%;
+    width: min-content;
     position: absolute;
-    top: 0;
-    left: 0;
 }
 
 .sea-background:hover {
-    filter: invert(10%) sepia(11%) saturate(532%) hue-rotate(191deg)
-        brightness(95%) contrast(95%);
+    filter: invert(48%) sepia(13%) saturate(3207%) hue-rotate(130deg)
+        brightness(95%) contrast(80%);
 }
 
 .map-container {
@@ -495,10 +483,6 @@ export default {
     height: 100%;
     display: table-cell;
     vertical-align: middle;
-}
-
-svg path {
-    z-index: 100;
 }
 
 .modal-box {
