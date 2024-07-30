@@ -44,4 +44,8 @@ export default {
 img {
     width: 60px;
 }
+
+span {
+    color: #fff4c7;
+}
 </style>

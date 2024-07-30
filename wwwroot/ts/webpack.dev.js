@@ -8,8 +8,8 @@ module.exports = {
             // dependOn: "endpoints"
         },
         endpoints: {
-            import: "./src/endpoints/main.ts"
-        }
+            import: "./src/endpoints/main.ts",
+        },
     },
     module: {
         rules: [
@@ -31,8 +31,8 @@ module.exports = {
             },
             {
                 test: /\.(png|jpg|jpe?g|gif)$/i,
-                loader: "file-loader"
-            }
+                loader: "file-loader",
+            },
         ],
     },
     resolve: {

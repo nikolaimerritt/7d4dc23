@@ -23,7 +23,7 @@
             <span v-if="dialogText()"> {{ dialogText() }} </span>
         </div>
         <div class="map-container">
-            <img :src="'/imgs/seas/map-sepia.png'" class="map-background" />
+            <img :src="'/imgs/seas/map-sepia-2.png'" class="map-background" />
             <sea-centre
                 v-for="(seaCentre, index) in this.seaCentres"
                 :key="index"
@@ -422,16 +422,7 @@ export default {
 
 .map-background {
     width: 1357px;
-}
-
-.sea-background {
-    width: min-content;
-    position: absolute;
-}
-
-.sea-background:hover {
-    filter: invert(48%) sepia(13%) saturate(3207%) hue-rotate(130deg)
-        brightness(95%) contrast(80%);
+    border-radius: 16px;
 }
 
 .map-container {

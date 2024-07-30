@@ -28,13 +28,19 @@ interface TeamShips {
 
 type SeaImage = { [seaName: string]: string };
 
+interface Props {
+    name: string;
+    highlighted: boolean;
+    teamShips: TeamShips[];
+}
+
 interface Data {
     seaImages: SeaImage;
     hover: boolean;
     loaded: boolean;
 }
 
-type This = VueThis<Data>;
+type This = VueThis<Data> & Props;
 
 export default {
     props: {
@@ -69,8 +75,10 @@ export default {
             imageObject.querySelectorAll("svg path")
         ) as SVGPathElement[];
         for (const svgPath of pathObjects) {
-            svgPath.addEventListener("mouseover", () => (this.hover = true));
-            svgPath.addEventListener("mouseleave", () => (this.hover = false));
+            svgPath.addEventListener("mouseover", () => this.onHover(svgPath));
+            svgPath.addEventListener("mouseleave", () =>
+                this.onHoverExit(svgPath)
+            );
             svgPath.addEventListener("mousedown", () => this.emitClick());
         }
         const largestRect = Util.maxBy(pathObjects, (svgPath) => {
@@ -84,8 +92,17 @@ export default {
         this.loaded = true;
     },
     methods: {
-        emitClick() {
-            console.log("sea centre clicked", this.name, this.highlighted);
+        onHover(this: This, path: SVGPathElement) {
+            if (this.highlighted) {
+                this.hover = true;
+                path.style.cursor = "pointer";
+            }
+        },
+        onHoverExit(this: This, path: SVGPathElement) {
+            this.hover = false;
+            path.style.cursor = "auto";
+        },
+        emitClick(this: This) {
             if (this.highlighted) {
                 this.$emit("sea-centre-click", this.name);
             }
@@ -93,10 +110,10 @@ export default {
     },
     computed: {
         imageClass(this: This) {
-            if (this.highlighted) {
-                return "state-highlighted";
-            } else if (this.hover) {
+            if (this.hover) {
                 return "state-hover";
+            } else if (this.highlighted) {
+                return "state-highlighted";
             } else {
                 return "state-none";
             }
@@ -116,17 +133,20 @@ export default {
 }
 
 .image-container {
+    z-index: 30;
     position: absolute;
     top: 0;
     left: 0;
 }
 .state-highlighted {
-    filter: brightness(80%);
+    filter: brightness(0) saturate(100%) invert(92%) sepia(72%) saturate(383%)
+        hue-rotate(323deg) brightness(94%) contrast(89%);
 }
 .state-hover {
-    filter: brightness(90%);
+    filter: brightness(0) saturate(100%) invert(82%) sepia(20%) saturate(567%)
+        hue-rotate(4deg) brightness(94%) contrast(92%);
 }
 .state-none {
-    /* filter: opacity(0%); */
+    filter: opacity(0%);
 }
 </style>
