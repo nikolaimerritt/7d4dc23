@@ -23,4 +23,24 @@ export class Util {
     public static getHtmlObjectContent(htmlObject: HTMLElement): HTMLElement {
         return (htmlObject as any).contentDocument;
     }
+
+    public static maxBy<T>(
+        list: T[],
+        score: (element: T) => number
+    ): T | undefined {
+        if (list.length === 0) {
+            return undefined;
+        } else {
+            let largest = list[0];
+            let largestScore = score(largest);
+            for (let i = 1; i < list.length; i++) {
+                const currentScore = score(list[i]);
+                if (currentScore > largestScore) {
+                    largestScore = currentScore;
+                    largest = list[i];
+                }
+            }
+            return largest;
+        }
+    }
 }

@@ -6,14 +6,14 @@
             <span
                 v-if="balance > 0"
                 style="border-radius: 4px; background-color: beige"
-                v-on:click="onPurchaseShipsClick()"
+                @click="onPurchaseShipsClick()"
             >
                 Purchase ships
             </span>
             <span
                 v-if="canMove"
                 style="border-radius: 4px; background-color: beige"
-                v-on:click="onMoveShipsClick()"
+                @click="onMoveShipsClick()"
             >
                 Move ships
             </span>
@@ -24,10 +24,6 @@
         </div>
         <div class="map-container">
             <img :src="'/imgs/seas/map.png'" class="map-background" />
-            <!-- <object
-                :data="'../../imgs/seas/map.png'"
-                class="map-background"
-            ></object> -->
             <sea-centre
                 v-for="(seaCentre, index) in this.seaCentres"
                 :key="index"
@@ -35,7 +31,7 @@
                 :teamShips="seaCentre.teamShips"
                 :highlighted="isHighlighted(seaCentre)"
                 class="sea-centre"
-                v-on:sea-centre-click="onSeaCentreClick(seaCentre)"
+                @sea-centre-click="onSeaCentreClick(seaCentre)"
                 :style="{
                     top: `${100 * seaImageData[seaCentre.name].top}%`,
                     left: `${100 * seaImageData[seaCentre.name].left}%`,
@@ -49,7 +45,7 @@
                     How many points would you like to spend to buy new ships?
                 </span>
                 <input v-model="ui.purchase.pointsToSpendOnShips" />
-                <button v-on:click="onSubmitPurchase()">Points to spend</button>
+                <button @click="onSubmitPurchase()">Points to spend</button>
                 <span v-if="ui.purchase.error">
                     {{ ui.purchase.error }}
                 </span>
@@ -59,7 +55,7 @@
             <div class="modal-box">
                 <span> How many ships would you like to move? </span>
                 <input v-model="ui.move.shipsToMove" />
-                <button v-on:click="onSubmitMove()">Ships to move</button>
+                <button @click="onSubmitMove()">Ships to move</button>
                 <span v-if="ui.move.error">
                     {{ ui.move.error }}
                 </span>

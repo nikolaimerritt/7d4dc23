@@ -6,7 +6,7 @@
             :data="`/imgs/seas/${seaImages[name]}`"
             :class="['image-container', imageClass]"
         ></object>
-        <div ref="container" class="container">
+        <div ref="shipContainer" class="ship-container">
             <team-ship
                 v-for="(ship, index) in teamShips"
                 :key="index"
@@ -59,30 +59,39 @@ export default {
     },
     mounted(this: This) {
         window.setTimeout(() => {
+            const shipContainer = this.$refs.shipContainer;
             const imageObject = Util.getHtmlObjectContent(
                 this.$refs.imageContainer
             );
-            imageObject
-                .querySelectorAll("svg path")
-                .forEach((svgPath: SVGPathElement) => {
-                    svgPath.addEventListener(
-                        "mouseover",
-                        () => (this.hover = true)
-                    );
-                    svgPath.addEventListener(
-                        "mouseleave",
-                        () => (this.hover = false)
-                    );
-                    svgPath.addEventListener("mousedown", () =>
-                        this.emitClick()
-                    );
-                });
-            const firstPath = imageObject
-                .querySelector("svg path")
-                .getBoundingClientRect();
-            this.$refs.container.style.width = `${firstPath.width}px`;
-            this.$refs.container.style.height = `${firstPath.height}px`;
-        }, 1000);
+            const pathObjects = Array.from(
+                imageObject.querySelectorAll("svg path")
+            ) as SVGPathElement[];
+            for (const svgPath of pathObjects) {
+                svgPath.addEventListener(
+                    "mouseover",
+                    () => (this.hover = true)
+                );
+                svgPath.addEventListener(
+                    "mouseleave",
+                    () => (this.hover = false)
+                );
+                svgPath.addEventListener("mousedown", () => this.emitClick());
+            }
+            console.log(
+                "All rects",
+                this.name,
+                pathObjects.map((obje) => obje.getBoundingClientRect())
+            );
+            const largestRect = Util.maxBy(pathObjects, (svgPath) => {
+                const rect = svgPath.getBoundingClientRect();
+                return rect.width * rect.height;
+            }).getBoundingClientRect();
+            console.log("largest rect", this.name, largestRect);
+            shipContainer.style.width = `${largestRect.width}px`;
+            shipContainer.style.height = `${largestRect.height}px`;
+            shipContainer.style.top = `${largestRect.top}px`;
+            shipContainer.style.left = `${largestRect.left}px`;
+        }, 300);
     },
     methods: {
         emitClick() {
@@ -93,7 +102,7 @@ export default {
         },
     },
     computed: {
-        imageClass(this) {
+        imageClass(this: This) {
             if (this.highlighted) {
                 return "state-highlighted";
             } else if (this.hover) {
@@ -107,11 +116,13 @@ export default {
 </script>
 
 <style scoped>
-.container {
+.ship-container {
+    position: relative;
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .image-container {
