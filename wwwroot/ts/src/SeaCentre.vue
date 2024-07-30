@@ -1,18 +1,19 @@
 <template>
-    <div ref="container" class="container">
+    <div>
         <object
             type="image/svg+xml"
             ref="imageContainer"
             :data="`/imgs/seas/${seaImages[name]}`"
             :class="['image-container', imageClass]"
-            v-on:click="emitClick()"
         ></object>
-        <div v-for="(ship, index) in teamShips" :key="index" class="ship">
-            <div class="icon-container">
-                <img :src="'../../imgs/ship.png'" />
-                <span class="ship-count"> {{ ship.shipCount }} </span>
-            </div>
-            <div class="team-name">{{ ship.team.name }}</div>
+        <div ref="container" class="container">
+            <team-ship
+                v-for="(ship, index) in teamShips"
+                :key="index"
+                :teamName="ship.team.name"
+                :shipCount="ship.shipCount"
+            >
+            </team-ship>
         </div>
     </div>
 </template>
@@ -90,9 +91,6 @@ export default {
                 this.$emit("sea-centre-click", this.name);
             }
         },
-        onHover() {
-            console.log(`Hovered over sea`, this.name);
-        },
     },
     computed: {
         imageClass(this) {
@@ -109,23 +107,15 @@ export default {
 </script>
 
 <style scoped>
-.ship {
-    display: flex;
-    width: 60px;
-    flex-direction: column;
-    align-items: center;
-    z-index: 30;
-}
-
-/* .container {
+.container {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-} */
+}
 
 .image-container {
-    position: relative;
+    position: absolute;
     top: 0;
     left: 0;
 }
@@ -138,27 +128,5 @@ export default {
 .state-none {
     filter: brightness(90%);
     /* background: transparent; */
-}
-.ship-count {
-    position: relative;
-    top: -45px;
-    display: inline-block;
-    width: 100%;
-    text-align: center;
-}
-
-.team-name {
-    margin-top: 60px;
-    text-align: center;
-    width: max-content;
-}
-
-.icon-container {
-    position: absolute;
-    width: min-content;
-}
-
-img {
-    width: 60px;
 }
 </style>
