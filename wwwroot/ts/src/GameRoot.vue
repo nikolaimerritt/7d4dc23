@@ -3,20 +3,17 @@
         <div class="menu-bar">
             <span> {{ this.team?.name }} </span>
             <span> {{ this.balance }} Coins </span>
-            <span
+            <text-button
                 v-if="balance > 0"
-                style="border-radius: 4px; background-color: beige"
-                @click="onPurchaseShipsClick()"
-            >
-                Purchase ships
-            </span>
-            <span
+                :text="'Purchase ships'"
+                @buttonClick="onPurchaseShipsClick()"
+            ></text-button>
+            <text-button
                 v-if="canMove"
-                style="border-radius: 4px; background-color: beige"
-                @click="onMoveShipsClick()"
+                :text="'Move ships'"
+                @buttonClick="onMoveShipsClick()"
             >
-                Move ships
-            </span>
+            </text-button>
             <span v-if="this.ui.round.timeRemaining">
                 {{ "Round ends in " + this.ui.round.timeRemaining }}
             </span>
@@ -49,7 +46,7 @@
         ></input-modal>
         <input-modal
             v-if="ui.move.showModal"
-            :message="'How many ships would you like to mvoe?'"
+            :message="'How many ships would you like to move?'"
             :buttonText="'Move'"
             :errorMessage="ui.move.error"
             @submission="onSubmitMove($event)"
@@ -431,7 +428,9 @@ export default {
 <style scoped>
 .menu-bar {
     display: flex;
+    align-items: center;
     column-gap: 32px;
+    margin-bottom: 8px;
 }
 
 .map-background {

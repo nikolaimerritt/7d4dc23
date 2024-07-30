@@ -3,7 +3,10 @@
         <div ref="modalBox" class="modal-box">
             <span> {{ message }} </span>
             <input v-model="inputText" />
-            <button @click="emitSubmission()">{{ buttonText }}</button>
+            <text-button
+                :text="buttonText"
+                @buttonClick="emitSubmission()"
+            ></text-button>
             <span v-show="errorMessage"> {{ errorMessage }} </span>
         </div>
     </div>
@@ -11,6 +14,9 @@
 
 <script lang="ts">
 import { VueThis } from "./util";
+
+const ClickOutsideEvent = "clickOutside";
+const SubmissionEvent = "submission";
 
 interface Props {
     message: string;
@@ -38,11 +44,11 @@ export default {
     methods: {
         emitClickOutside(this: This, event: PointerEvent) {
             if (!this.$refs.modalBox.contains(event.target as any)) {
-                this.$emit("clickOutside", true);
+                this.$emit(ClickOutsideEvent, true);
             }
         },
         emitSubmission() {
-            this.$emit("submission", this.inputText);
+            this.$emit(SubmissionEvent, this.inputText);
         },
     },
 };
@@ -74,5 +80,6 @@ export default {
     justify-content: center;
     background-color: #fff4c7;
     text-align: center;
+    gap: 10px;
 }
 </style>
