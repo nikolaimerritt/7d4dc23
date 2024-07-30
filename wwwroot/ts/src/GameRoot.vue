@@ -1,7 +1,6 @@
 <template>
     <div>
         <div class="menu-bar">
-            <span> {{ this.team?.name }} </span>
             <span> {{ this.balance }} Coins </span>
             <text-button
                 v-if="balance > 0"
@@ -53,28 +52,6 @@
             @clickOutside="resetActions()"
         >
         </input-modal>
-        <!-- <div v-if="ui.purchase.showModal" class="modal-wrapper">
-            <div class="modal-box">
-                <span>
-                    How many points would you like to spend to buy new ships?
-                </span>
-                <input v-model="ui.purchase.pointsToSpendOnShips" />
-                <button @click="onSubmitPurchase()">Points to spend</button>
-                <span v-if="ui.purchase.error">
-                    {{ ui.purchase.error }}
-                </span>
-            </div>
-        </div>
-        <div v-if="ui.move.showModal" class="modal-wrapper">
-            <div class="modal-box">
-                <span> How many ships would you like to move? </span>
-                <input v-model="ui.move.shipsToMove" />
-                <button @click="onSubmitMove()">Ships to move</button>
-                <span v-if="ui.move.error">
-                    {{ ui.move.error }}
-                </span>
-            </div>
-        </div> -->
     </div>
 </template>
 
@@ -441,6 +418,9 @@ export default {
 .map-container {
     position: relative;
     display: inline-block;
+    border-radius: 16px;
+    border: 4px solid #b18854;
+    background: #e7daa1;
 }
 
 .sea-centre {

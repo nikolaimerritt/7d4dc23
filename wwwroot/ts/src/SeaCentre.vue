@@ -40,7 +40,7 @@ interface Data {
     loaded: boolean;
 }
 
-type This = VueThis<Data> & Props;
+type This = VueThis<Data & Props>;
 
 export default {
     props: {
@@ -89,6 +89,9 @@ export default {
         shipContainer.style.height = `${largestRect.height}px`;
         shipContainer.style.top = `${largestRect.top}px`;
         shipContainer.style.left = `${largestRect.left}px`;
+
+        imageObject.querySelector("svg").style.borderRadius =
+            this.borderRadius();
         this.loaded = true;
     },
     methods: {
@@ -105,6 +108,15 @@ export default {
         emitClick(this: This) {
             if (this.highlighted) {
                 this.$emit("sea-centre-click", this.name);
+            }
+        },
+        borderRadius(this: This): string {
+            if (this.name === "Arctic") {
+                return "16px 16px 0 0";
+            } else if (this.name === "Southern") {
+                return "0 0 16px 16px";
+            } else {
+                return "";
             }
         },
     },
@@ -148,5 +160,12 @@ export default {
 }
 .state-none {
     filter: opacity(0%);
+}
+
+.rounded-top {
+    border-radius: 16px 16px 0 0;
+}
+.rounded-bottom {
+    border-radius: 0 0 16px 16px;
 }
 </style>

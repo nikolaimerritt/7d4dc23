@@ -67,6 +67,6 @@
     "build-ts": "cd wwwroot/ts && webpack --config webpack.dev.js",
     "start": "http-server",
     "format-path": "prettier --write",
-    "format": "prettier --write wwwroot/ts"
+    "format": "prettier --write wwwroot/ts/src"
   }
 }
