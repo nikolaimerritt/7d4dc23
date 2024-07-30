@@ -43,4 +43,10 @@ export class Util {
             return largest;
         }
     }
+
+    public static async sleep(milliseconds: number): Promise<void> {
+        await new Promise((resolve) =>
+            window.setTimeout(resolve, milliseconds)
+        );
+    }
 }

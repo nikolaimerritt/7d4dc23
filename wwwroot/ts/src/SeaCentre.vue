@@ -6,7 +6,7 @@
             :data="`/imgs/seas/${seaImages[name]}`"
             :class="['image-container', imageClass]"
         ></object>
-        <div ref="shipContainer" class="ship-container">
+        <div ref="shipContainer" class="ship-container" v-show="loaded">
             <team-ship
                 v-for="(ship, index) in teamShips"
                 :key="index"
@@ -31,6 +31,7 @@ type SeaImage = { [seaName: string]: string };
 interface Data {
     seaImages: SeaImage;
     hover: boolean;
+    loaded: boolean;
 }
 
 type This = VueThis<Data>;
@@ -55,43 +56,32 @@ export default {
                 Arctic: "arctic-cropped.svg",
             },
             hover: false,
+            loaded: false,
         };
     },
-    mounted(this: This) {
-        window.setTimeout(() => {
-            const shipContainer = this.$refs.shipContainer;
-            const imageObject = Util.getHtmlObjectContent(
-                this.$refs.imageContainer
-            );
-            const pathObjects = Array.from(
-                imageObject.querySelectorAll("svg path")
-            ) as SVGPathElement[];
-            for (const svgPath of pathObjects) {
-                svgPath.addEventListener(
-                    "mouseover",
-                    () => (this.hover = true)
-                );
-                svgPath.addEventListener(
-                    "mouseleave",
-                    () => (this.hover = false)
-                );
-                svgPath.addEventListener("mousedown", () => this.emitClick());
-            }
-            console.log(
-                "All rects",
-                this.name,
-                pathObjects.map((obje) => obje.getBoundingClientRect())
-            );
-            const largestRect = Util.maxBy(pathObjects, (svgPath) => {
-                const rect = svgPath.getBoundingClientRect();
-                return rect.width * rect.height;
-            }).getBoundingClientRect();
-            console.log("largest rect", this.name, largestRect);
-            shipContainer.style.width = `${largestRect.width}px`;
-            shipContainer.style.height = `${largestRect.height}px`;
-            shipContainer.style.top = `${largestRect.top}px`;
-            shipContainer.style.left = `${largestRect.left}px`;
-        }, 300);
+    async mounted(this: This) {
+        await Util.sleep(500);
+        const shipContainer = this.$refs.shipContainer;
+        const imageObject = Util.getHtmlObjectContent(
+            this.$refs.imageContainer
+        );
+        const pathObjects = Array.from(
+            imageObject.querySelectorAll("svg path")
+        ) as SVGPathElement[];
+        for (const svgPath of pathObjects) {
+            svgPath.addEventListener("mouseover", () => (this.hover = true));
+            svgPath.addEventListener("mouseleave", () => (this.hover = false));
+            svgPath.addEventListener("mousedown", () => this.emitClick());
+        }
+        const largestRect = Util.maxBy(pathObjects, (svgPath) => {
+            const rect = svgPath.getBoundingClientRect();
+            return rect.width * rect.height;
+        }).getBoundingClientRect();
+        shipContainer.style.width = `${largestRect.width}px`;
+        shipContainer.style.height = `${largestRect.height}px`;
+        shipContainer.style.top = `${largestRect.top}px`;
+        shipContainer.style.left = `${largestRect.left}px`;
+        this.loaded = true;
     },
     methods: {
         emitClick() {
@@ -137,7 +127,6 @@ export default {
     filter: brightness(90%);
 }
 .state-none {
-    filter: brightness(90%);
-    /* background: transparent; */
+    /* filter: opacity(0%); */
 }
 </style>

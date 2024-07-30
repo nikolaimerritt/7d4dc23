@@ -23,7 +23,7 @@
             <span v-if="dialogText()"> {{ dialogText() }} </span>
         </div>
         <div class="map-container">
-            <img :src="'/imgs/seas/map.png'" class="map-background" />
+            <img :src="'/imgs/seas/map-sepia.png'" class="map-background" />
             <sea-centre
                 v-for="(seaCentre, index) in this.seaCentres"
                 :key="index"
@@ -183,26 +183,26 @@ export default {
                 "North Pacific": {
                     file: "north-pacific-cropped.svg",
                     id: "seaNorthPacific",
-                    top: 0.22,
+                    top: 0.213,
                     left: 0,
                 },
                 "South Pacific": {
                     file: "south-pacific-cropped.svg",
                     id: "seaSouthPacific",
-                    top: 0.529,
+                    top: 0.515,
                     left: 0,
                 },
                 "North Atlantic": {
                     file: "north-atlantic-cropped.svg",
                     id: "seaNorthAtlantic",
-                    top: 0.22,
-                    left: 0.122,
+                    top: 0.211,
+                    left: 0.115,
                 },
                 "South Atlantic": {
                     file: "south-atlantic-cropped.svg",
                     id: "seaSouthAtlantic",
-                    top: 0.555,
-                    left: 0.233,
+                    top: 0.53,
+                    left: 0.223,
                 },
                 Southern: {
                     file: "southern-cropped.svg",
@@ -213,8 +213,8 @@ export default {
                 Indian: {
                     file: "indian-cropped.svg",
                     id: "seaIndian",
-                    top: 0.41,
-                    left: 0.494,
+                    top: 0.393,
+                    left: 0.47,
                 },
                 Arctic: {
                     file: "arctic-cropped.svg",
