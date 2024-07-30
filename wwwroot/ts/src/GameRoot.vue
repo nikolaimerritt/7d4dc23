@@ -39,7 +39,24 @@
             >
             </sea-centre>
         </div>
-        <div v-if="ui.purchase.showModal" class="modal-wrapper">
+        <input-modal
+            v-if="ui.purchase.showModal"
+            :message="'How many points would you like to spend to buy new ships?'"
+            :buttonText="'Buy'"
+            :errorMessage="ui.purchase.error"
+            @submission="onSubmitPurchase($event)"
+            @clickOutside="resetActions()"
+        ></input-modal>
+        <input-modal
+            v-if="ui.move.showModal"
+            :message="'How many ships would you like to mvoe?'"
+            :buttonText="'Move'"
+            :errorMessage="ui.move.error"
+            @submission="onSubmitMove($event)"
+            @clickOutside="resetActions()"
+        >
+        </input-modal>
+        <!-- <div v-if="ui.purchase.showModal" class="modal-wrapper">
             <div class="modal-box">
                 <span>
                     How many points would you like to spend to buy new ships?
@@ -60,7 +77,7 @@
                     {{ ui.move.error }}
                 </span>
             </div>
-        </div>
+        </div> -->
     </div>
 </template>
 
@@ -102,7 +119,6 @@ interface Data {
         action: Action;
         purchase: {
             showModal: boolean;
-            pointsToSpendOnShips: string;
             seaToPurchaseIn?: Sea;
             error: string;
         };
@@ -110,7 +126,6 @@ interface Data {
             showModal: boolean;
             seaToMoveFrom?: Sea;
             seaToMoveTo?: Sea;
-            shipsToMove: string;
             error: string;
         };
         round: {
@@ -163,7 +178,6 @@ export default {
                 action: "none",
                 purchase: {
                     showModal: false,
-                    pointsToSpendOnShips: "",
                     seaToPurchaseIn: undefined,
                     error: "",
                 },
@@ -171,7 +185,6 @@ export default {
                     showModal: false,
                     seaToMoveFrom: undefined,
                     seaToMoveTo: undefined,
-                    shipsToMove: "",
                     error: "",
                 },
                 round: {
@@ -279,6 +292,19 @@ export default {
                 this.ui.action = "none";
             }
         },
+        resetActions(this: This) {
+            this.ui.action = "none";
+
+            this.ui.purchase.showModal = false;
+            this.ui.purchase.seaToPurchaseIn = undefined;
+            this.ui.purchase.error = "";
+
+            this.ui.move.showModal = false;
+            this.ui.move.error = "";
+            this.ui.move.seaToMoveFrom = undefined;
+            this.ui.move.seaToMoveTo = undefined;
+            this.ui.move.showModal = false;
+        },
         onMoveShipsClick(this: This) {
             if (this.ui.action === "none") {
                 this.ui.action = "move";
@@ -287,12 +313,10 @@ export default {
             }
         },
         onSeaCentreClick(this: This, seaCentre: SeaCentre) {
-            console.log("click from gameroot", seaCentre.name);
             if (this.ui.action === "none") {
                 return;
             }
             if (this.ui.action === "purchase") {
-                this.ui.purchase.pointsToSpendOnShips = "";
                 this.ui.purchase.seaToPurchaseIn = seaCentre;
                 this.ui.purchase.showModal = true;
             } else if (this.ui.action === "move") {
@@ -304,9 +328,9 @@ export default {
                 }
             }
         },
-        async onSubmitPurchase(this: This) {
+        async onSubmitPurchase(this: This, pointsToSpend: string) {
             if (this.ui.purchase.showModal) {
-                const points = parseInt(this.ui.purchase.pointsToSpendOnShips);
+                const points = parseInt(pointsToSpend);
                 if (isNaN(points)) {
                     this.ui.purchase.error =
                         "Please choose a valid number of points.";
@@ -318,20 +342,15 @@ export default {
                     if (Connection.isError(result)) {
                         this.ui.purchase.error = result.error;
                     } else {
-                        this.ui.purchase.showModal = false;
-                        this.ui.action = "none";
-                        this.ui.purchase.showModal = false;
-                        this.ui.purchase.pointsToSpendOnShips = "";
-                        this.ui.purchase.seaToPurchaseIn = undefined;
-                        this.ui.purchase.error = "";
+                        this.resetActions();
                         await this.refreshMap();
                     }
                 }
             }
         },
-        async onSubmitMove(this: This) {
+        async onSubmitMove(this: This, shipsToMove: string) {
             if (this.ui.move.showModal) {
-                const ships = parseInt(this.ui.move.shipsToMove);
+                const ships = parseInt(shipsToMove);
                 if (isNaN(ships)) {
                     this.ui.move.error =
                         "Please choose a valid number of ships to move.";
@@ -344,12 +363,7 @@ export default {
                     if (Connection.isError(result)) {
                         this.ui.move.error = result.error;
                     } else {
-                        this.ui.move.showModal = false;
-                        this.ui.action = "none";
-                        this.ui.move.seaToMoveFrom = undefined;
-                        this.ui.move.seaToMoveTo = undefined;
-                        this.ui.move.shipsToMove = "";
-                        this.ui.move.error = "";
+                        this.resetActions();
                         await this.refreshMap();
                     }
                 }
@@ -433,31 +447,5 @@ export default {
 .sea-centre {
     position: absolute;
     z-index: 10;
-}
-
-.modal-wrapper {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 20;
-    display: table-cell;
-    vertical-align: middle;
-}
-
-.modal-box {
-    position: relative;
-    top: 50%;
-    left: 50%;
-    width: 300px;
-    height: 200px;
-    margin-left: -150px;
-    margin-right: -100px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: white;
 }
 </style>
