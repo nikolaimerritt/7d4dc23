@@ -18,21 +18,30 @@ export class OutcomeEndpoint {
         this.connection = new Connection();
     }
 
+    public static toOutcome(object: any): Outcome {
+        const outcome: Outcome = {
+            id: object.id,
+            shipCount: object.shipCount,
+            round: RoundEndpoint.toRound(object.round),
+            team: TeamEndpoint.toTeam(object.team),
+            sea: {
+                id: object.sea.id,
+                name: object.sea.name,
+                adjacentSeas: [],
+            },
+        };
+        return outcome;
+    }
+
+    public async getOutcomes(round: Round): Promise<Outcome[]> {
+        const response = await this.connection.get("outcomes", {
+            roundId: round.id,
+        });
+        return response.map(OutcomeEndpoint.toOutcome);
+    }
+
     public async getLatestOutcomes(): Promise<Outcome[]> {
         const response = await this.connection.get("outcomes/virtual/latest");
-        return response.map((item) => {
-            const outcome: Outcome = {
-                id: item.id,
-                shipCount: item.shipCount,
-                round: RoundEndpoint.toRound(item.round),
-                team: TeamEndpoint.toTeam(item.team),
-                sea: {
-                    id: item.sea.id,
-                    name: item.sea.name,
-                    adjacentSeas: [],
-                },
-            };
-            return outcome;
-        });
+        return response.map(OutcomeEndpoint.toOutcome);
     }
 }

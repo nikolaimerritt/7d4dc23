@@ -9,6 +9,9 @@ module.exports = {
         leaderboard: {
             import: "./src/leaderboard/main.ts",
         },
+        history: {
+            import: "./src/history/main.ts",
+        },
     },
     module: {
         rules: [

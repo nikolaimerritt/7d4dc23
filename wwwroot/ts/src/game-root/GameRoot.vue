@@ -85,7 +85,6 @@ interface Data {
         sea: SeaEndpoint;
         outcome: OutcomeEndpoint;
         move: MoveEndpoint;
-        leaderboard: LeaderboardEndpoint;
         round: RoundEndpoint;
     };
     ui: {
@@ -111,7 +110,6 @@ interface Data {
     seaCentres: SeaCentre[];
     accessibleSeas: Sea[];
     canMove: boolean;
-    leaderboard: LeaderboardEntry[];
     round?: Round;
     seaCentrePositions: SeaCentrePositions;
 }
@@ -125,7 +123,6 @@ export default {
             balance: undefined,
             accessibleSeas: [],
             canMove: false,
-            leaderboard: [],
             round: undefined,
             endpoints: {
                 team: new TeamEndpoint(),
@@ -133,7 +130,6 @@ export default {
                 sea: new SeaEndpoint(),
                 outcome: new OutcomeEndpoint(),
                 move: new MoveEndpoint(),
-                leaderboard: new LeaderboardEndpoint(),
                 round: new RoundEndpoint(),
             },
             seaCentres: [],
@@ -197,19 +193,12 @@ export default {
         );
     },
     methods: {
-        onHello() {
-            console.log("TO SELF: debug (hello)");
-        },
         async refreshMap(this: This) {
             this.balance = await this.endpoints.purchase.getBalance();
             this.seaCentres = await this.getSeaCentres();
             this.accessibleSeas = await this.endpoints.sea.getAccessibleSeas();
             this.canMove = await this.endpoints.move.canMove();
             this.round = await this.endpoints.round.getCurrentRound();
-            this.leaderboard =
-                await this.endpoints.leaderboard.getLeaderboard();
-            console.log("Rounds", this.round);
-            console.log("Leaderboard", this.leaderboard);
         },
         async getSeaCentres(this: This): Promise<SeaCentre[]> {
             const latestOutcomes =

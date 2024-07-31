@@ -10,7 +10,6 @@ namespace PirateConquest.Controllers;
 
 public class OutcomeController : Controller
 {
-    private readonly AppDbContext _context;
     private readonly OutcomeRepository _outcomeRepository;
     private readonly TeamRepository _teamRepository;
     private readonly MoveRepository _moveRepository;
@@ -18,7 +17,6 @@ public class OutcomeController : Controller
     private readonly PurchaseRepository _purchaseRepository;
 
     public OutcomeController(
-        AppDbContext context,
         OutcomeRepository outcomeRepository,
         TeamRepository teamRepository,
         MoveRepository moveRepository,
@@ -26,7 +24,6 @@ public class OutcomeController : Controller
         PurchaseRepository purchaseRepository
     )
     {
-        _context = context;
         _outcomeRepository = outcomeRepository;
         _teamRepository = teamRepository;
         _moveRepository = moveRepository;
@@ -35,11 +32,16 @@ public class OutcomeController : Controller
     }
 
     [HttpGet("/api/outcomes")]
-    public async Task<IActionResult> GetAllOutcomes()
+    public async Task<IActionResult> GetOutcomes(int? roundId = null)
     {
         var outcomes = (await _outcomeRepository.AllAsync())
             .OrderByDescending(outcome => outcome.Round.StartMoving)
-            .ThenBy(outcome => outcome.Id);
+            .ThenBy(outcome => outcome.Id)
+            .ToList();
+        if (roundId is int id)
+        {
+            outcomes = outcomes.Where(outcome => outcome.RoundId == id).ToList();
+        }
         return Json(outcomes.Select(OutcomeViewModel.FromModel));
     }
 

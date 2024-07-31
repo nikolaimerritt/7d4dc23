@@ -32,17 +32,14 @@ public class PurchaseController : Controller
     }
 
     [HttpGet("/api/purchases")]
-    public async Task<IActionResult> GetAllTeamsPurchases()
+    public async Task<IActionResult> GetPurchases(int? roundId = null)
     {
-        var team = await _teamRepository.ByIdAsync(User.GetTeamId());
-        if (team is null)
+        var purchases = await _purchaseRepository.All();
+        if (roundId is int id)
         {
-            return Json(ErrorViewModel.Unauthorized);
+            purchases = purchases.Where(purchase => purchase.Round.Id == id).ToList();
         }
-        var allTeamPurchases = (await _purchaseRepository.All()).Where(purchase =>
-            purchase.Team == team
-        );
-        return Json(allTeamPurchases.Select(PurchaseViewModel.FromModel));
+        return Json(purchases.Select(PurchaseViewModel.FromModel));
     }
 
     [HttpGet("/api/purchases/balance")]

@@ -27,6 +27,10 @@ interface Data {
         leaderboard: LeaderboardEndpoint;
     };
     leaderboardEntries: LeaderboardEntry[];
+    ui: {
+        leaderboardPollingMs: number;
+        leaderboardPollingHandle?: number;
+    };
 }
 
 type This = VueThis<Data>;
@@ -38,12 +42,22 @@ export default {
                 leaderboard: new LeaderboardEndpoint(),
             },
             leaderboardEntries: [],
+            ui: {
+                leaderboardPollingMs: 5_000,
+                leaderboardPollingHandle: undefined,
+            },
         };
     },
-    async mounted(this: This) {
-        this.leaderboardEntries =
-            await this.endpoint.leaderboard.getLeaderboard();
-        console.log("Leaderboard", this.leaderboardEntries);
+    mounted(this: This) {
+        this.ui.leaderboardPollingHandle = window.setInterval(
+            async () =>
+                (this.leaderboardEntries =
+                    await this.endpoint.leaderboard.getLeaderboard()),
+            this.ui.leaderboardPollingMs
+        );
+    },
+    unmounted(this: This) {
+        window.clearInterval(this.ui.leaderboardPollingHandle);
     },
 };
 </script>

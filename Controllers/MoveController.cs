@@ -32,20 +32,14 @@ public class MoveController : Controller
     }
 
     [HttpGet("/api/moves")]
-    public async Task<IActionResult> GetTeamMoves()
+    public async Task<IActionResult> GetMoves(int? roundId = null)
     {
-        var team = await _teamRepository.ByIdAsync(User.GetTeamId());
-        if (team is null)
+        var moves = await _moveRepository.All();
+        if (roundId is int id)
         {
-            return Json(ErrorViewModel.Unauthorized);
+            moves = moves.Where(move => move.RoundId == id).ToList();
         }
-        else
-        {
-            var allTeamMoves = (await _moveRepository.All())
-                .Where(move => move.Team == team)
-                .Select(MoveViewModel.FromModel);
-            return Json(allTeamMoves);
-        }
+        return Json(moves.Select(MoveViewModel.FromModel));
     }
 
     [HttpGet("/api/moves/can-move")]
@@ -60,7 +54,7 @@ public class MoveController : Controller
     }
 
     [HttpGet("/api/moves/{moveId}")]
-    public async Task<IActionResult> GetTeamMove(int? moveId)
+    public async Task<IActionResult> GetTeamMove(int moveId)
     {
         var team = await _teamRepository.ByIdAsync(User.GetTeamId());
         if (team is null)
