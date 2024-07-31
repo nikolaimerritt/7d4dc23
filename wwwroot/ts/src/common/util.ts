@@ -5,10 +5,10 @@ export type VueThis<Data> = Data & {
 } & { [functionName: string]: Function };
 
 export class Util {
-    public static uniqueByKey(
-        items: object[],
-        keySelector: (item) => object
-    ): object[] {
+    public static uniqueByKey<T>(
+        items: T[],
+        keySelector: (item: T) => any
+    ): T[] {
         return [
             ...new Map(items.map((item) => [keySelector(item), item])).values(),
         ];
@@ -48,5 +48,20 @@ export class Util {
         await new Promise((resolve) =>
             window.setTimeout(resolve, milliseconds)
         );
+    }
+
+    public static sortByInPlace<T>(items: T[], sortKey: (item: T) => any): T[] {
+        return items.sort((first, second) => {
+            const firstKey = sortKey(first);
+            const secondKey = sortKey(second);
+
+            if (firstKey < secondKey) {
+                return -1;
+            } else if (firstKey === secondKey) {
+                return 0;
+            } else {
+                return 1;
+            }
+        });
     }
 }

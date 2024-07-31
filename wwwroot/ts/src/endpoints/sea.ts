@@ -17,7 +17,7 @@ export class SeaEndpoint {
         const sea: Sea = {
             id: object.id,
             name: object.name,
-            adjacentSeas: object.adjacentSeas.map((inner) => {
+            adjacentSeas: object.adjacentSeas?.map((inner) => {
                 const adjacentSea: Sea = {
                     id: inner.id,
                     name: inner.name,
