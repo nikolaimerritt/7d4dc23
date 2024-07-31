@@ -29,7 +29,9 @@ import { Purchase, PurchaseEndpoint } from "../endpoints/purchase";
 import { Round, RoundEndpoint } from "../endpoints/round";
 import { VueThis } from "../common/util";
 import { Sea } from "../endpoints/sea";
+import { Team } from "../endpoints/team";
 import { Util } from "../common/util";
+import { h } from "vue";
 
 interface RoundHistory {
     round: Round;
@@ -37,6 +39,23 @@ interface RoundHistory {
     purchases: Purchase[];
     outcomes: Outcome[];
 }
+
+interface SeaOutcomes {
+    sea: Sea;
+    outcomes: Outcome[];
+}
+
+interface Victory {
+    sea: Sea;
+    winner: Team;
+    losers: Team[];
+}
+
+interface Hold {
+    holder: Team;
+    seas: Sea[];
+}
+
 interface Data {
     roundHistory: RoundHistory[];
     endpoints: {
@@ -141,45 +160,117 @@ export default {
             } ships in ${this.seaName(purchase.sea)}.`;
         },
         describeOutcomes(this: This, outcomes: Outcome[]): string[] {
+            const descriptions: string[] = [];
+            for (const victory of this.victories(outcomes) as Victory[]) {
+                descriptions.push(
+                    `${victory.winner.name} conquers ${this.seaName(
+                        victory.sea
+                    )}, beating ${this.joinWithAnd(
+                        victory.losers.map((loser) => loser.name)
+                    )}.`
+                );
+            }
+
+            for (const hold of this.holds(outcomes) as Hold[]) {
+                descriptions.push(
+                    `${hold.holder.name} holds ${this.joinWithAnd(
+                        hold.seas.map((sea) => this.seaName(sea))
+                    )}.`
+                );
+            }
+
+            // for (const sea of seas) {
+            //     const outcomesInSea = outcomes.filter(
+            //         (outcome) => outcome.sea.id === sea.id
+            //     );
+            //     const winningOutcome = outcomesInSea.find(
+            //         (outcome) => outcome.shipCount > 0
+            //     );
+            //     const losingOutcomes = outcomesInSea.filter(
+            //         (outcome) => outcome.shipCount === 0
+            //     );
+            //     if (winningOutcome) {
+            //         if (losingOutcomes.length === 0) {
+            //             descriptions.push(
+            //                 `${winningOutcome.team.name} holds ${this.seaName(
+            //                     sea
+            //                 )}.`
+            //             );
+            //         } else {
+            //             const losingTeamNames = this.joinWithAnd(
+            //                 losingOutcomes.map((outcome) => outcome.team.name)
+            //             );
+            //         }
+            //     } else {
+            //         descriptions.push(`${sea.name} remains unclaimed.`);
+            //     }
+            // }
+            return descriptions;
+        },
+        victories(outcomes: Outcome[]): Victory[] {
+            const seaOutcomes = this.seaOutcomes(outcomes) as SeaOutcomes[];
+            const seaVictories = seaOutcomes.filter(
+                (sea) =>
+                    sea.outcomes.some((outcome) => outcome.shipCount > 0) &&
+                    sea.outcomes.some((outcome) => outcome.shipCount === 0)
+            );
+            return seaVictories.map(
+                (victory) =>
+                    ({
+                        sea: victory.sea,
+                        winner: victory.outcomes.find(
+                            (outcome) => outcome.shipCount > 0
+                        )?.team,
+                        losers: victory.outcomes
+                            .filter((outcome) => outcome.shipCount === 0)
+                            .map((outcome) => outcome.team),
+                    } as Victory)
+            );
+        },
+        holds(outcomes: Outcome[]): Hold[] {
+            const seaOutcomes = this.seaOutcomes(outcomes) as SeaOutcomes[];
+            const seaHolds = seaOutcomes
+                .filter(
+                    (sea) =>
+                        sea.outcomes.length === 1 &&
+                        sea.outcomes[0].shipCount > 0
+                )
+                .map((seaHold) => ({
+                    sea: seaHold.sea,
+                    team: seaHold.outcomes[0].team,
+                }));
+            const holds: Hold[] = [];
+            for (const seaHold of seaHolds) {
+                const existingHold = holds.find(
+                    (hold) => hold.holder.id === seaHold.team.id
+                );
+                if (existingHold === undefined) {
+                    holds.push({
+                        seas: [seaHold.sea],
+                        holder: seaHold.team,
+                    } as Hold);
+                } else if (
+                    !existingHold.seas.some((sea) => sea.id === seaHold.sea.id)
+                ) {
+                    existingHold.seas.push(seaHold.sea);
+                }
+            }
+            return holds;
+        },
+        seaOutcomes(outcomes: Outcome[]): SeaOutcomes[] {
             const seas = Util.uniqueByKey(
                 outcomes.map((outcome) => outcome.sea),
                 (sea) => sea.id
             );
-            const descriptions: string[] = [];
-            for (const sea of seas) {
-                const outcomesInSea = outcomes.filter(
-                    (outcome) => outcome.sea.id === sea.id
-                );
-                const winningOutcome = outcomesInSea.find(
-                    (outcome) => outcome.shipCount > 0
-                );
-                const losingOutcomes = outcomesInSea.filter(
-                    (outcome) => outcome.shipCount === 0
-                );
-                if (winningOutcome) {
-                    if (losingOutcomes.length === 0) {
-                        descriptions.push(
-                            `${winningOutcome.team.name} holds ${this.seaName(
-                                sea
-                            )}.`
-                        );
-                    } else {
-                        const losingTeamNames = this.joinWithAnd(
-                            losingOutcomes.map((outcome) => outcome.team.name)
-                        );
-                        descriptions.push(
-                            `${
-                                winningOutcome.team.name
-                            } conquered ${this.seaName(
-                                sea
-                            )}, beating ${losingTeamNames}.`
-                        );
-                    }
-                } else {
-                    descriptions.push(`${sea.name} remains unclaimed.`);
-                }
-            }
-            return descriptions;
+            return seas.map(
+                (sea) =>
+                    ({
+                        sea,
+                        outcomes: outcomes.filter(
+                            (outcome) => outcome.sea.id === sea.id
+                        ),
+                    } as SeaOutcomes)
+            );
         },
         seaName(this: This, sea: Sea): string {
             if (sea.name === "Indian" || sea.name === "Southern") {
