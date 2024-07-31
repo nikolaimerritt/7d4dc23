@@ -1,4 +1,21 @@
-<template></template>
+<template>
+    <table>
+        <tr class="header-row">
+            <th>Rank</th>
+            <th>Team</th>
+            <th>Seas held</th>
+        </tr>
+        <tr
+            class="body-row"
+            v-for="(entry, index) in this.leaderboardEntries"
+            :key="index"
+        >
+            <td>{{ entry.rank }}</td>
+            <td>{{ entry.team.name }}</td>
+            <td>{{ entry.seasHeld }}</td>
+        </tr>
+    </table>
+</template>
 <script lang="ts">
 import {
     LeaderboardEndpoint,
