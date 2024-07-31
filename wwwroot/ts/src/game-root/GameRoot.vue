@@ -59,17 +59,14 @@
 import { TeamEndpoint, Team } from "../endpoints/team";
 import { PurchaseEndpoint } from "../endpoints/purchase";
 import { Sea, SeaEndpoint } from "../endpoints/sea";
-import { OutcomeEndpoint, Outcome } from "../endpoints/outcome";
+import { OutcomeEndpoint } from "../endpoints/outcome";
 import { MoveEndpoint } from "../endpoints/move";
 import { Connection } from "../endpoints/main";
-import {
-    LeaderboardEndpoint,
-    LeaderboardEntry,
-} from "../endpoints/leaderboard";
 import { Round, RoundEndpoint } from "../endpoints/round";
 import { Util, VueThis } from "../common/util";
 
 const updateTimeRemainingMs = 2_000;
+const updateMapMs = 5_000;
 type Action = "none" | "purchase" | "move";
 type TeamShips = { team: Team; shipCount: number };
 type SeaCentre = Sea & { teamShips: TeamShips[] };
@@ -103,6 +100,9 @@ interface Data {
         round: {
             timeRemaining: string;
             updateTimeRemainingHandle?: number;
+        };
+        map: {
+            updateMapHandle: number;
         };
     };
     team?: Team;
@@ -150,6 +150,9 @@ export default {
                     timeRemaining: "",
                     updateTimeRemainingHandle: undefined,
                 },
+                map: {
+                    updateMapHandle: undefined,
+                },
             },
             seaCentrePositions: {
                 "North Pacific": {
@@ -190,6 +193,10 @@ export default {
         this.ui.round.updateTimeRemainingHandle = window.setInterval(
             () => this.updateTimeRemaining(),
             updateTimeRemainingMs
+        );
+        this.ui.map.updateMapHandle = window.setInterval(
+            async () => await this.refreshMap(),
+            updateMapMs
         );
     },
     methods: {
@@ -364,6 +371,7 @@ export default {
     },
     unmounted(this: This) {
         window.clearInterval(this.ui.round.updateTimeRemainingHandle);
+        window.clearInterval(this.ui.map.updateMapHandle);
     },
 };
 </script>

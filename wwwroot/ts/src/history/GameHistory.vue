@@ -101,11 +101,10 @@ export default {
     },
     async mounted(this: This) {
         await this.refreshHistory();
-        // TO SELF: debug
-        // this.ui.historyPollingHandle = window.setInterval(
-        //     async () => await this.refreshHistory(),
-        //     this.ui.historyPollingMs
-        // );
+        this.ui.historyPollingHandle = window.setInterval(
+            async () => await this.refreshHistory(),
+            this.ui.historyPollingMs
+        );
     },
     methods: {
         async refreshHistory(this: This) {
