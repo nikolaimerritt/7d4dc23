@@ -31,12 +31,14 @@ public class LeaderboardController : Controller
     {
         var seas = await _seaRepository.AllAsync();
         var teams = await _teamRepository.AllAsync();
-        var leaderboardEntries = teams.Select(team => new LeaderboardEntryViewModel()
-        {
-            Team = TeamViewModel.FromModel(team),
-            Rank = 0,
-            SeasHeld = 0
-        });
+        var leaderboardEntries = teams
+            .Select(team => new LeaderboardEntryViewModel()
+            {
+                Team = TeamViewModel.FromModel(team),
+                Rank = 0,
+                SeasHeld = 0
+            })
+            .ToList();
         foreach (var round in await _roundRepository.AllPlayableRoundsAsync())
         {
             foreach (var sea in seas)
@@ -76,7 +78,7 @@ public class LeaderboardController : Controller
 
         var entriesRanked = groupedBySeasHeld
             .SelectMany(group => group)
-            .OrderByDescending(entry => entry.Rank)
+            .OrderBy(entry => entry.Rank)
             .ThenBy(entry => entry.Team.Name)
             .ToList();
         return Json(entriesRanked);
