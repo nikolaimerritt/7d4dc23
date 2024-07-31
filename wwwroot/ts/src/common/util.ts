@@ -20,6 +20,7 @@ export class Util {
         let duration = moment.duration(moment(bigger).diff(moment(smaller)));
         return moment.utc(duration.asMilliseconds()).format("HH:mm:ss");
     }
+
     public static getHtmlObjectContent(htmlObject: HTMLElement): HTMLElement {
         return (htmlObject as any).contentDocument;
     }

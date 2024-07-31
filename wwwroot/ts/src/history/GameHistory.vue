@@ -5,22 +5,37 @@
             :key="`history-${index}`"
         >
             <h2>Round {{ index + 1 }}</h2>
-            <ul>
-                <li
-                    v-for="(planning, index) in describeRoundPlanning(history)"
-                    :key="`planning-${index}`"
-                >
-                    {{ planning }}
-                </li>
-                <li
-                    v-for="(outcomeDescription, index) in describeOutcomes(
-                        history.outcomes
-                    )"
-                    :key="`outcome-description-${index}`"
-                >
-                    {{ outcomeDescription }}
-                </li>
-            </ul>
+            <h3>
+                {{ toTimeString(history.round.startMoving) }} to
+                {{ toTimeString(history.round.end) }}
+            </h3>
+            <div
+                v-if="
+                    history.moves.length > 0 ||
+                    history.purchases.length > 0 ||
+                    history.outcomes.length > 0
+                "
+            >
+                <ul>
+                    <li
+                        v-for="(planning, index) in describeRoundPlanning(
+                            history
+                        )"
+                        :key="`planning-${index}`"
+                    >
+                        {{ planning }}
+                    </li>
+                    <li
+                        v-for="(outcomeDescription, index) in describeOutcomes(
+                            history.outcomes
+                        )"
+                        :key="`outcome-description-${index}`"
+                    >
+                        {{ outcomeDescription }}
+                    </li>
+                </ul>
+            </div>
+            <div v-else class="nothing-happened">Nothing yet has happened.</div>
         </div>
     </div>
 </template>
@@ -33,6 +48,7 @@ import { VueThis } from "../common/util";
 import { Sea } from "../endpoints/sea";
 import { Team } from "../endpoints/team";
 import { Util } from "../common/util";
+import * as moment from "moment";
 
 interface RoundHistory {
     round: Round;
@@ -215,25 +231,15 @@ export default {
                     sea.outcomes.some((outcome) => outcome.shipsAfter > 0) &&
                     sea.outcomes.some((outcome) => outcome.shipsAfter === 0)
             );
-            return seaVictories.map(
-                (victory) =>
-                    ({
-                        sea: victory.sea,
-                        winner: this.toTeamShipsCount(
-                            victory.outcomes.find(
-                                (outcome) => outcome.shipsAfter > 0
-                            )
-                        ) as TeamShipsCount,
-                        losers: victory.outcomes
-                            .filter((outcome) => outcome.shipsAfter === 0)
-                            .map(
-                                (outcome) =>
-                                    this.toTeamShipsCount(
-                                        outcome
-                                    ) as TeamShipsCount
-                            ),
-                    } as Victory)
-            );
+            return seaVictories.map((victory) => ({
+                sea: victory.sea,
+                winner: this.toTeamShipsCount(
+                    victory.outcomes.find((outcome) => outcome.shipsAfter > 0)
+                ),
+                losers: victory.outcomes
+                    .filter((outcome) => outcome.shipsAfter === 0)
+                    .map((outcome) => this.toTeamShipsCount(outcome)),
+            }));
         },
         holds(outcomes: Outcome[]): Hold[] {
             const teams = Util.uniqueByKey(
@@ -257,7 +263,7 @@ export default {
                     seaShipCounts.push({
                         sea: teamHoldOutcome.sea,
                         shipCount: teamHoldOutcome.shipsAfter,
-                    } as SeaShipCount);
+                    });
                 }
                 if (seaShipCounts.length > 0) {
                     Util.sortByInPlace(
@@ -267,7 +273,7 @@ export default {
                     holds.push({
                         holder: team,
                         seas: seaShipCounts,
-                    } as Hold);
+                    });
                 }
             }
             return holds;
@@ -284,15 +290,12 @@ export default {
                 outcomes.map((outcome) => outcome.sea),
                 (sea) => sea.id
             );
-            return seas.map(
-                (sea) =>
-                    ({
-                        sea,
-                        outcomes: outcomes.filter(
-                            (outcome) => outcome.sea.id === sea.id
-                        ),
-                    } as SeaOutcomes)
-            );
+            return seas.map((sea) => ({
+                sea,
+                outcomes: outcomes.filter(
+                    (outcome) => outcome.sea.id === sea.id
+                ),
+            }));
         },
         seaName(this: This, sea: Sea): string {
             if (sea.name === "Indian" || sea.name === "Southern") {
@@ -312,9 +315,34 @@ export default {
                 return `${body.join(", ")} and ${tail}`;
             }
         },
+        toTimeString(date: Date): string {
+            return moment(date).format("HH:mm");
+        },
     },
     unmounted(this: This) {
         window.clearInterval(this.ui.historyPollingHandle);
     },
 };
 </script>
+<style scoped>
+h2 {
+    color: #2c2215;
+    margin-bottom: 0;
+    margin: 2rem 0 0 0;
+}
+
+h3 {
+    color: black;
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+h3,
+li,
+.nothing-happened {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+.nothing-happened {
+    font-style: italic;
+}
+</style>
