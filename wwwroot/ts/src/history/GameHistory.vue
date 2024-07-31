@@ -189,8 +189,11 @@ export default {
                     } ships remaining.`
                 );
             }
-            const holds = this.holds(outcomes);
-            for (const hold of this.holds(outcomes) as Hold[]) {
+            const holds = Util.sortByInPlace(
+                this.holds(outcomes) as Hold[],
+                (hold) => hold.holder.name
+            );
+            for (const hold of holds) {
                 descriptions.push(
                     `${hold.holder.name} holds ${this.joinWithAnd(
                         hold.seas.map(
@@ -202,6 +205,7 @@ export default {
                     )}.`
                 );
             }
+            Util.sortByInPlace(descriptions, (descrition) => descrition);
             return descriptions;
         },
         victories(outcomes: Outcome[]): Victory[] {
@@ -256,6 +260,10 @@ export default {
                     } as SeaShipCount);
                 }
                 if (seaShipCounts.length > 0) {
+                    Util.sortByInPlace(
+                        seaShipCounts,
+                        (seaShipCount) => seaShipCount.sea.name
+                    );
                     holds.push({
                         holder: team,
                         seas: seaShipCounts,
