@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace PirateConquest.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240722160419_OutcomeRoundRelationshipExplicit")]
-    partial class OutcomeRoundRelationshipExplicit
+    [Migration("20240731144955_ShipsBeforeAfter")]
+    partial class ShipsBeforeAfter
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -75,7 +75,7 @@ namespace PirateConquest.Migrations
                     b.Property<int>("RoundId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ShipsAfter")
+                    b.Property<int>("ShipCount")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("TeamId")
@@ -112,6 +112,9 @@ namespace PirateConquest.Migrations
                     b.Property<int>("ShipsAfter")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("ShipsBefore")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("TeamId")
                         .HasColumnType("INTEGER");
 
@@ -135,7 +138,7 @@ namespace PirateConquest.Migrations
                     b.Property<DateTime>("Creation")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("SeasHeld")
+                    b.Property<int>("Points")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("RoundId")
@@ -144,7 +147,7 @@ namespace PirateConquest.Migrations
                     b.Property<int>("SeaId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ShipsAfter")
+                    b.Property<int>("ShipCount")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("TeamId")

@@ -85,14 +85,14 @@ public class OutcomeController : Controller
                             Round = round,
                             Team = team,
                             Sea = purchase.Sea,
-                            ShipCount = purchase.ShipCount,
+                            ShipsAfter = purchase.ShipCount,
                         }
                     )
                 );
             }
             else
             {
-                outcomeInPurchaseDestination.ShipCount += purchase.ShipCount;
+                outcomeInPurchaseDestination.ShipsAfter += purchase.ShipCount;
             }
         }
 
@@ -103,7 +103,7 @@ public class OutcomeController : Controller
             );
             if (outcomeInExitSea is not null)
             {
-                outcomeInExitSea.ShipCount -= move.ShipCount;
+                outcomeInExitSea.ShipsAfter -= move.ShipCount;
             }
             var outcomeInEntranceSea = virtualOutcomes.FirstOrDefault(outcome =>
                 outcome.Team.Id == team.Id && outcome.Sea.Id == move.ToSea.Id
@@ -118,14 +118,14 @@ public class OutcomeController : Controller
                             Round = round,
                             Team = team,
                             Sea = move.ToSea,
-                            ShipCount = move.ShipCount,
+                            ShipsAfter = move.ShipCount,
                         }
                     )
                 );
             }
             else
             {
-                outcomeInEntranceSea.ShipCount += move.ShipCount;
+                outcomeInEntranceSea.ShipsAfter += move.ShipCount;
             }
         }
 

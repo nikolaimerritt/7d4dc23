@@ -4,21 +4,23 @@
             v-for="(history, index) in this.roundHistory"
             :key="`history-${index}`"
         >
-            <span> Round {{ history.round.id }} </span>
-            <div
-                v-for="planning in describeRoundPlanning(history)"
-                :key="`planning-${planning.id}`"
-            >
-                {{ planning }}
-            </div>
-            <div
-                v-for="(outcomeDescription, index) in describeOutcomes(
-                    history.outcomes
-                )"
-                :key="`outcome-description-${index}`"
-            >
-                {{ outcomeDescription }}
-            </div>
+            <h2>Round {{ index + 1 }}</h2>
+            <ul>
+                <li
+                    v-for="(planning, index) in describeRoundPlanning(history)"
+                    :key="`planning-${index}`"
+                >
+                    {{ planning }}
+                </li>
+                <li
+                    v-for="(outcomeDescription, index) in describeOutcomes(
+                        history.outcomes
+                    )"
+                    :key="`outcome-description-${index}`"
+                >
+                    {{ outcomeDescription }}
+                </li>
+            </ul>
         </div>
     </div>
 </template>
@@ -31,7 +33,6 @@ import { VueThis } from "../common/util";
 import { Sea } from "../endpoints/sea";
 import { Team } from "../endpoints/team";
 import { Util } from "../common/util";
-import { h } from "vue";
 
 interface RoundHistory {
     round: Round;
@@ -45,15 +46,26 @@ interface SeaOutcomes {
     outcomes: Outcome[];
 }
 
+interface TeamShipsCount {
+    team: Team;
+    shipsBefore: number;
+    shipsAfter: number;
+}
+
 interface Victory {
     sea: Sea;
-    winner: Team;
-    losers: Team[];
+    winner: TeamShipsCount;
+    losers: TeamShipsCount[];
+}
+
+interface SeaShipCount {
+    sea: Sea;
+    shipCount: number;
 }
 
 interface Hold {
     holder: Team;
-    seas: Sea[];
+    seas: SeaShipCount[];
 }
 
 interface Data {
@@ -82,17 +94,18 @@ export default {
                 round: new RoundEndpoint(),
             },
             ui: {
-                historyPollingMs: 5_000,
+                historyPollingMs: 10_000,
                 historyPollingHandle: undefined,
             },
         };
     },
     async mounted(this: This) {
         await this.refreshHistory();
-        this.ui.historyPollingHandle = window.setInterval(
-            async () => await this.refreshHistory(),
-            this.ui.historyPollingMs
-        );
+        // TO SELF: debug
+        // this.ui.historyPollingHandle = window.setInterval(
+        //     async () => await this.refreshHistory(),
+        //     this.ui.historyPollingMs
+        // );
     },
     methods: {
         async refreshHistory(this: This) {
@@ -163,99 +176,101 @@ export default {
             const descriptions: string[] = [];
             for (const victory of this.victories(outcomes) as Victory[]) {
                 descriptions.push(
-                    `${victory.winner.name} conquers ${this.seaName(
+                    `${victory.winner.team.name} conquers ${this.seaName(
                         victory.sea
-                    )}, beating ${this.joinWithAnd(
-                        victory.losers.map((loser) => loser.name)
-                    )}.`
+                    )} with ${
+                        victory.winner.shipsBefore
+                    } ships, beating ${this.joinWithAnd(
+                        victory.losers.map(
+                            (loser) =>
+                                `${loser.team.name}'s ${loser.shipsBefore} ships`
+                        )
+                    )}. ${victory.winner.team.name} has ${
+                        victory.winner.shipsAfter
+                    } ships remaining.`
                 );
             }
-
+            const holds = this.holds(outcomes);
             for (const hold of this.holds(outcomes) as Hold[]) {
                 descriptions.push(
                     `${hold.holder.name} holds ${this.joinWithAnd(
-                        hold.seas.map((sea) => this.seaName(sea))
+                        hold.seas.map(
+                            (sea) =>
+                                `${this.seaName(sea.sea)} with ${
+                                    sea.shipCount
+                                } ships`
+                        )
                     )}.`
                 );
             }
-
-            // for (const sea of seas) {
-            //     const outcomesInSea = outcomes.filter(
-            //         (outcome) => outcome.sea.id === sea.id
-            //     );
-            //     const winningOutcome = outcomesInSea.find(
-            //         (outcome) => outcome.shipCount > 0
-            //     );
-            //     const losingOutcomes = outcomesInSea.filter(
-            //         (outcome) => outcome.shipCount === 0
-            //     );
-            //     if (winningOutcome) {
-            //         if (losingOutcomes.length === 0) {
-            //             descriptions.push(
-            //                 `${winningOutcome.team.name} holds ${this.seaName(
-            //                     sea
-            //                 )}.`
-            //             );
-            //         } else {
-            //             const losingTeamNames = this.joinWithAnd(
-            //                 losingOutcomes.map((outcome) => outcome.team.name)
-            //             );
-            //         }
-            //     } else {
-            //         descriptions.push(`${sea.name} remains unclaimed.`);
-            //     }
-            // }
             return descriptions;
         },
         victories(outcomes: Outcome[]): Victory[] {
             const seaOutcomes = this.seaOutcomes(outcomes) as SeaOutcomes[];
             const seaVictories = seaOutcomes.filter(
                 (sea) =>
-                    sea.outcomes.some((outcome) => outcome.shipCount > 0) &&
-                    sea.outcomes.some((outcome) => outcome.shipCount === 0)
+                    sea.outcomes.some((outcome) => outcome.shipsAfter > 0) &&
+                    sea.outcomes.some((outcome) => outcome.shipsAfter === 0)
             );
             return seaVictories.map(
                 (victory) =>
                     ({
                         sea: victory.sea,
-                        winner: victory.outcomes.find(
-                            (outcome) => outcome.shipCount > 0
-                        )?.team,
+                        winner: this.toTeamShipsCount(
+                            victory.outcomes.find(
+                                (outcome) => outcome.shipsAfter > 0
+                            )
+                        ) as TeamShipsCount,
                         losers: victory.outcomes
-                            .filter((outcome) => outcome.shipCount === 0)
-                            .map((outcome) => outcome.team),
+                            .filter((outcome) => outcome.shipsAfter === 0)
+                            .map(
+                                (outcome) =>
+                                    this.toTeamShipsCount(
+                                        outcome
+                                    ) as TeamShipsCount
+                            ),
                     } as Victory)
             );
         },
         holds(outcomes: Outcome[]): Hold[] {
-            const seaOutcomes = this.seaOutcomes(outcomes) as SeaOutcomes[];
-            const seaHolds = seaOutcomes
-                .filter(
-                    (sea) =>
-                        sea.outcomes.length === 1 &&
-                        sea.outcomes[0].shipCount > 0
-                )
-                .map((seaHold) => ({
-                    sea: seaHold.sea,
-                    team: seaHold.outcomes[0].team,
-                }));
+            const teams = Util.uniqueByKey(
+                outcomes.map((outcome) => outcome.team),
+                (team) => team.id
+            );
             const holds: Hold[] = [];
-            for (const seaHold of seaHolds) {
-                const existingHold = holds.find(
-                    (hold) => hold.holder.id === seaHold.team.id
+            for (const team of teams) {
+                const teamOutcomes = outcomes.filter(
+                    (outcome) => outcome.team.id === team.id
                 );
-                if (existingHold === undefined) {
+                const teamHoldOutcomes = teamOutcomes.filter(
+                    (outcome) =>
+                        outcomes.filter(
+                            (otherOutcome) =>
+                                otherOutcome.sea.id === outcome.sea.id
+                        ).length === 1
+                );
+                const seaShipCounts: SeaShipCount[] = [];
+                for (const teamHoldOutcome of teamHoldOutcomes) {
+                    seaShipCounts.push({
+                        sea: teamHoldOutcome.sea,
+                        shipCount: teamHoldOutcome.shipsAfter,
+                    } as SeaShipCount);
+                }
+                if (seaShipCounts.length > 0) {
                     holds.push({
-                        seas: [seaHold.sea],
-                        holder: seaHold.team,
+                        holder: team,
+                        seas: seaShipCounts,
                     } as Hold);
-                } else if (
-                    !existingHold.seas.some((sea) => sea.id === seaHold.sea.id)
-                ) {
-                    existingHold.seas.push(seaHold.sea);
                 }
             }
             return holds;
+        },
+        toTeamShipsCount(outcome: Outcome): TeamShipsCount {
+            return {
+                team: outcome.team,
+                shipsBefore: outcome.shipsBefore,
+                shipsAfter: outcome.shipsAfter,
+            };
         },
         seaOutcomes(outcomes: Outcome[]): SeaOutcomes[] {
             const seas = Util.uniqueByKey(
@@ -286,7 +301,7 @@ export default {
                 return strings[0];
             } else {
                 const tail = strings[strings.length - 1];
-                const body = strings.slice(0, strings.length - 2);
+                const body = strings.slice(0, strings.length - 1);
                 return `${body.join(", ")} and ${tail}`;
             }
         },

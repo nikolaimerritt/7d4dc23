@@ -43,12 +43,14 @@ export default {
             },
             leaderboardEntries: [],
             ui: {
-                leaderboardPollingMs: 5_000,
+                leaderboardPollingMs: 10_000,
                 leaderboardPollingHandle: undefined,
             },
         };
     },
-    mounted(this: This) {
+    async mounted(this: This) {
+        this.leaderboardEntries =
+            await this.endpoint.leaderboard.getLeaderboard();
         this.ui.leaderboardPollingHandle = window.setInterval(
             async () =>
                 (this.leaderboardEntries =

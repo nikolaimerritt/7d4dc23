@@ -75,7 +75,7 @@ namespace PirateConquest.Migrations
                     b.Property<int>("RoundId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ShipCount")
+                    b.Property<int>("ShipsAfter")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("TeamId")
@@ -109,7 +109,7 @@ namespace PirateConquest.Migrations
                     b.Property<int>("SeaId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ShipCount")
+                    b.Property<int>("ShipsAfter")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("TeamId")
@@ -144,7 +144,7 @@ namespace PirateConquest.Migrations
                     b.Property<int>("SeaId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ShipCount")
+                    b.Property<int>("ShipsAfter")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("TeamId")

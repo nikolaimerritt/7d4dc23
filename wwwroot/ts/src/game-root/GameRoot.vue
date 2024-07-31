@@ -208,11 +208,14 @@ export default {
             for (const sea of seas) {
                 const outcomesInSea = latestOutcomes.filter(
                     (outcome) =>
-                        outcome.sea.id == sea.id && outcome.shipCount > 0
+                        outcome.sea.id == sea.id && outcome.shipsAfter > 0
                 );
                 const seaCentre: SeaCentre = {
                     ...sea,
-                    teamShips: outcomesInSea,
+                    teamShips: outcomesInSea.map((outcome) => ({
+                        team: outcome.team,
+                        shipCount: outcome.shipsAfter,
+                    })),
                 };
                 seaCentres.push(seaCentre);
             }

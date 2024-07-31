@@ -1,5 +1,7 @@
-﻿using PirateConquest.Models;
+﻿using System.Reflection;
+using PirateConquest.Models;
 using PirateConquest.Repositories;
+using PirateConquest.Utils;
 
 namespace PirateConquest.Services;
 
@@ -9,6 +11,8 @@ public class OutcomeService
     private readonly SeaRepository _seaRepository;
     private readonly OutcomeRepository _outcomeRepository;
     private readonly RoundRepository _roundRepository;
+    private static readonly double MaxBoostFactor = 1.1;
+    private static readonly Random Random = new();
 
     public OutcomeService(
         TeamRepository teamRepository,
@@ -28,41 +32,33 @@ public class OutcomeService
         var roundHasOutcomes = (await _outcomeRepository.AllAsync())
             .Where(outcome => outcome.Round.Id == round.Id)
             .Any();
-        if (!roundHasOutcomes)
+        if (roundHasOutcomes)
         {
-            var teams = await _teamRepository.AllAsync();
-            var seas = await _seaRepository.AllAsync();
+            return;
+        }
+        var teams = await _teamRepository.AllAsync();
+        var seas = await _seaRepository.AllAsync();
 
-            foreach (var sea in seas)
+        foreach (var sea in seas)
+        {
+            var shipsCount = await GetTeamShipCounts(round, sea);
+            if (shipsCount.Count > 0)
             {
-                var teamsWithShips = await Task.WhenAll(
-                    teams.Select(async team =>
-                    {
-                        var shipCount = await _roundRepository.CountTeamShipsAsync(
-                            sea,
-                            team,
-                            round
-                        );
-                        return (Team: team, ShipCount: shipCount);
-                    })
-                );
-                var teamsRankedByShips = teamsWithShips
-                    .Where(teamWithShips => teamWithShips.ShipCount > 0)
-                    .OrderByDescending(teamWithShips => teamWithShips.ShipCount)
-                    .ToList();
-                if (teamsRankedByShips.Count > 0)
+                var winningTeam = shipsCount.FirstOrDefault();
+                var losingTeams = shipsCount.Skip(1);
+                if (losingTeams.Any())
                 {
-                    var winningTeam = teamsRankedByShips.FirstOrDefault();
-                    var losingTeams = teamsRankedByShips.Skip(1);
                     await _outcomeRepository.AddIfNotExists(
                         new Outcome()
                         {
                             RoundId = round.Id,
                             SeaId = sea.Id,
                             TeamId = winningTeam.Team.Id,
-                            ShipCount = Math.Max(
+                            ShipsBefore = winningTeam.ShipCount,
+                            ShipsAfter = Math.Max(
                                 1,
-                                winningTeam.ShipCount - losingTeams.Sum(team => team.ShipCount)
+                                winningTeam.BoostedShipCount
+                                    - losingTeams.Sum(team => team.BoostedShipCount)
                             )
                         }
                     );
@@ -75,12 +71,82 @@ public class OutcomeService
                                 RoundId = round.Id,
                                 SeaId = sea.Id,
                                 TeamId = team.Team.Id,
-                                ShipCount = 0
+                                ShipsBefore = team.ShipCount,
+                                ShipsAfter = 0
                             }
                         );
                     }
                 }
+                else
+                {
+                    await _outcomeRepository.AddIfNotExists(
+                        new Outcome()
+                        {
+                            RoundId = round.Id,
+                            SeaId = sea.Id,
+                            TeamId = winningTeam.Team.Id,
+                            ShipsBefore = winningTeam.ShipCount,
+                            ShipsAfter = winningTeam.ShipCount
+                        }
+                    );
+                }
             }
         }
     }
+
+    private async Task<List<TeamShipCount>> GetTeamShipCounts(Round round, Sea sea)
+    {
+        var teams = await _teamRepository.AllAsync();
+        var teamsWithShips = await Task.WhenAll(
+            teams.Select(async team =>
+            {
+                var shipCount = await _roundRepository.CountTeamShipsAsync(sea, team, round);
+                return new TeamShipCount
+                {
+                    Team = team,
+                    ShipCount = shipCount,
+                    BoostedShipCount = RandomBoost(shipCount)
+                };
+            })
+        );
+        var counts = teamsWithShips
+            .Where(teamWithShips => teamWithShips.ShipCount > 0)
+            .OrderByDescending(teamWithShips => teamWithShips.BoostedShipCount)
+            .ToList();
+        if (!counts.Any())
+        {
+            return counts;
+        }
+
+        var maxShips = counts[0].ShipCount;
+        var winningCounts = counts.TakeWhile(count => count.ShipCount == maxShips);
+        if (winningCounts.Count() > 1)
+        {
+            var tieBreakers = winningCounts.Select((_, index) => index).ToList().ShuffleInPlace();
+            for (int i = 0; i < tieBreakers.Count; i++)
+            {
+                counts[i].BoostedShipCount += tieBreakers[i];
+            }
+        }
+        return counts.OrderByDescending(count => count.BoostedShipCount).ToList();
+    }
+
+    private static int RandomBoost(int shipCount)
+    {
+        if (5 <= shipCount && shipCount <= Math.Ceiling(1.0 / (MaxBoostFactor - 1)))
+        {
+            return Random.Next(shipCount, shipCount + 1);
+        }
+        else
+        {
+            return Random.Next(shipCount, (int)Math.Round(shipCount * MaxBoostFactor));
+        }
+    }
+
+    private class TeamShipCount
+    {
+        public Team Team { get; set; }
+        public int ShipCount { get; set; }
+        public int BoostedShipCount { get; set; }
+    };
 }

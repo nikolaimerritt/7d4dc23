@@ -8,7 +8,8 @@ export interface Outcome {
     round: Round;
     team: Team;
     sea: Sea;
-    shipCount: number;
+    shipsBefore: number;
+    shipsAfter: number;
 }
 
 export class OutcomeEndpoint {
@@ -21,7 +22,8 @@ export class OutcomeEndpoint {
     public static toOutcome(object: any): Outcome {
         const outcome: Outcome = {
             id: object.id,
-            shipCount: object.shipCount,
+            shipsBefore: object.shipsBefore,
+            shipsAfter: object.shipsAfter,
             round: RoundEndpoint.toRound(object.round),
             team: TeamEndpoint.toTeam(object.team),
             sea: {

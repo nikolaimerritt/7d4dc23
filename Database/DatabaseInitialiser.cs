@@ -167,7 +167,7 @@ public class DatabaseInitialiser
             Round = initialRound,
             Team = team,
             Sea = team.StartingSea,
-            ShipCount = StartingShips
+            ShipsAfter = StartingShips
         });
         await _context.Outcomes.AddRangeAsync(initialOutcomes);
         await _context.SaveChangesAsync();

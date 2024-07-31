@@ -45,8 +45,8 @@ public class LeaderboardController : Controller
             {
                 var outcomesInSea = await _outcomeRepository.WithinAsync(round, sea);
                 var winningOutcome = outcomesInSea
-                    .OrderByDescending(outcome => outcome.ShipCount)
-                    .Where(outcome => outcome.ShipCount > 0)
+                    .OrderByDescending(outcome => outcome.ShipsAfter)
+                    .Where(outcome => outcome.ShipsAfter > 0)
                     .FirstOrDefault();
                 if (winningOutcome is not null)
                 {

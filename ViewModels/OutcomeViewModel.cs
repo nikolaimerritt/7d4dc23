@@ -8,7 +8,8 @@ public class OutcomeViewModel
     public RoundViewModel Round { get; set; }
     public TeamViewModel Team { get; set; }
     public SeaViewModel Sea { get; set; }
-    public int ShipCount { get; set; }
+    public int ShipsBefore { get; set; }
+    public int ShipsAfter { get; set; }
 
     public static OutcomeViewModel FromModel(Outcome outcome) =>
         new()
@@ -17,6 +18,7 @@ public class OutcomeViewModel
             Round = RoundViewModel.FromModel(outcome.Round),
             Team = TeamViewModel.FromModel(outcome.Team),
             Sea = SeaViewModel.FromModel(outcome.Sea),
-            ShipCount = outcome.ShipCount
+            ShipsBefore = outcome.ShipsBefore,
+            ShipsAfter = outcome.ShipsAfter
         };
 }

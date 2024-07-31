@@ -14,5 +14,6 @@ public class Outcome
     public Team Team { get; set; }
     public int SeaId { get; set; }
     public Sea Sea { get; set; }
-    public int ShipCount { get; set; }
+    public int ShipsBefore { get; set; }
+    public int ShipsAfter { get; set; }
 }

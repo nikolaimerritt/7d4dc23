@@ -53,7 +53,7 @@ public class RoundRepository
                 && outcome.Team.Id == team.Id
                 && outcome.Sea.Id == sea.Id
             );
-        var previousShipCount = previousOutcome?.ShipCount ?? 0;
+        var previousShipCount = previousOutcome?.ShipsAfter ?? 0;
 
         var shipsPurchasedAtSea = await _context
             .Purchases.Include(purchase => purchase.Round)
