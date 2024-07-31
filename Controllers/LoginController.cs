@@ -7,21 +7,26 @@ using CTFWhodunnit.Database;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PirateConquest.Repositories;
+using PirateConquest.Utils;
 
 namespace CTFWhodunnit.Controllers;
 
 public class LoginController : Controller
 {
     private readonly AppDbContext _context;
+    private readonly TeamRepository _teamRepository;
 
-    public LoginController(AppDbContext context)
+    public LoginController(AppDbContext context, TeamRepository teamRepository)
     {
         _context = context;
+        _teamRepository = teamRepository;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        if (User.Identity.IsAuthenticated)
+        var team = await _teamRepository.ByIdAsync(User.GetTeamId());
+        if (team is not null)
         {
             return RedirectToAction("Index", "Home");
         }

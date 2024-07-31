@@ -3,7 +3,7 @@
         <div class="menu-bar">
             <span> {{ this.balance }} Coins </span>
             <text-button
-                v-if="balance > 0"
+                v-if="balance !== undefined && balance > 0"
                 :text="'Purchase ships'"
                 @buttonClick="onPurchaseShipsClick()"
             ></text-button>
@@ -29,8 +29,8 @@
                 class="sea-centre"
                 @sea-centre-click="onSeaCentreClick(seaCentre)"
                 :style="{
-                    top: `${100 * seaImageData[seaCentre.name].top}%`,
-                    left: `${100 * seaImageData[seaCentre.name].left}%`,
+                    top: `${100 * seaCentrePositions[seaCentre.name].top}%`,
+                    left: `${100 * seaCentrePositions[seaCentre.name].left}%`,
                 }"
             >
             </sea-centre>
@@ -56,27 +56,26 @@
 </template>
 
 <script lang="ts">
-import { TeamEndpoint, Team } from "./endpoints/team";
-import { PurchaseEndpoint } from "./endpoints/purchase";
-import { Sea, SeaEndpoint } from "./endpoints/sea";
-import { OutcomeEndpoint, Outcome } from "./endpoints/outcome";
-import { MoveEndpoint } from "./endpoints/move";
-import { Connection } from "./endpoints/main";
-import { LeaderboardEndpoint, LeaderboardEntry } from "./endpoints/leaderboard";
-import { Round, RoundEndpoint } from "./endpoints/round";
-import { Util } from "./util";
+import { TeamEndpoint, Team } from "../endpoints/team";
+import { PurchaseEndpoint } from "../endpoints/purchase";
+import { Sea, SeaEndpoint } from "../endpoints/sea";
+import { OutcomeEndpoint, Outcome } from "../endpoints/outcome";
+import { MoveEndpoint } from "../endpoints/move";
+import { Connection } from "../endpoints/main";
+import {
+    LeaderboardEndpoint,
+    LeaderboardEntry,
+} from "../endpoints/leaderboard";
+import { Round, RoundEndpoint } from "../endpoints/round";
+import { Util, VueThis } from "../common/util";
 
 const updateTimeRemainingMs = 2_000;
 type Action = "none" | "purchase" | "move";
 type TeamShips = { team: Team; shipCount: number };
-type SeaCentre = Sea & {
-    teamShips: TeamShips[];
-    xCoord: number;
-    yCoord: number;
-};
+type SeaCentre = Sea & { teamShips: TeamShips[] };
 
-type SeaImageData = {
-    [seaName: string]: { file: string; id: string; top: number; left: number };
+type SeaCentrePositions = {
+    [seaName: string]: { top: number; left: number };
 };
 
 interface Data {
@@ -114,20 +113,10 @@ interface Data {
     canMove: boolean;
     leaderboard: LeaderboardEntry[];
     round?: Round;
-    seaImageData: SeaImageData;
+    seaCentrePositions: SeaCentrePositions;
 }
 
-type This = Data & { [functionName: string]: Function } & { $refs: any };
-
-const normalisedSeaCoords = {
-    "North Pacific": [0.937, 0.538],
-    "South Pacific": [0.157, 0.73],
-    "North Atlantic": [0.358, 0.518],
-    "South Atlantic": [0.444, 0.809],
-    Southern: [0.628, 0.919],
-    Indian: [0.694, 0.747],
-    Arctic: [0.527, 0.153],
-};
+type This = VueThis<Data>;
 
 export default {
     data(): Data {
@@ -166,46 +155,32 @@ export default {
                     updateTimeRemainingHandle: undefined,
                 },
             },
-            seaImageData: {
+            seaCentrePositions: {
                 "North Pacific": {
-                    file: "north-pacific-cropped.svg",
-                    id: "seaNorthPacific",
                     top: 0.213,
                     left: 0,
                 },
                 "South Pacific": {
-                    file: "south-pacific-cropped.svg",
-                    id: "seaSouthPacific",
                     top: 0.515,
                     left: 0,
                 },
                 "North Atlantic": {
-                    file: "north-atlantic-cropped.svg",
-                    id: "seaNorthAtlantic",
                     top: 0.211,
                     left: 0.115,
                 },
                 "South Atlantic": {
-                    file: "south-atlantic-cropped.svg",
-                    id: "seaSouthAtlantic",
                     top: 0.53,
                     left: 0.223,
                 },
                 Southern: {
-                    file: "southern-cropped.svg",
-                    id: "seaSouthern",
                     top: 0.862,
                     left: 0,
                 },
                 Indian: {
-                    file: "indian-cropped.svg",
-                    id: "seaIndian",
                     top: 0.393,
                     left: 0.47,
                 },
                 Arctic: {
-                    file: "arctic-cropped.svg",
-                    id: "seaArctic",
                     top: 0,
                     left: 0,
                 },
@@ -247,8 +222,6 @@ export default {
                         outcome.sea.id == sea.id && outcome.shipCount > 0
                 );
                 const seaCentre: SeaCentre = {
-                    xCoord: 100 * normalisedSeaCoords[sea.name][0],
-                    yCoord: 100 * normalisedSeaCoords[sea.name][1],
                     ...sea,
                     teamShips: outcomesInSea,
                 };

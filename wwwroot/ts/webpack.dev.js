@@ -4,11 +4,10 @@ const { VueLoaderPlugin } = require("vue-loader");
 module.exports = {
     entry: {
         gameRoot: {
-            import: "./src/game-root.ts",
-            // dependOn: "endpoints"
+            import: "./src/game-root/main.ts",
         },
-        endpoints: {
-            import: "./src/endpoints/main.ts",
+        leaderboard: {
+            import: "./src/leaderboard/main.ts",
         },
     },
     module: {

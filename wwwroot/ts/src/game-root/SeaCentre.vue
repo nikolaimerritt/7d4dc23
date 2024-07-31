@@ -19,8 +19,8 @@
 </template>
 
 <script lang="ts">
-import { Team } from "./endpoints/team";
-import { Util, VueThis } from "./util";
+import { Team } from "../endpoints/team";
+import { Util, VueThis } from "../common/util";
 interface TeamShips {
     team: Team;
     shipCount: number;
@@ -67,34 +67,40 @@ export default {
     },
     async mounted(this: This) {
         await Util.sleep(500);
-        const shipContainer = this.$refs.shipContainer;
         const imageObject = Util.getHtmlObjectContent(
             this.$refs.imageContainer
         );
-        const pathObjects = Array.from(
-            imageObject.querySelectorAll("svg path")
-        ) as SVGPathElement[];
-        for (const svgPath of pathObjects) {
-            svgPath.addEventListener("mouseover", () => this.onHover(svgPath));
-            svgPath.addEventListener("mouseleave", () =>
-                this.onHoverExit(svgPath)
-            );
-            svgPath.addEventListener("mousedown", () => this.emitClick());
-        }
-        const largestRect = Util.maxBy(pathObjects, (svgPath) => {
-            const rect = svgPath.getBoundingClientRect();
-            return rect.width * rect.height;
-        }).getBoundingClientRect();
-        shipContainer.style.width = `${largestRect.width}px`;
-        shipContainer.style.height = `${largestRect.height}px`;
-        shipContainer.style.top = `${largestRect.top}px`;
-        shipContainer.style.left = `${largestRect.left}px`;
-
         imageObject.querySelector("svg").style.borderRadius =
             this.borderRadius();
+
+        const svgPaths = Array.from(
+            imageObject.querySelectorAll("svg path")
+        ) as SVGPathElement[];
+        for (var path of svgPaths) {
+            this.addMouseEvents(path);
+        }
+
+        const pathRects = svgPaths.map((path) => path.getBoundingClientRect());
+        const largestRect = Util.maxBy(
+            pathRects,
+            (rect) => rect.width * rect.height
+        );
+        this.fitElementTo(this.$refs.shipContainer, largestRect);
+
         this.loaded = true;
     },
     methods: {
+        addMouseEvents(path: SVGPathElement) {
+            path.addEventListener("mouseover", () => this.onHover(path));
+            path.addEventListener("mouseleave", () => this.onHoverExit(path));
+            path.addEventListener("mousedown", () => this.emitClick());
+        },
+        fitElementTo(element: HTMLElement, rect: DOMRect) {
+            element.style.width = `${rect.width}px`;
+            element.style.height = `${rect.height}px`;
+            element.style.top = `${rect.top}px`;
+            element.style.left = `${rect.left}px`;
+        },
         onHover(this: This, path: SVGPathElement) {
             if (this.highlighted) {
                 this.hover = true;
@@ -107,7 +113,7 @@ export default {
         },
         emitClick(this: This) {
             if (this.highlighted) {
-                this.$emit("sea-centre-click", this.name);
+                this.$emit("sea-centre-click");
             }
         },
         borderRadius(this: This): string {
@@ -169,3 +175,4 @@ export default {
     border-radius: 0 0 16px 16px;
 }
 </style>
+./common/util

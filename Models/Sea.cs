@@ -34,18 +34,12 @@ public class Sea
         public static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> AdjacentSeas =
             new Dictionary<string, IReadOnlyList<string>>()
             {
-                [NorthPacific] = new List<string>() { SouthPacific, Southern },
-                [SouthPacific] = new List<string>() { NorthPacific, Southern, SouthAtlantic },
-                [Southern] = new List<string>()
-                {
-                    NorthPacific,
-                    SouthPacific,
-                    SouthAtlantic,
-                    Indian
-                },
-                [SouthAtlantic] = new List<string>() { SouthPacific, Southern, NorthAtlantic },
+                [NorthPacific] = new List<string>() { SouthPacific, Arctic },
+                [SouthPacific] = new List<string>() { NorthPacific, Southern },
+                [Southern] = new List<string>() { SouthPacific, SouthAtlantic, Indian },
+                [SouthAtlantic] = new List<string>() { NorthAtlantic, Southern, NorthAtlantic },
                 [NorthAtlantic] = new List<string>() { SouthAtlantic, Arctic },
-                [Arctic] = new List<string>() { NorthAtlantic },
+                [Arctic] = new List<string>() { NorthAtlantic, NorthPacific },
                 [Indian] = new List<string>() { Southern }
             };
     }
