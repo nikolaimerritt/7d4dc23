@@ -1,7 +1,9 @@
 <template>
     <div class="ship">
         <div class="icon-container">
-            <img :src="'../../imgs/ship.png'" />
+            <div class="recolour-image">
+                <img :src="'../../imgs/ship.svg'" color="red" />
+            </div>
             <span class="ship-count"> {{ shipCount }} </span>
         </div>
         <div class="team-name">{{ teamName }}</div>
@@ -27,6 +29,19 @@ export default {
 .icon-container {
     position: absolute;
     width: min-content;
+}
+
+svg {
+    color: blue;
+}
+
+.recolour-image {
+    overflow: hidden;
+}
+
+.recolour-image img {
+    filter: drop-shadow(1px 1000px 0 red);
+    transform: translateY(-999px);
 }
 
 .ship-count {

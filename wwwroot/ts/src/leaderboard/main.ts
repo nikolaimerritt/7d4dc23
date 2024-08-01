@@ -6,5 +6,5 @@ Vue.component("game-leaderboard", GameLeaderboard);
 Common.define();
 
 new Vue({
-    el: "#leaderboard",
+    el: "#gameLeaderboard",
 });
