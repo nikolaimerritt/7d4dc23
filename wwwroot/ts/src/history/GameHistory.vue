@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="container">
         <div
             v-for="(history, index) in this.roundHistory"
             :key="`history-${index}`"
@@ -325,6 +325,13 @@ export default {
 };
 </script>
 <style scoped>
+.container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 h2 {
     color: #2c2215;
     margin-bottom: 0;

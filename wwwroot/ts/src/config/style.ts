@@ -2,15 +2,15 @@ export class Style {
     public static teamColour(teamName: string): string {
         switch (teamName) {
             case "Team Drake":
-                return "#ad847e";
+                return "#c37b39";
             case "Team Blackbeard":
-                return "#c38988";
+                return "#ba5737";
             case "Team Kidd":
-                return "#d19e8c";
+                return "#9b5c74";
             case "Team Read":
-                return "#b09a80";
+                return "#5a67a3";
             case "Team O'Malley":
-                return "#b3aa92";
+                return "#708c56";
             default:
                 return "#000000";
         }

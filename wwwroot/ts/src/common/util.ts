@@ -13,12 +13,12 @@ export class Util {
             ...new Map(items.map((item) => [keySelector(item), item])).values(),
         ];
     }
-    public static timeBetween(bigger: Date, smaller: Date): string {
+    public static timeBetween(bigger: Date, smaller: Date): moment.Moment {
         if (bigger < smaller) {
             bigger = smaller;
         }
-        let duration = moment.duration(moment(bigger).diff(moment(smaller)));
-        return moment.utc(duration.asMilliseconds()).format("HH:mm:ss");
+        const duration = moment.duration(moment(bigger).diff(moment(smaller)));
+        return moment.utc(duration.asMilliseconds());
     }
 
     public static getHtmlObjectContent(htmlObject: HTMLElement): HTMLElement {

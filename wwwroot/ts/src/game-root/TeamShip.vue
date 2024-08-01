@@ -2,7 +2,7 @@
     <div class="ship">
         <div class="icon-container">
             <!-- <img :src="'../../imgs/ship.svg'" color="red" /> -->
-            <ShipSvg :style="{ color: 'green' }" />
+            <ShipSvg :style="{ color: shipColour() }" />
             <span class="ship-count"> {{ shipCount }} </span>
         </div>
         <div class="team-name">{{ teamName }}</div>
@@ -11,11 +11,17 @@
 
 <script lang="ts">
 import ShipSvg from "../../../imgs/ship.svg";
+import { Style } from "../config/style";
 
 export default {
     props: {
         teamName: String,
         shipCount: Number,
+    },
+    methods: {
+        shipColour() {
+            return Style.teamColour(this.teamName);
+        },
     },
     components: {
         ShipSvg,

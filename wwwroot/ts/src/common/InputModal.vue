@@ -1,13 +1,16 @@
 <template>
     <div class="modal-wrapper" @click="emitClickOutside($event)">
         <div ref="modalBox" class="modal-box">
-            <span> {{ message }} </span>
+            <span class="message"> {{ message }} </span>
             <input v-model="inputText" />
             <text-button
+                style="margin-top: 24px"
                 :text="buttonText"
                 @buttonClick="emitSubmission()"
             ></text-button>
-            <span v-show="errorMessage"> {{ errorMessage }} </span>
+            <span class="error-message" v-show="errorMessage">
+                {{ errorMessage }}
+            </span>
         </div>
     </div>
 </template>
@@ -65,12 +68,21 @@ export default {
     vertical-align: middle;
 }
 
+.message {
+    padding: 24px 12px 0 12px;
+}
+
+.error-message {
+    padding: 0 0 12px 0;
+}
+
 .modal-box {
     position: relative;
     top: 50%;
     left: 50%;
     width: 300px;
-    height: 200px;
+    height: fill-content;
+    min-height: 200px;
     margin-left: -150px;
     margin-right: -100px;
     border-radius: 16px;

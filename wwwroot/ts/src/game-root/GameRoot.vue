@@ -1,57 +1,82 @@
 <template>
-    <div>
-        <div class="menu-bar">
-            <span> {{ this.balance }} Coins </span>
-            <text-button
-                v-if="balance !== undefined && balance > 0"
-                :text="'Purchase ships'"
-                @buttonClick="onPurchaseShipsClick()"
-            ></text-button>
-            <text-button
-                v-if="canMove"
-                :text="'Move ships'"
-                @buttonClick="onMoveShipsClick()"
+    <div class="horizontal-container">
+        <div class="left-container">
+            <div class="menu-bar">
+                <span> {{ this.balance }} Coins </span>
+                <text-button
+                    v-if="balance !== undefined && balance > 0"
+                    :text="'Purchase ships'"
+                    @buttonClick="onPurchaseShipsClick()"
+                ></text-button>
+                <text-button
+                    v-if="canMove"
+                    :text="'Move ships'"
+                    @buttonClick="onMoveShipsClick()"
+                >
+                </text-button>
+                <span
+                    v-if="
+                        this.ui.round.timeRemaining !== undefined &&
+                        this.ui.round.timeRemaining.seconds() > 0
+                    "
+                >
+                    {{
+                        "Round ends in " +
+                        this.ui.round.timeRemaining.format("HH:mm:ss")
+                    }}
+                </span>
+                <span
+                    v-else-if="
+                        this.ui.round.timeRemaining !== undefined &&
+                        this.ui.round.timeRemaining.seconds() === 0
+                    "
+                >
+                    Round has ended
+                </span>
+            </div>
+            <div class="dialog" v-if="dialogText()">
+                {{ dialogText() }}
+            </div>
+            <div class="map-container">
+                <img
+                    :src="'/imgs/seas/map-sepia-2.png'"
+                    class="map-background"
+                />
+                <sea-centre
+                    v-for="(seaCentre, index) in this.seaCentres"
+                    :key="index"
+                    :name="seaCentre.name"
+                    :teamShips="seaCentre.teamShips"
+                    :highlighted="isHighlighted(seaCentre)"
+                    class="sea-centre"
+                    @sea-centre-click="onSeaCentreClick(seaCentre)"
+                    :style="{
+                        top: `${100 * seaCentrePositions[seaCentre.name].top}%`,
+                        left: `${
+                            100 * seaCentrePositions[seaCentre.name].left
+                        }%`,
+                    }"
+                >
+                </sea-centre>
+            </div>
+            <input-modal
+                v-if="ui.purchase.showModal"
+                :message="'How many points would you like to spend to buy new ships?'"
+                :buttonText="'Buy'"
+                :errorMessage="ui.purchase.error"
+                @submission="onSubmitPurchase($event)"
+                @clickOutside="resetActions()"
+            ></input-modal>
+            <input-modal
+                v-if="ui.move.showModal"
+                :message="'How many ships would you like to move?'"
+                :buttonText="'Move'"
+                :errorMessage="ui.move.error"
+                @submission="onSubmitMove($event)"
+                @clickOutside="resetActions()"
             >
-            </text-button>
-            <span v-if="this.ui.round.timeRemaining">
-                {{ "Round ends in " + this.ui.round.timeRemaining }}
-            </span>
-            <span v-if="dialogText()"> {{ dialogText() }} </span>
+            </input-modal>
         </div>
-        <div class="map-container">
-            <img :src="'/imgs/seas/map-sepia-2.png'" class="map-background" />
-            <sea-centre
-                v-for="(seaCentre, index) in this.seaCentres"
-                :key="index"
-                :name="seaCentre.name"
-                :teamShips="seaCentre.teamShips"
-                :highlighted="isHighlighted(seaCentre)"
-                class="sea-centre"
-                @sea-centre-click="onSeaCentreClick(seaCentre)"
-                :style="{
-                    top: `${100 * seaCentrePositions[seaCentre.name].top}%`,
-                    left: `${100 * seaCentrePositions[seaCentre.name].left}%`,
-                }"
-            >
-            </sea-centre>
-        </div>
-        <input-modal
-            v-if="ui.purchase.showModal"
-            :message="'How many points would you like to spend to buy new ships?'"
-            :buttonText="'Buy'"
-            :errorMessage="ui.purchase.error"
-            @submission="onSubmitPurchase($event)"
-            @clickOutside="resetActions()"
-        ></input-modal>
-        <input-modal
-            v-if="ui.move.showModal"
-            :message="'How many ships would you like to move?'"
-            :buttonText="'Move'"
-            :errorMessage="ui.move.error"
-            @submission="onSubmitMove($event)"
-            @clickOutside="resetActions()"
-        >
-        </input-modal>
     </div>
 </template>
 
@@ -64,6 +89,7 @@ import { MoveEndpoint } from "../endpoints/move";
 import { Connection } from "../endpoints/main";
 import { Round, RoundEndpoint } from "../endpoints/round";
 import { Util, VueThis } from "../common/util";
+import * as moment from "moment";
 
 const updateTimeRemainingMs = 2_000;
 const updateMapMs = 5_000;
@@ -98,7 +124,7 @@ interface Data {
             error: string;
         };
         round: {
-            timeRemaining: string;
+            timeRemaining?: moment.Moment;
             updateTimeRemainingHandle?: number;
         };
         map: {
@@ -147,7 +173,7 @@ export default {
                     error: "",
                 },
                 round: {
-                    timeRemaining: "",
+                    timeRemaining: undefined,
                     updateTimeRemainingHandle: undefined,
                 },
                 map: {
@@ -376,7 +402,24 @@ export default {
 };
 </script>
 <style scoped>
+.dialog {
+    padding: 0 0 12px 12px;
+}
+.horizontal-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.left-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
 .menu-bar {
+    padding: 0 0 0 12px;
     display: flex;
     align-items: center;
     column-gap: 32px;

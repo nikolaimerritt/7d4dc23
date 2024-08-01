@@ -13,7 +13,15 @@
                     :key="index"
                 >
                     <td>{{ entry.rank }}</td>
-                    <td>{{ entry.team.name }}</td>
+                    <td>
+                        <span
+                            :style="{
+                                color: teamCircleColour(entry.team.name),
+                            }"
+                            >⬤</span
+                        >
+                        {{ entry.team.name }}
+                    </td>
                     <td>{{ entry.seasHeld }}</td>
                 </tr>
             </table>
@@ -26,6 +34,7 @@ import {
     LeaderboardEntry,
 } from "../endpoints/leaderboard";
 import { VueThis } from "../common/util";
+import { Style } from "../config/style";
 interface Data {
     endpoint: {
         leaderboard: LeaderboardEndpoint;
@@ -62,6 +71,11 @@ export default {
             this.ui.leaderboardPollingMs
         );
     },
+    methods: {
+        teamCircleColour(teamName: string): string {
+            return Style.teamColour(teamName);
+        },
+    },
     unmounted(this: This) {
         window.clearInterval(this.ui.leaderboardPollingHandle);
     },
@@ -97,7 +111,7 @@ th {
 
 th,
 td {
-    padding: 0 3.5rem 0.8rem 0;
+    padding: 0 4.5rem 0.8rem 0;
 }
 
 td {
