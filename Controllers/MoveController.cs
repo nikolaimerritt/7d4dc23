@@ -84,7 +84,7 @@ public class MoveController : Controller
         var round = await _roundRepository.GetCurrentRoundAsync();
         if (round?.StartFighting < DateTime.UtcNow)
         {
-            return Json(ErrorViewModel.MoveWindowHasEnded);
+            return Json(ErrorViewModel.PlanningWindowHasEnded);
         }
 
         var fromSea = await _context.Seas.FirstOrDefaultAsync(sea => sea.Id == fromSeaId);

@@ -164,12 +164,12 @@ export default {
     left: 0;
 }
 .state-highlighted {
-    filter: brightness(0) saturate(100%) invert(92%) sepia(72%) saturate(383%)
-        hue-rotate(323deg) brightness(94%) contrast(89%);
+    filter: brightness(0) saturate(100%) invert(96%) sepia(43%) saturate(961%)
+        hue-rotate(317deg) brightness(90%) contrast(86%);
 }
 .state-hover {
-    filter: brightness(0) saturate(100%) invert(82%) sepia(20%) saturate(567%)
-        hue-rotate(4deg) brightness(94%) contrast(92%);
+    filter: brightness(0) saturate(100%) invert(82%) sepia(27%) saturate(532%)
+        hue-rotate(355deg) brightness(84%) contrast(86%);
 }
 .state-none {
     filter: opacity(0%);

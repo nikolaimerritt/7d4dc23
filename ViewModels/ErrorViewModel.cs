@@ -6,8 +6,8 @@ public class ErrorViewModel
 
     public static readonly ErrorViewModel Unauthorized = new() { Error = "Unauthorized." };
 
-    public static readonly ErrorViewModel MoveWindowHasEnded =
-        new() { Error = "The movement window of the current round has ended." };
+    public static readonly ErrorViewModel PlanningWindowHasEnded =
+        new() { Error = "The round's planning window has ended." };
 
     public static readonly ErrorViewModel SeasAreInaccessible =
         new() { Error = "The seas are inaccessible." };

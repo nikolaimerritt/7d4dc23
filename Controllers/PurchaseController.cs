@@ -89,7 +89,7 @@ public class PurchaseController : Controller
         var round = await _roundRepository.GetCurrentRoundAsync();
         if (round?.StartFighting < DateTime.UtcNow)
         {
-            return Json(ErrorViewModel.MoveWindowHasEnded);
+            return Json(ErrorViewModel.PlanningWindowHasEnded);
         }
 
         var currentRound = await _roundRepository.GetCurrentRoundAsync();
