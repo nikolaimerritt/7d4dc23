@@ -1,9 +1,8 @@
 <template>
     <div class="ship">
         <div class="icon-container">
-            <div class="recolour-image">
-                <img :src="'../../imgs/ship.svg'" color="red" />
-            </div>
+            <!-- <img :src="'../../imgs/ship.svg'" color="red" /> -->
+            <ShipSvg :style="{ color: 'green' }" />
             <span class="ship-count"> {{ shipCount }} </span>
         </div>
         <div class="team-name">{{ teamName }}</div>
@@ -11,10 +10,15 @@
 </template>
 
 <script lang="ts">
+import ShipSvg from "../../../imgs/ship.svg";
+
 export default {
     props: {
         teamName: String,
         shipCount: Number,
+    },
+    components: {
+        ShipSvg,
     },
 };
 </script>
@@ -32,6 +36,7 @@ export default {
 }
 
 svg {
+    width: 60px;
     color: blue;
 }
 
@@ -55,9 +60,6 @@ svg {
     margin-top: 60px;
     text-align: center;
     width: max-content;
-}
-img {
-    width: 60px;
 }
 
 span {
