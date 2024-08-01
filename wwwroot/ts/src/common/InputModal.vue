@@ -4,7 +4,7 @@
             <span class="message"> {{ message }} </span>
             <input v-model="inputText" />
             <text-button
-                style="margin-top: 24px"
+                style="margin: 24px 0"
                 :text="buttonText"
                 @buttonClick="emitSubmission()"
             ></text-button>

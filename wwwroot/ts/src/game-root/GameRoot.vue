@@ -261,7 +261,7 @@ export default {
             if (this.ui.action === "none") {
                 this.ui.action = "purchase";
             } else if (this.ui.action === "purchase") {
-                this.ui.action = "none";
+                this.resetActions();
             }
         },
         resetActions(this: This) {
@@ -281,7 +281,7 @@ export default {
             if (this.ui.action === "none") {
                 this.ui.action = "move";
             } else if (this.ui.action === "move") {
-                this.ui.action = "none";
+                this.resetActions();
             }
         },
         onSeaCentreClick(this: This, seaCentre: SeaCentre) {

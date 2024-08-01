@@ -126,6 +126,13 @@ export default {
             }
         },
     },
+    watch: {
+        highlighted(newValue) {
+            if (!newValue) {
+                this.hover = false;
+            }
+        },
+    },
     computed: {
         imageClass(this: This) {
             if (this.hover) {
