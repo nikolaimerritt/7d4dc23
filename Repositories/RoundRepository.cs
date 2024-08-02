@@ -29,10 +29,10 @@ public class RoundRepository
 
     public async Task<Round?> GetPreviousRoundAsync()
     {
-        var now = DateTime.UtcNow;
         return await _context
-            .Rounds.OrderByDescending(round => round.StartMoving)
-            .FirstOrDefaultAsync(round => round.End < now);
+            .Rounds.Where(round => _context.Outcomes.Any(outcome => outcome.RoundId == round.Id))
+            .OrderByDescending(round => round.StartMoving)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<Round?> RoundBeforeAsync(Round round) =>

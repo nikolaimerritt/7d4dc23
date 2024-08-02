@@ -1,41 +1,45 @@
 <template>
-    <div class="container">
-        <div
-            v-for="(history, index) in this.roundHistory"
-            :key="`history-${index}`"
-        >
-            <h2>Round {{ index + 1 }}</h2>
-            <h3>
-                {{ toTimeString(history.round.startMoving) }} to
-                {{ toTimeString(history.round.end) }}
-            </h3>
+    <div class="centre-container">
+        <div class="left-container">
             <div
-                v-if="
-                    history.moves.length > 0 ||
-                    history.purchases.length > 0 ||
-                    history.outcomes.length > 0
-                "
+                v-for="(history, index) in this.roundHistory"
+                :key="`history-${index}`"
             >
-                <ul>
-                    <li
-                        v-for="(planning, index) in describeRoundPlanning(
-                            history
-                        )"
-                        :key="`planning-${index}`"
-                    >
-                        {{ planning }}
-                    </li>
-                    <li
-                        v-for="(outcomeDescription, index) in describeOutcomes(
-                            history.outcomes
-                        )"
-                        :key="`outcome-description-${index}`"
-                    >
-                        {{ outcomeDescription }}
-                    </li>
-                </ul>
+                <h2>Round {{ index + 1 }}</h2>
+                <h3>
+                    {{ toTimeString(history.round.startMoving) }} to
+                    {{ toTimeString(history.round.end) }}
+                </h3>
+                <div
+                    v-if="
+                        history.moves.length > 0 ||
+                        history.purchases.length > 0 ||
+                        history.outcomes.length > 0
+                    "
+                >
+                    <ul>
+                        <li
+                            v-for="(planning, index) in describeRoundPlanning(
+                                history
+                            )"
+                            :key="`planning-${index}`"
+                        >
+                            {{ planning }}
+                        </li>
+                        <li
+                            v-for="(
+                                outcomeDescription, index
+                            ) in describeOutcomes(history.outcomes)"
+                            :key="`outcome-description-${index}`"
+                        >
+                            {{ outcomeDescription }}
+                        </li>
+                    </ul>
+                </div>
+                <div v-else class="nothing-happened">
+                    Nothing yet has happened.
+                </div>
             </div>
-            <div v-else class="nothing-happened">Nothing yet has happened.</div>
         </div>
     </div>
 </template>
@@ -325,11 +329,18 @@ export default {
 };
 </script>
 <style scoped>
-.container {
+.centre-container {
     width: 100%;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
+}
+
+.left-container {
+    width: fit-content;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 h2 {

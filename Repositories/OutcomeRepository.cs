@@ -26,8 +26,8 @@ public class OutcomeRepository
 
     public async Task<List<Outcome>> FromPreviousRoundAsync()
     {
-        var latestRound = await _roundRepository.GetPreviousRoundAsync();
-        return await WithinAsync(latestRound);
+        var previousRound = await _roundRepository.GetPreviousRoundAsync();
+        return await WithinAsync(previousRound);
     }
 
     public async Task<List<Outcome>> WithinAsync(Round round) =>

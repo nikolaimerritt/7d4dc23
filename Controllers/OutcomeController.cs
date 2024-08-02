@@ -128,7 +128,11 @@ public class OutcomeController : Controller
                 outcomeInEntranceSea.ShipsAfter += move.ShipCount;
             }
         }
-
+        // TO SELF: debug
+        if (virtualOutcomes.Count == 0)
+        {
+            Console.WriteLine();
+        }
         return Json(virtualOutcomes);
     }
 
