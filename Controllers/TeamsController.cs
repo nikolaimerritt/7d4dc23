@@ -1,6 +1,6 @@
-﻿using CTFWhodunnit.Database;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PirateConquest.Database;
 using PirateConquest.Repositories;
 using PirateConquest.Utils;
 using PirateConquest.ViewModels;

@@ -1,8 +1,9 @@
-﻿using CTFWhodunnit.Database;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PirateConquest.Database;
 using PirateConquest.Models;
 using PirateConquest.Repositories;
+using PirateConquest.Services;
 using PirateConquest.Utils;
 using PirateConquest.ViewModels;
 
@@ -15,13 +16,15 @@ public class PurchaseController : Controller
     private readonly PurchaseRepository _purchaseRepository;
     private readonly TeamRepository _teamRepository;
     private readonly RoundRepository _roundRepository;
+    private readonly PointsService _pointsService;
 
     public PurchaseController(
         AppDbContext context,
         SeaRepository seaRepository,
         PurchaseRepository purchaseRepository,
         TeamRepository teamRepository,
-        RoundRepository roundRepository
+        RoundRepository roundRepository,
+        PointsService pointsService
     )
     {
         _context = context;
@@ -29,6 +32,7 @@ public class PurchaseController : Controller
         _purchaseRepository = purchaseRepository;
         _teamRepository = teamRepository;
         _roundRepository = roundRepository;
+        _pointsService = pointsService;
     }
 
     [HttpGet("/api/purchases")]
@@ -87,7 +91,7 @@ public class PurchaseController : Controller
             return Json(ErrorViewModel.Unauthorized);
         }
         var round = await _roundRepository.GetCurrentRoundAsync();
-        if (round?.StartFighting < DateTime.UtcNow)
+        if (round?.StartCooldown < DateTime.UtcNow)
         {
             return Json(ErrorViewModel.PlanningWindowHasEnded);
         }
@@ -97,7 +101,12 @@ public class PurchaseController : Controller
         {
             return BadRequest();
         }
-        if (points < 0 || points > await AvailablePoints(team))
+        var availablePoints = await AvailablePoints(team);
+        if (availablePoints is null)
+        {
+            return Json(ErrorViewModel.InternalError);
+        }
+        if (points < 0 || points > availablePoints)
         {
             return Json(ErrorViewModel.NotEnoughPoints);
         }
@@ -122,9 +131,10 @@ public class PurchaseController : Controller
         return Json(new OkViewModel());
     }
 
-    private async Task<int> AvailablePoints(Team team)
+    private async Task<int?> AvailablePoints(Team team)
     {
-        var pointsGained = 99; // TO SELF: query Playground for teams points
+        //var pointsGained = await _pointsService.GetPointsAsync(team);
+        var pointsGained = 99;
         var pointsSpent = await _context
             .Purchases.Where(purchase => purchase.Team == team)
             .SumAsync(purchase => purchase.Points);

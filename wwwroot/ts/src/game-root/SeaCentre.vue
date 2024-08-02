@@ -1,11 +1,46 @@
 <template>
     <div>
-        <object
+        <!-- <object
             type="image/svg+xml"
             ref="imageContainer"
             :data="`/imgs/seas/${seaImages[name]}`"
             :class="['image-container', imageClass]"
-        ></object>
+        ></object> -->
+        <NorthPacificSvg
+            ref="imageContainer"
+            v-if="name === 'North Pacific'"
+            :class="['image-container', imageClass]"
+        />
+        <SouthPacificSvg
+            ref="imageContainer"
+            v-else-if="name === 'South Pacific'"
+            :class="['image-container', imageClass]"
+        />
+        <NorthAtlanticSvg
+            ref="imageContainer"
+            v-else-if="name === 'North Atlantic'"
+            :class="['image-container', imageClass]"
+        />
+        <SouthAtlanticSvg
+            ref="imageContainer"
+            v-else-if="name === 'South Atlantic'"
+            :class="['image-container', imageClass]"
+        />
+        <SouthernSvg
+            ref="imageContainer"
+            v-else-if="name === 'Southern'"
+            :class="['image-container', imageClass]"
+        />
+        <IndianSvg
+            ref="imageContainer"
+            v-else-if="name === 'Indian'"
+            :class="['image-container', imageClass]"
+        />
+        <Arctic
+            ref="imageContainer"
+            v-else-if="name === 'Arctic'"
+            :class="['image-container', imageClass]"
+        />
         <div ref="shipContainer" class="ship-container" v-show="loaded">
             <team-ship
                 v-for="(ship, index) in teamShips"
@@ -21,6 +56,13 @@
 <script lang="ts">
 import { Team } from "../endpoints/team";
 import { Util, VueThis } from "../common/util";
+import NorthPacificSvg from "../../../imgs/seas/north-pacific-cropped.svg";
+import SouthPacificSvg from "../../../imgs/seas/south-pacific-cropped.svg";
+import NorthAtlanticSvg from "../../../imgs/seas/north-atlantic-cropped.svg";
+import SouthAtlanticSvg from "../../../imgs/seas/south-atlantic-cropped.svg";
+import SouthernSvg from "../../../imgs/seas/southern-cropped.svg";
+import IndianSvg from "../../../imgs/seas/indian-cropped.svg";
+import ArcticSvg from "../../../imgs/seas/arctic-cropped.svg";
 interface TeamShips {
     team: Team;
     shipCount: number;
@@ -50,6 +92,15 @@ export default {
             type: Array<TeamShips>,
         },
     },
+    components: {
+        NorthPacificSvg,
+        SouthPacificSvg,
+        NorthAtlanticSvg,
+        SouthAtlanticSvg,
+        SouthernSvg,
+        IndianSvg,
+        ArcticSvg,
+    },
     data(): Data {
         return {
             seaImages: {
@@ -66,7 +117,6 @@ export default {
         };
     },
     async mounted(this: This) {
-        await Util.sleep(500);
         const imageObject = Util.getHtmlObjectContent(
             this.$refs.imageContainer
         );
@@ -182,4 +232,3 @@ export default {
     border-radius: 0 0 16px 16px;
 }
 </style>
-./common/util

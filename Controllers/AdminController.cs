@@ -1,12 +1,12 @@
 ﻿using System.Diagnostics;
-using CTFWhodunnit.Database;
-using CTFWhodunnit.Models;
-using CTFWhodunnit.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PirateConquest.Database;
+using PirateConquest.Models;
+using PirateConquest.Utils;
 
-namespace CTFWhodunnit.Controllers;
+namespace PirateConquest.Controllers;
 
 [Authorize(Policy = "IsAdminPolicy")]
 public class AdminController : Controller

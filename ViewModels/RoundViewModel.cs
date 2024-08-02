@@ -5,8 +5,8 @@ namespace PirateConquest.ViewModels;
 public class RoundViewModel
 {
     public int Id { get; set; }
-    public DateTime StartMoving { get; set; }
-    public DateTime StartFighting { get; set; }
+    public DateTime StartPlanning { get; set; }
+    public DateTime StartCooldown { get; set; }
     public DateTime End { get; set; }
 
     public RoundViewModel() { }
@@ -15,8 +15,8 @@ public class RoundViewModel
         new()
         {
             Id = round.Id,
-            StartMoving = round.StartMoving,
-            StartFighting = round.StartFighting,
+            StartPlanning = round.StartPlanning,
+            StartCooldown = round.StartCooldown,
             End = round.End,
         };
 }

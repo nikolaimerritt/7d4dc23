@@ -2,14 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CTFWhodunnit.Models;
-using CTFWhodunnit.Utils;
 using Microsoft.EntityFrameworkCore;
 using PirateConquest.Models;
+using PirateConquest.Models;
+using PirateConquest.Repositories;
+using PirateConquest.Utils;
 using PirateConquest.ViewModels;
 using SQLitePCL;
 
-namespace CTFWhodunnit.Database;
+namespace PirateConquest.Database;
 
 public class DatabaseInitialiser
 {
@@ -18,24 +19,21 @@ public class DatabaseInitialiser
     public static readonly int StartingShips = 10;
 
     private readonly AppDbContext _context;
+    private readonly ConfigService _configRepository;
 
-    private static readonly int RoundCount = 5;
-    private static readonly TimeSpan RoundDuration = TimeSpan.FromSeconds(100);
-    private static readonly TimeSpan RoundMovingDuration = TimeSpan.FromSeconds(90);
-    private static readonly DateTime FirstRoundStart = DateTime.UtcNow + TimeSpan.FromSeconds(5);
-
-    public DatabaseInitialiser(AppDbContext context)
+    public DatabaseInitialiser(AppDbContext context, ConfigService configRepository)
     {
         _context = context;
+        _configRepository = configRepository;
     }
 
     public async Task Initialise()
     {
         _context.Database.EnsureCreated();
 
-        if (!_context.AppConfigs.Any())
+        if (!await _context.AppConfigs.AnyAsync())
         {
-            await InitializeConfig();
+            await InitialiseConfig();
         }
 
         if (!await _context.Seas.AnyAsync())
@@ -156,8 +154,8 @@ public class DatabaseInitialiser
         var initialRound = new Round()
         {
             IsInitial = true,
-            StartMoving = past,
-            StartFighting = past,
+            StartPlanning = past,
+            StartCooldown = past,
             End = past,
         };
         await _context.Rounds.AddAsync(initialRound);
@@ -175,63 +173,62 @@ public class DatabaseInitialiser
 
     private async Task CreateRounds()
     {
+        var firstRoundStart =
+            await _configRepository.GetValueAsync(AppConfig.DateTimeConfig.FirstRoundStart)
+            ?? throw new ArgumentNullException(
+                $"Could not find an environment variable or database configuration entry for the time when the first round starts. Searched for key {AppConfig.DateTimeConfig.FirstRoundStart.Key}"
+            );
+        var planningMinutes =
+            await _configRepository.GetValueAsync(AppConfig.IntegerConfig.PlanningMinutes)
+            ?? throw new ArgumentNullException(
+                $"Could not find an environment variable or database configuration entry for the amount of planning minutes. Searched for key {AppConfig.IntegerConfig.PlanningMinutes.Key}"
+            );
+        var cooldownMinutes =
+            await _configRepository.GetValueAsync(AppConfig.IntegerConfig.CooldownMinutes)
+            ?? throw new ArgumentNullException(
+                $"Could not find an environment variable or database configuration entry for the amount of cooldown minutes. Searched for key {AppConfig.IntegerConfig.CooldownMinutes.Key}"
+            );
+        var roundCount =
+            await _configRepository.GetValueAsync(AppConfig.IntegerConfig.RoundsCount)
+            ?? throw new ArgumentNullException(
+                $"Could not find an environment variable or database configuration entry for the number of rounds. Searched for key {AppConfig.IntegerConfig.RoundsCount.Key}"
+            );
+
+        var planningTime = TimeSpan.FromMinutes(planningMinutes);
+        var cooldownTime = TimeSpan.FromMinutes(cooldownMinutes);
         var lastRound = new Round()
         {
-            StartMoving = FirstRoundStart,
-            StartFighting = FirstRoundStart + RoundMovingDuration,
-            End = FirstRoundStart + RoundDuration
+            StartPlanning = firstRoundStart,
+            StartCooldown = firstRoundStart + planningTime,
+            End = firstRoundStart + planningTime + cooldownTime
         };
         await _context.Rounds.AddAsync(lastRound);
-        for (var n = 1; n < RoundCount; n++)
+        for (var n = 1; n < roundCount; n++)
         {
             var roundStart = lastRound.End + TimeSpan.FromSeconds(1);
             lastRound = new Round()
             {
-                StartMoving = roundStart,
-                StartFighting = roundStart + RoundMovingDuration,
-                End = roundStart + RoundDuration,
+                StartPlanning = roundStart,
+                StartCooldown = roundStart + planningTime,
+                End = roundStart + planningTime + cooldownTime,
             };
             await _context.Rounds.AddAsync(lastRound);
         }
         await _context.SaveChangesAsync();
     }
 
-    private async Task InitializeConfig()
+    private async Task InitialiseConfig()
     {
-        var conf = new AppConfig { Name = AppConfig.CTF_ID_KEY, Value = "93" };
-        _context.AppConfigs.Add(conf);
-
-        conf = new AppConfig { Name = AppConfig.TEAM_VIEW_KEY, Value = "false" };
-        _context.AppConfigs.Add(conf);
-
-        conf = new AppConfig
+        var configs = new List<AppConfig>()
         {
-            Name = AppConfig.MAX_FLAG_POINTS_KEY,
-            Value = DEFAULT_MAX_FLAG_POINTS.ToString()
+            new() { Key = AppConfig.IntegerConfig.CtfIdKey.Key, Value = "94" },
+            new()
+            {
+                Key = AppConfig.StringConfig.PlaygroundLeaderboardUrl.Key,
+                Value = "https://playground.withsecure.com/api/public/ctf/$ctfEventId/leaderboard"
+            },
         };
-        _context.AppConfigs.Add(conf);
-
-        conf = new AppConfig
-        {
-            Name = AppConfig.MAX_CTF_POINTS_KEY,
-            Value = DEFAULT_MAX_CTF_POINTS.ToString()
-        };
-        _context.AppConfigs.Add(conf);
-
-        conf = new AppConfig
-        {
-            Name = AppConfig.PLAYGROUND_LEADERBOARD_URL_KEY,
-            Value = "https://playground.withsecure.com/api/public/ctf/$ctfEventId/leaderboard"
-        };
-        _context.AppConfigs.Add(conf);
-
-        conf = new AppConfig
-        {
-            Name = AppConfig.VIDEO_URL_KEY,
-            Value =
-                "https://pgmediauk.blob.core.windows.net/ctfs/Video-v2.mp4?sp=r&st=2023-09-05T16:41:41Z&se=2023-11-10T01:41:41Z&spr=https&sv=2022-11-02&sr=b&sig=egD4oauVLJmnscbwzcaRcxrZfmagL%2BQR080V%2FQz44gA%3D"
-        };
-        _context.AppConfigs.Add(conf);
+        await _context.AppConfigs.AddRangeAsync(configs);
         await _context.SaveChangesAsync();
     }
 }

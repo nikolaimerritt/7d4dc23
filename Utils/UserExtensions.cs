@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
-using CTFWhodunnit.Database;
 using Microsoft.EntityFrameworkCore;
+using PirateConquest.Database;
 using PirateConquest.Models;
 using PirateConquest.Repositories;
 

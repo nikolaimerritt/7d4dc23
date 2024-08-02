@@ -2,37 +2,43 @@
     <div class="horizontal-container">
         <div class="left-container">
             <div class="menu-bar">
-                <span> {{ this.balance }} Coins </span>
-                <text-button
-                    v-if="balance !== undefined && balance > 0"
-                    :text="'Purchase ships'"
-                    @buttonClick="onPurchaseShipsClick()"
-                ></text-button>
-                <text-button
-                    v-if="canMove"
-                    :text="'Move ships'"
-                    @buttonClick="onMoveShipsClick()"
-                >
-                </text-button>
-                <span
-                    v-if="
-                        this.ui.round.timeRemaining !== undefined &&
-                        this.ui.round.timeRemaining.seconds() > 0
-                    "
-                >
-                    {{
-                        "Round ends in " +
-                        this.ui.round.timeRemaining.format("HH:mm:ss")
-                    }}
-                </span>
-                <span
-                    v-else-if="
-                        this.ui.round.timeRemaining !== undefined &&
-                        this.ui.round.timeRemaining.seconds() === 0
-                    "
-                >
-                    Round has ended
-                </span>
+                <div class="menu-section">
+                    <text-button
+                        v-if="balance !== undefined && balance > 0"
+                        :text="'Purchase ships'"
+                        @buttonClick="onPurchaseShipsClick()"
+                    ></text-button>
+                    <text-button
+                        v-if="canMove"
+                        :text="'Move ships'"
+                        @buttonClick="onMoveShipsClick()"
+                    >
+                    </text-button>
+                </div>
+                <div class="menu-section">
+                    <span class="pill"> {{ this.balance }} Coins </span>
+                    <span
+                        class="pill"
+                        v-if="
+                            this.ui.round.timeRemaining !== undefined &&
+                            this.ui.round.timeRemaining.seconds() > 0
+                        "
+                    >
+                        {{
+                            "Round ends in " +
+                            this.ui.round.timeRemaining.format("HH:mm:ss")
+                        }}
+                    </span>
+                    <span
+                        class="pill"
+                        v-else-if="
+                            this.ui.round.timeRemaining !== undefined &&
+                            this.ui.round.timeRemaining.seconds() === 0
+                        "
+                    >
+                        Round has ended
+                    </span>
+                </div>
             </div>
             <div class="dialog" v-if="dialogText()">
                 {{ dialogText() }}
@@ -61,8 +67,8 @@
             </div>
             <input-modal
                 v-if="ui.purchase.showModal"
-                :message="'How many points would you like to spend to buy new ships?'"
-                :buttonText="'Buy'"
+                :message="'How many points would you like to spend to purchase new ships?'"
+                :buttonText="'Purchase'"
                 :errorMessage="ui.purchase.error"
                 @submission="onSubmitPurchase($event)"
                 @clickOutside="resetActions()"
@@ -390,7 +396,7 @@ export default {
         },
         updateTimeRemaining(this: This) {
             this.ui.round.timeRemaining = Util.timeBetween(
-                this.round.startFighting,
+                this.round.startCooldown,
                 new Date()
             );
         },
@@ -405,8 +411,17 @@ export default {
 .dialog {
     padding: 0 0 12px 12px;
 }
+.pill {
+    border-radius: 20px;
+    font-size: 14px;
+    padding: 2px 8px;
+    margin: 4px 0;
+    background-color: #f8ecbc;
+    border: 1px solid #be9a67;
+}
+
 .horizontal-container {
-    width: 100%;
+    width: fit-content;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -419,11 +434,19 @@ export default {
 }
 
 .menu-bar {
-    padding: 0 0 0 12px;
+    width: 100%;
+    padding: 24px 20px 0px 20px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     column-gap: 32px;
     margin-bottom: 8px;
+}
+
+.menu-section {
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
 }
 
 .map-background {

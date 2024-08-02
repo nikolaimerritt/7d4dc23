@@ -1,5 +1,5 @@
-﻿using CTFWhodunnit.Database;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using PirateConquest.Database;
 using PirateConquest.Models;
 
 namespace PirateConquest.Repositories;
@@ -17,21 +17,21 @@ public class RoundRepository
     {
         var now = DateTime.UtcNow;
         return await _context
-            .Rounds.OrderByDescending(round => round.StartMoving)
-            .FirstOrDefaultAsync(round => round.StartMoving <= now);
+            .Rounds.OrderByDescending(round => round.StartPlanning)
+            .FirstOrDefaultAsync(round => round.StartPlanning <= now);
     }
 
     public async Task<List<Round>> AllPlayableRoundsAsync() =>
         await _context
             .Rounds.Where(round => !round.IsInitial)
-            .OrderBy(round => round.StartMoving)
+            .OrderBy(round => round.StartPlanning)
             .ToListAsync();
 
     public async Task<Round?> GetPreviousRoundAsync()
     {
         return await _context
             .Rounds.Where(round => _context.Outcomes.Any(outcome => outcome.RoundId == round.Id))
-            .OrderByDescending(round => round.StartMoving)
+            .OrderByDescending(round => round.StartPlanning)
             .FirstOrDefaultAsync();
     }
 

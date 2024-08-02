@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using CTFWhodunnit.Database;
-using CTFWhodunnit.Models;
+using PirateConquest.Database;
+using PirateConquest.Models;
 
-namespace CTFWhodunnit.Utils
+namespace PirateConquest.Utils
 {
     public static class Initializers { }
 }

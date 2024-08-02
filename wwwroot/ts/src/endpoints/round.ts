@@ -2,8 +2,8 @@ import { Connection } from "./main";
 
 export interface Round {
     id: number;
-    startMoving: Date;
-    startFighting: Date;
+    startPlanning: Date;
+    startCooldown: Date;
     end: Date;
 }
 
@@ -17,8 +17,8 @@ export class RoundEndpoint {
     public static toRound(object: any): Round {
         const round: Round = {
             id: object.id,
-            startMoving: new Date(object.startMoving),
-            startFighting: new Date(object.startFighting),
+            startPlanning: new Date(object.startPlanning),
+            startCooldown: new Date(object.startCooldown),
             end: new Date(object.end),
         };
         return round;

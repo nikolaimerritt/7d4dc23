@@ -1,13 +1,13 @@
 ﻿using System.Diagnostics;
-using CTFWhodunnit.Database;
-using CTFWhodunnit.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PirateConquest.Database;
+using PirateConquest.Models;
 using PirateConquest.Repositories;
 using PirateConquest.Utils;
 
-namespace CTFWhodunnit.Controllers;
+namespace PirateConquest.Controllers;
 
 public class HomeController : Controller
 {
@@ -33,10 +33,6 @@ public class HomeController : Controller
         {
             return RedirectToAction("Index", "Login");
         }
-        var videoUrlConf = await _context.AppConfigs.FirstOrDefaultAsync(c =>
-            c.Name == AppConfig.VIDEO_URL_KEY
-        );
-        ViewBag.VideoUrl = videoUrlConf.Value;
         return View();
     }
 

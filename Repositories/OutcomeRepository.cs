@@ -1,5 +1,5 @@
-﻿using CTFWhodunnit.Database;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using PirateConquest.Database;
 using PirateConquest.Models;
 
 namespace PirateConquest.Repositories;

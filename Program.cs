@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using CTFWhodunnit.Database;
 using Hangfire;
 using Hangfire.Storage;
 using Hangfire.Storage.SQLite;
@@ -7,6 +6,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.EntityFrameworkCore;
+using PirateConquest.Database;
 using PirateConquest.Repositories;
 using PirateConquest.Services;
 using PirateConquest.Utils;
@@ -61,6 +61,8 @@ builder.Services.AddTransient<TeamRepository>();
 builder.Services.AddTransient<OutcomeService>();
 builder.Services.AddTransient<BackgroundJobClient>();
 builder.Services.AddTransient<DatabaseInitialiser>();
+builder.Services.AddTransient<PointsService>();
+builder.Services.AddTransient<ConfigService>();
 
 var app = builder.Build();
 app.UseForwardedHeaders();
@@ -116,7 +118,7 @@ using (var scope = app.Services.CreateScope())
     {
         backgroundJobClient.Schedule(
             () => outcomeService.WriteOutcomes(round),
-            round.StartFighting
+            round.StartCooldown
         );
     }
 }

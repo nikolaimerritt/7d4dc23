@@ -1,7 +1,6 @@
 <template>
     <div class="ship">
         <div class="icon-container">
-            <!-- <img :src="'../../imgs/ship.svg'" color="red" /> -->
             <ShipSvg :style="{ color: shipColour() }" />
             <span class="ship-count"> {{ shipCount }} </span>
         </div>

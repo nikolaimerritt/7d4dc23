@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using CTFWhodunnit.Database;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PirateConquest.Database;
 using PirateConquest.Repositories;
 using PirateConquest.Utils;
 
-namespace CTFWhodunnit.Controllers;
+namespace PirateConquest.Controllers;
 
 public class LoginController : Controller
 {
@@ -50,7 +50,7 @@ public class LoginController : Controller
 
         if (team is null)
         {
-            ViewData["ErrorViewModel"] = "Invalid TeamViewModel Name or Password.";
+            ViewData["ErrorViewModel"] = "Invalid TeamViewModel Key or Password.";
             return View("Index");
         }
         else

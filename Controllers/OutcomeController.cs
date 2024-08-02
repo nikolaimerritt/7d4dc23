@@ -1,6 +1,6 @@
-﻿using CTFWhodunnit.Database;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PirateConquest.Database;
 using PirateConquest.Repositories;
 using PirateConquest.Utils;
 using PirateConquest.ViewModels;
@@ -35,7 +35,7 @@ public class OutcomeController : Controller
     public async Task<IActionResult> GetOutcomes(int? roundId = null)
     {
         var outcomes = (await _outcomeRepository.AllAsync())
-            .OrderByDescending(outcome => outcome.Round.StartMoving)
+            .OrderByDescending(outcome => outcome.Round.StartPlanning)
             .ThenBy(outcome => outcome.Id)
             .ToList();
         if (roundId is int id)
@@ -127,11 +127,6 @@ public class OutcomeController : Controller
             {
                 outcomeInEntranceSea.ShipsAfter += move.ShipCount;
             }
-        }
-        // TO SELF: debug
-        if (virtualOutcomes.Count == 0)
-        {
-            Console.WriteLine();
         }
         return Json(virtualOutcomes);
     }

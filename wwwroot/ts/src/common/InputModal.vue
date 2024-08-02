@@ -83,14 +83,14 @@ export default {
     width: 300px;
     height: fill-content;
     min-height: 200px;
-    margin-left: -150px;
-    margin-right: -100px;
+    margin: -150px 0 0 -150px;
     border-radius: 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     background-color: #fff4c7;
+    border: 1px solid #b18854;
     text-align: center;
     gap: 10px;
 }

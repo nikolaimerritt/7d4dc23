@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CTFWhodunnit.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PirateConquest.Models;
+using PirateConquest.Models;
 
-namespace CTFWhodunnit.Database;
+namespace PirateConquest.Database;
 
 public class AppDbContext : DbContext
 {

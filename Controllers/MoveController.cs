@@ -1,6 +1,6 @@
-﻿using CTFWhodunnit.Database;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PirateConquest.Database;
 using PirateConquest.Models;
 using PirateConquest.Repositories;
 using PirateConquest.Utils;
@@ -82,7 +82,7 @@ public class MoveController : Controller
             return Json(ErrorViewModel.Unauthorized);
         }
         var round = await _roundRepository.GetCurrentRoundAsync();
-        if (round?.StartFighting < DateTime.UtcNow)
+        if (round?.StartCooldown < DateTime.UtcNow)
         {
             return Json(ErrorViewModel.PlanningWindowHasEnded);
         }

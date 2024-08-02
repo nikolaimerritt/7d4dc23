@@ -9,7 +9,7 @@ public class Round
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     public bool IsInitial { get; set; } = false;
-    public DateTime StartMoving { get; set; }
-    public DateTime StartFighting { get; set; }
+    public DateTime StartPlanning { get; set; }
+    public DateTime StartCooldown { get; set; }
     public DateTime End { get; set; }
 }

@@ -17,4 +17,6 @@ public class ErrorViewModel
 
     public static readonly ErrorViewModel NotEnoughShips =
         new() { Error = "You do not have enough ships." };
+    public static readonly ErrorViewModel InternalError =
+        new() { Error = "There was an internal error." };
 }
