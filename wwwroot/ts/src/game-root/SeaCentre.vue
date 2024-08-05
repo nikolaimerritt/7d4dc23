@@ -1,54 +1,51 @@
 <template>
-    <div>
-        <!-- <object
-            type="image/svg+xml"
-            ref="imageContainer"
-            :data="`/imgs/seas/${seaImages[name]}`"
-            :class="['image-container', imageClass]"
-        ></object> -->
+    <!-- TO SELF: for debugging -->
+    <div :data-sea-name="name">
         <NorthPacificSvg
-            ref="imageContainer"
+            ref="seaImage"
             v-if="name === 'North Pacific'"
             :class="['image-container', imageClass]"
         />
         <SouthPacificSvg
-            ref="imageContainer"
+            ref="seaImage"
             v-else-if="name === 'South Pacific'"
             :class="['image-container', imageClass]"
         />
         <NorthAtlanticSvg
-            ref="imageContainer"
+            ref="seaImage"
             v-else-if="name === 'North Atlantic'"
             :class="['image-container', imageClass]"
         />
         <SouthAtlanticSvg
-            ref="imageContainer"
+            ref="seaImage"
             v-else-if="name === 'South Atlantic'"
             :class="['image-container', imageClass]"
         />
         <SouthernSvg
-            ref="imageContainer"
+            ref="seaImage"
             v-else-if="name === 'Southern'"
             :class="['image-container', imageClass]"
         />
         <IndianSvg
-            ref="imageContainer"
+            ref="seaImage"
             v-else-if="name === 'Indian'"
             :class="['image-container', imageClass]"
         />
-        <Arctic
-            ref="imageContainer"
+        <ArcticSvg
+            ref="seaImage"
             v-else-if="name === 'Arctic'"
             :class="['image-container', imageClass]"
         />
-        <div ref="shipContainer" class="ship-container" v-show="loaded">
-            <team-ship
-                v-for="(ship, index) in teamShips"
-                :key="index"
-                :teamName="ship.team.name"
-                :shipCount="ship.shipCount"
-            >
-            </team-ship>
+        <div ref="shipContainer" style="position: relative" v-show="loaded">
+            <div class="ship-container">
+                <team-ship
+                    v-for="(ship, index) in teamShips"
+                    :key="index"
+                    :teamName="ship.team.name"
+                    :shipCount="ship.shipCount"
+                >
+                </team-ship>
+            </div>
         </div>
     </div>
 </template>
@@ -117,25 +114,25 @@ export default {
         };
     },
     async mounted(this: This) {
-        const imageObject = Util.getHtmlObjectContent(
-            this.$refs.imageContainer
-        );
-        imageObject.querySelector("svg").style.borderRadius =
-            this.borderRadius();
-
+        this.$refs.seaImage.style.borderRadius = this.borderRadius();
         const svgPaths = Array.from(
-            imageObject.querySelectorAll("svg path")
+            this.$refs.seaImage.querySelectorAll("path")
         ) as SVGPathElement[];
         for (var path of svgPaths) {
             this.addMouseEvents(path);
         }
 
-        const pathRects = svgPaths.map((path) => path.getBoundingClientRect());
-        const largestRect = Util.maxBy(
-            pathRects,
-            (rect) => rect.width * rect.height
+        const largestPath = Util.maxBy(
+            svgPaths,
+            (path) =>
+                path.getBoundingClientRect().width *
+                path.getBoundingClientRect().height
         );
-        this.fitElementTo(this.$refs.shipContainer, largestRect);
+        this.fitElementTo(
+            this.$refs.shipContainer,
+            largestPath,
+            this.$refs.seaImage
+        );
 
         this.loaded = true;
     },
@@ -145,11 +142,27 @@ export default {
             path.addEventListener("mouseleave", () => this.onHoverExit(path));
             path.addEventListener("mousedown", () => this.emitClick());
         },
-        fitElementTo(element: HTMLElement, rect: DOMRect) {
-            element.style.width = `${rect.width}px`;
-            element.style.height = `${rect.height}px`;
-            element.style.top = `${rect.top}px`;
-            element.style.left = `${rect.left}px`;
+        fitElementTo(
+            toFit: HTMLElement,
+            fitTo: HTMLElement,
+            parent: HTMLElement
+        ) {
+            console.log(
+                "fitElementTo",
+                fitTo.getBoundingClientRect(),
+                fitTo.offsetLeft,
+                fitTo.offsetTop
+            );
+            const leftOffset =
+                fitTo.getBoundingClientRect().left -
+                parent.getBoundingClientRect().left;
+            const topOffset =
+                fitTo.getBoundingClientRect().top -
+                parent.getBoundingClientRect().top;
+            toFit.style.width = `${fitTo.getBoundingClientRect().width}px`;
+            toFit.style.height = `${fitTo.getBoundingClientRect().height}px`;
+            toFit.style.left = `${leftOffset}px`;
+            toFit.style.top = `${topOffset}px`;
         },
         onHover(this: This, path: SVGPathElement) {
             if (this.highlighted) {
@@ -199,12 +212,13 @@ export default {
 
 <style scoped>
 .ship-container {
-    position: relative;
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
+    width: 100%;
+    height: 100%;
 }
 
 .image-container {

@@ -38,8 +38,21 @@ module.exports = {
             {
                 test: /\.svg/,
                 use: [
-                    // "babel-loader",
-                    "vue-svg-loader"
+                    "babel-loader",
+                    {
+                        loader: "vue-svg-loader",
+                        options: {
+                            svgo: {
+                            plugins: [
+                                {removeDoctype: true},
+                                {removeComments: true},
+                                {cleanupIDs: false},
+                                {collapseGroups: false},
+                                {removeEmptyContainers: false}
+                            ]
+                            }
+                        }
+                    }
                 ]
             }
         ],
