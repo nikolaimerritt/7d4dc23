@@ -11,7 +11,6 @@ namespace PirateConquest.Database;
 
 public class AppDbContext : DbContext
 {
-    public DbSet<AppConfig> AppConfigs { get; set; }
     public DbSet<Team> Teams { get; set; }
     public DbSet<Sea> Seas { get; set; }
     public DbSet<AdjacentSea> AdjacentSeas { get; set; }

@@ -73,7 +73,6 @@ static async Task<WebApplication> InitializeServicesAsync(WebApplicationBuilder 
     builder.Services.AddTransient<BackgroundJobClient>();
     builder.Services.AddTransient<DatabaseInitialiser>();
     builder.Services.AddTransient<PointsService>();
-    builder.Services.AddTransient<ConfigRepository>();
     builder.Services.AddTransient<ConfigurationRepository>();
 
     var app = builder.Build();

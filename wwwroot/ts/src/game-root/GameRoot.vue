@@ -47,6 +47,7 @@
                 <img
                     :src="'/imgs/seas/map-sepia-2.png'"
                     class="map-background"
+                    ref="mapBackground"
                 />
                 <sea-centre
                     v-for="(seaCentre, index) in this.seaCentres"
@@ -57,6 +58,8 @@
                     class="sea-centre"
                     @sea-centre-click="onSeaCentreClick(seaCentre)"
                     :style="{
+                        transformOrigin: 'top left',
+                        transform: `scale(${seaCentreScale})`,
                         top: `${100 * seaCentrePositions[seaCentre.name].top}%`,
                         left: `${
                             100 * seaCentrePositions[seaCentre.name].left
@@ -144,6 +147,7 @@ interface Data {
     canMove: boolean;
     round?: Round;
     seaCentrePositions: SeaCentrePositions;
+    seaCentreScale: number | undefined;
 }
 
 type This = VueThis<Data>;
@@ -216,12 +220,14 @@ export default {
                     left: 0,
                 },
             },
+            seaCentreScale: undefined,
         };
     },
     async mounted(this: This) {
         this.team = await this.endpoints.team.getTeam();
         await this.refreshMap();
         this.updateTimeRemaining();
+        this.transformSeaCentres();
         this.ui.round.updateTimeRemainingHandle = window.setInterval(
             () => this.updateTimeRemaining(),
             updateTimeRemainingMs
@@ -230,6 +236,7 @@ export default {
             async () => await this.refreshMap(),
             updateMapMs
         );
+        window.addEventListener("resize", () => this.transformSeaCentres());
     },
     methods: {
         async refreshMap(this: This) {
@@ -259,6 +266,17 @@ export default {
                 seaCentres.push(seaCentre);
             }
             return seaCentres;
+        },
+        transformSeaCentres(this: This) {
+            const mapBackground = this.$refs.mapBackground as HTMLImageElement;
+            this.seaCentreScale =
+                mapBackground.width / mapBackground.naturalWidth;
+            console.log(
+                "transformSeaCentres",
+                mapBackground,
+                mapBackground.width,
+                mapBackground.naturalWidth
+            );
         },
         onSeaAreaHover(this: This, seaCentre: SeaCentre) {
             console.log("Sea area hovered over", seaCentre);
@@ -404,6 +422,7 @@ export default {
     unmounted(this: This) {
         window.clearInterval(this.ui.round.updateTimeRemainingHandle);
         window.clearInterval(this.ui.map.updateMapHandle);
+        window.removeEventListener("resize", () => this.transformSeaCentres());
     },
 };
 </script>
@@ -421,16 +440,16 @@ export default {
 }
 
 .horizontal-container {
-    width: fit-content;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-.left-container {
     width: 100%;
     display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+.left-container {
+    width: 90%;
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    justify-content: flex-start;
 }
 
 .menu-bar {
@@ -450,7 +469,7 @@ export default {
 }
 
 .map-background {
-    width: 1357px;
+    width: 100%;
     border-radius: 16px;
 }
 

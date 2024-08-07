@@ -146,12 +146,6 @@ export default {
             fitTo: HTMLElement,
             parent: HTMLElement
         ) {
-            console.log(
-                "fitElementTo",
-                fitTo.getBoundingClientRect(),
-                fitTo.offsetLeft,
-                fitTo.offsetTop
-            );
             const leftOffset =
                 fitTo.getBoundingClientRect().left -
                 parent.getBoundingClientRect().left;
