@@ -19,6 +19,7 @@ public class AppDbContext : DbContext
     public DbSet<Round> Rounds { get; set; }
     public DbSet<Move> Moves { get; set; }
     public DbSet<Outcome> Outcomes { get; set; }
+    public DbSet<Configuration> Configurations { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

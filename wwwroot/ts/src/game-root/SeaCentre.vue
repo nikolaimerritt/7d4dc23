@@ -1,5 +1,4 @@
 <template>
-    <!-- TO SELF: for debugging -->
     <div :data-sea-name="name">
         <NorthPacificSvg
             ref="seaImage"

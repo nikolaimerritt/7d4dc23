@@ -1,28 +1,28 @@
 ﻿using Newtonsoft.Json.Linq;
 using PirateConquest.Models;
-using static PirateConquest.Models.AppConfig;
+using PirateConquest.Repositories;
 
 namespace PirateConquest.Services;
 
 public class PointsService
 {
-    private readonly ConfigService _configService;
+    private readonly ConfigurationRepository _configurationRepository;
 
-    public PointsService(ConfigService configService)
+    public PointsService(ConfigurationRepository configurationRepository)
     {
-        _configService = configService;
+        _configurationRepository = configurationRepository;
     }
 
-    public async Task<int?> GetPointsAsync(Team team)
+    public async Task<int> GetPointsAsync(Team team)
     {
-        var playgroundLeaderboardUrl = await _configService.GetValueAsync(
-            StringConfig.PlaygroundLeaderboardUrl
-        );
-        if (playgroundLeaderboardUrl is string url)
+        var configuration = await _configurationRepository.GetNonEmptyAsync();
+        if (configuration is not null)
         {
             using var httpClient = new HttpClient();
-            var ctfEventId = await _configService.GetValueAsync(IntegerConfig.CtfIdKey);
-            var apiUrl = url.Replace("$ctfEventId", ctfEventId.ToString());
+            var apiUrl = configuration.PlaygroundLeaderboardUrl.Replace(
+                "$ctfEventId",
+                configuration.CtfId.ToString()
+            );
             var response = await httpClient.GetAsync(apiUrl);
             if (response.IsSuccessStatusCode)
             {
@@ -31,11 +31,12 @@ public class PointsService
                 var teamEntry = entries?.FirstOrDefault(entry =>
                     entry["username"]?.ToString() == team.Name
                 );
-                if (teamEntry is JToken token)
+                if (
+                    teamEntry is JToken token
+                    && int.TryParse(token["Points"].ToString(), out var points)
+                )
                 {
-                    return int.TryParse(token["points"]?.ToString(), out var points)
-                        ? points
-                        : null;
+                    return points;
                 }
             }
         }

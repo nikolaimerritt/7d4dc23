@@ -20,22 +20,15 @@ public class DatabaseInitialiser
     public static readonly int StartingShips = 10;
 
     private readonly AppDbContext _context;
-    private readonly ConfigService _configRepository;
 
-    public DatabaseInitialiser(AppDbContext context, ConfigService configRepository)
+    public DatabaseInitialiser(AppDbContext context)
     {
         _context = context;
-        _configRepository = configRepository;
     }
 
-    public async Task Initialise()
+    public async Task Initialise(Configuration configuration)
     {
         _context.Database.EnsureCreated();
-
-        if (!await _context.AppConfigs.AnyAsync())
-        {
-            await InitialiseConfig();
-        }
 
         if (!await _context.Seas.AnyAsync())
         {
@@ -59,7 +52,7 @@ public class DatabaseInitialiser
 
         if (!await _context.Rounds.Where(round => !round.IsInitial).AnyAsync())
         {
-            await CreateRounds();
+            await CreateRounds(configuration);
         }
     }
 
@@ -172,39 +165,18 @@ public class DatabaseInitialiser
         await _context.SaveChangesAsync();
     }
 
-    private async Task CreateRounds()
+    private async Task CreateRounds(Configuration configuration)
     {
-        var firstRoundStart =
-            await _configRepository.GetValueAsync(AppConfig.DateTimeConfig.FirstRoundStart)
-            ?? throw new ArgumentNullException(
-                $"Could not find an environment variable or database configuration entry for the time when the first round starts. Searched for key {AppConfig.DateTimeConfig.FirstRoundStart.Key}"
-            );
-        var planningMinutes =
-            await _configRepository.GetValueAsync(AppConfig.IntegerConfig.PlanningMinutes)
-            ?? throw new ArgumentNullException(
-                $"Could not find an environment variable or database configuration entry for the amount of planning minutes. Searched for key {AppConfig.IntegerConfig.PlanningMinutes.Key}"
-            );
-        var cooldownMinutes =
-            await _configRepository.GetValueAsync(AppConfig.IntegerConfig.CooldownMinutes)
-            ?? throw new ArgumentNullException(
-                $"Could not find an environment variable or database configuration entry for the amount of cooldown minutes. Searched for key {AppConfig.IntegerConfig.CooldownMinutes.Key}"
-            );
-        var roundCount =
-            await _configRepository.GetValueAsync(AppConfig.IntegerConfig.RoundsCount)
-            ?? throw new ArgumentNullException(
-                $"Could not find an environment variable or database configuration entry for the number of rounds. Searched for key {AppConfig.IntegerConfig.RoundsCount.Key}"
-            );
-
-        var planningTime = TimeSpan.FromMinutes(planningMinutes);
-        var cooldownTime = TimeSpan.FromMinutes(cooldownMinutes);
+        var planningTime = TimeSpan.FromMinutes(configuration.PlanningMinutes);
+        var cooldownTime = TimeSpan.FromMinutes(configuration.CooldownMinutes);
         var lastRound = new Round()
         {
-            StartPlanning = firstRoundStart,
-            StartCooldown = firstRoundStart + planningTime,
-            End = firstRoundStart + planningTime + cooldownTime
+            StartPlanning = configuration.FirstRoundStartUtc,
+            StartCooldown = configuration.FirstRoundStartUtc + planningTime,
+            End = configuration.FirstRoundStartUtc + planningTime + cooldownTime
         };
         await _context.Rounds.AddAsync(lastRound);
-        for (var n = 1; n < roundCount; n++)
+        for (var n = 1; n < configuration.RoundsCount; n++)
         {
             var roundStart = lastRound.End + TimeSpan.FromSeconds(1);
             lastRound = new Round()
@@ -215,21 +187,6 @@ public class DatabaseInitialiser
             };
             await _context.Rounds.AddAsync(lastRound);
         }
-        await _context.SaveChangesAsync();
-    }
-
-    private async Task InitialiseConfig()
-    {
-        var configs = new List<AppConfig>()
-        {
-            new() { Key = AppConfig.IntegerConfig.CtfIdKey.Key, Value = "94" },
-            new()
-            {
-                Key = AppConfig.StringConfig.PlaygroundLeaderboardUrl.Key,
-                Value = "https://playground.withsecure.com/api/public/ctf/$ctfEventId/leaderboard"
-            },
-        };
-        await _context.AppConfigs.AddRangeAsync(configs);
         await _context.SaveChangesAsync();
     }
 }
