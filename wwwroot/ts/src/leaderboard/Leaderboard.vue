@@ -1,6 +1,6 @@
 <template>
-    <div class="backgeound">
-        <div class="container">
+    <div class="centre-container">
+        <div class="left-container">
             <table>
                 <tr>
                     <th>Rank</th>
@@ -82,17 +82,15 @@ export default {
 };
 </script>
 <style scoped>
-.backgeound {
+.centre-container {
     width: 100%;
-    height: 100%;
     display: flex;
     flex-direction: row;
-    align-items: center;
+    justify-content: center;
 }
 
-.container {
-    width: 60%;
-    height: 100%;
+.left-container {
+    width: fit-content;
     display: flex;
     flex-direction: column;
     align-items: center;

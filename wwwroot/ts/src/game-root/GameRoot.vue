@@ -446,7 +446,7 @@ export default {
     justify-content: center;
 }
 .left-container {
-    width: 90%;
+    width: 70%;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
