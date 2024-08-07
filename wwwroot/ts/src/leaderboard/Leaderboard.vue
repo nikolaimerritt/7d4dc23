@@ -1,30 +1,40 @@
 <template>
-    <div class="centre-container">
-        <div class="left-container">
-            <table>
-                <tr>
-                    <th>Rank</th>
-                    <th>Team</th>
-                    <th>Seas held</th>
-                </tr>
-                <tr
-                    class="body-row"
-                    v-for="(entry, index) in this.leaderboardEntries"
-                    :key="index"
-                >
-                    <td>{{ entry.rank }}</td>
-                    <td>
-                        <span
-                            :style="{
-                                color: teamCircleColour(entry.team.name),
-                            }"
-                            >⬤</span
-                        >
-                        {{ entry.team.name }}
-                    </td>
-                    <td>{{ entry.seasHeld }}</td>
-                </tr>
-            </table>
+    <div>
+        <div
+            class="background"
+            :style="{
+                background: 'url(../../../imgs/monster-a.png)',
+                backgroundRepeat: 'tile',
+                backgroundPosition: '50px 90px',
+            }"
+        ></div>
+        <div class="centre-container">
+            <div class="table-border">
+                <table>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Team</th>
+                        <th>Seas held</th>
+                    </tr>
+                    <tr
+                        class="body-row"
+                        v-for="(entry, index) in this.leaderboardEntries"
+                        :key="index"
+                    >
+                        <td>{{ entry.rank }}</td>
+                        <td>
+                            <span
+                                :style="{
+                                    color: teamCircleColour(entry.team.name),
+                                }"
+                                >⬤</span
+                            >
+                            {{ entry.team.name }}
+                        </td>
+                        <td>{{ entry.seasHeld }}</td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 </template>
@@ -82,24 +92,37 @@ export default {
 };
 </script>
 <style scoped>
+.background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    filter: brightness(0) saturate(100%) invert(70%) sepia(11%) saturate(1389%)
+        hue-rotate(356deg) brightness(90%) contrast(83%) opacity(50%);
+}
+
 .centre-container {
     width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: row;
     justify-content: center;
 }
 
-.left-container {
-    width: fit-content;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.table-border {
+    height: fit-content;
+    border: 4px solid #be9a67;
+    background-color: #f8ecbc;
+    padding: 16px 32px;
+    margin-top: 10%;
+    border-radius: 16px;
 }
 
 table {
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     width: fit-content;
-    margin: 3rem 0 0 0;
 }
 
 th {
@@ -109,7 +132,12 @@ th {
 
 th,
 td {
-    padding: 0 4.5rem 0.8rem 0;
+    padding-bottom: 0.8rem;
+}
+
+th:not(:last-child),
+td:not(:last-child) {
+    padding-right: 4.5rem;
 }
 
 td {

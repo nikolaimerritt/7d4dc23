@@ -1,5 +1,6 @@
 html {
   font-size: 14px;
+  height: 100%;
 }
 
 @media (min-width: 768px) {
@@ -22,12 +23,16 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+  height: 100%;
   font-family: Monospace;
   font-size: 14px;
   line-height: 1.428571429;
   color: #21180f;
   background-color: #fff4c7;
+}
+
+main {
+  height: 100%;
 }
 
 .list-container {
