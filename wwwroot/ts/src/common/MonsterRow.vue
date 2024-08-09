@@ -1,30 +1,35 @@
 <template>
     <div class="monster-row">
         <img
-            v-for="(monsterFile, index) in monsterFiles"
+            v-for="(monster, index) in monsters"
             :key="index"
             class="monster"
-            :src="`../../imgs/monsters/${monsterFile}`"
+            :src="`../../imgs/monsters/${monster.file}`"
+            :style="{
+                transform: monster.mirrored ? 'scale(-1, 1)' : '',
+            }"
         />
     </div>
 </template>
 
 <script lang="ts">
 import { Util, VueThis } from "./util";
-const MonsterCount = 10;
+interface Monster {
+    file: string;
+    mirrored: boolean;
+}
 
+const MonsterCount = 12;
 const MonsterFiles = [
     "monster-1.png",
     "monster-2.png",
     "monster-3.png",
     "monster-4.png",
     "monster-5.png",
-    "monster-6.png",
-    "monster-7.png",
 ];
 
 interface Data {
-    monsterFiles: string[];
+    monsters: Monster[];
 }
 
 type This = VueThis<Data>;
@@ -32,26 +37,29 @@ type This = VueThis<Data>;
 export default {
     data(): Data {
         return {
-            monsterFiles: [],
+            monsters: [],
         };
     },
     mounted(this: This) {
-        this.monsterFiles = this.generateMonsters();
+        this.monsters = this.generateMonsters();
     },
     methods: {
-        generateMonsters(this: This): string[] {
-            let monsters: string[] = [];
+        generateMonsters(this: This): Monster[] {
+            let monsters: Monster[] = [];
             while (monsters.length < MonsterCount) {
                 const filesCopy = [...MonsterFiles];
                 Util.shuffleInPlace(filesCopy);
                 if (monsters.length > 0) {
-                    while (monsters.at(-1) === filesCopy[0]) {
+                    while (monsters.at(-1).file === filesCopy[0]) {
                         Util.shuffleInPlace(filesCopy);
                     }
                 }
-                monsters = monsters.concat(filesCopy);
+                const newMonsters: Monster[] = filesCopy.map((file) => ({
+                    file,
+                    mirrored: Math.random() < 0.5,
+                }));
+                monsters = monsters.concat(newMonsters);
             }
-            console.log("Generated monsters", monsters);
             return monsters.slice(0, MonsterCount);
         },
     },
