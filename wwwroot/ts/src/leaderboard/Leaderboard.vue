@@ -28,14 +28,7 @@
                 </table>
             </div>
         </div>
-        <div class="monster-row">
-            <img
-                v-for="(monsterFile, index) in monsters"
-                :key="index"
-                class="monster"
-                :src="`../../imgs/monsters/${monsterFile}`"
-            />
-        </div>
+        <monster-row> </monster-row>
     </div>
 </template>
 <script lang="ts">
@@ -45,19 +38,6 @@ import {
 } from "../endpoints/leaderboard";
 import { VueThis } from "../common/util";
 import { Style } from "../config/style";
-import { Util } from "../common/util";
-
-const MonsterCount = 10;
-
-const MonsterFiles = [
-    "monster-1.png",
-    "monster-2.png",
-    "monster-3.png",
-    "monster-4.png",
-    "monster-5.png",
-    "monster-6.png",
-    "monster-7.png",
-];
 
 interface Monster {
     file: string;
@@ -74,7 +54,6 @@ interface Data {
         leaderboardPollingMs: number;
         leaderboardPollingHandle?: number;
     };
-    monsters: string[];
 }
 
 type This = VueThis<Data>;
@@ -90,7 +69,6 @@ export default {
                 leaderboardPollingMs: 10_000,
                 leaderboardPollingHandle: undefined,
             },
-            monsters: [],
         };
     },
     async mounted(this: This) {
@@ -102,19 +80,10 @@ export default {
                     await this.endpoint.leaderboard.getLeaderboard()),
             this.ui.leaderboardPollingMs
         );
-        this.monsters = this.generateMonsters();
     },
     methods: {
         teamCircleColour(teamName: string): string {
             return Style.teamColour(teamName);
-        },
-        generateMonsters(this: This) {
-            return Util.range(MonsterCount).map(() => {
-                const fileNumber = Math.random();
-                return MonsterFiles[
-                    Math.floor(fileNumber * MonsterFiles.length)
-                ];
-            });
         },
     },
     unmounted(this: This) {
@@ -130,12 +99,6 @@ export default {
     flex-direction: column;
     align-items: center;
     align-content: space-between;
-}
-
-.monster {
-    height: 65px;
-    filter: brightness(0) saturate(100%) invert(70%) sepia(11%) saturate(1389%)
-        hue-rotate(356deg) brightness(90%) contrast(83%) opacity(50%);
 }
 
 .background {
@@ -154,15 +117,6 @@ export default {
     flex-direction: row;
     justify-content: center;
     align-content: space-between;
-}
-
-.monster-row {
-    position: absolute;
-    bottom: 70px;
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
 }
 
 .table-border {

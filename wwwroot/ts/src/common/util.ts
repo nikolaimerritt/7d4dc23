@@ -64,6 +64,15 @@ export class Util {
         return [...Array(count).keys()];
     }
 
+    public static shuffleInPlace<T>(items: T[]): void {
+        for (let i = items.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1));
+            let temp = items[i];
+            items[i] = items[j];
+            items[j] = temp;
+        }
+    }
+
     public static sortByInPlace<T>(items: T[], sortKey: (item: T) => any): T[] {
         return items.sort((first, second) => {
             const firstKey = sortKey(first);
