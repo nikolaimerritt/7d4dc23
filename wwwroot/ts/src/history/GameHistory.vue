@@ -337,7 +337,7 @@ export default {
     display: flex;
     overflow-x: auto;
     gap: 8%;
-    padding: 8%;
+    padding: 5% 8% 2% 8%;
 }
 
 .round-card {
@@ -354,18 +354,20 @@ export default {
 }
 
 h2 {
+    font-family: "Pirate", cursive;
+    font-weight: 700;
+    font-size: 3.5rem;
     color: #2c2215;
     margin-bottom: 0;
     margin: 2rem 0 0 0;
 }
 
 h3 {
+    font-family: "Tangerine", cursive;
     color: black;
-    font-size: 0.8rem;
-    font-style: italic;
+    font-size: 1.8rem;
 }
 
-h3,
 li,
 .nothing-happened {
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;

@@ -39,12 +39,6 @@ import {
 import { VueThis } from "../common/util";
 import { Style } from "../config/style";
 
-interface Monster {
-    file: string;
-    xRatio: number;
-    yRatio: number;
-}
-
 interface Data {
     endpoint: {
         leaderboard: LeaderboardEndpoint;
@@ -134,8 +128,9 @@ table {
 }
 
 th {
+    font-family: "Pirate", cursive;
     color: #2c2215;
-    font-size: 2.5rem;
+    font-size: 3.5rem;
 }
 
 th,

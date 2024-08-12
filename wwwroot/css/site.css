@@ -3,6 +3,22 @@ html {
   height: 100%;
 }
 
+@import url("https://fonts.googleapis.com/css2?family=Tangerine:wght@400;700&display=swap");
+
+@font-face {
+    font-family: "Pirate";
+    src: url("../../../fonts/pirate.ttf");
+}
+@font-face {
+  font-family: "Goudy Italic";
+  src: url("../fonts/goudy-italic.ttf");
+}
+
+@font-face {
+  font-family: "Goudy Regular";
+  src: url("../fonts/goudy-regular.ttf");
+}
+
 @media (min-width: 768px) {
   html {
     font-size: 16px;
@@ -24,7 +40,8 @@ html {
 
 body {
   height: 100%;
-  font-family: Monospace;
+  font-family: "Goudy Regular", sans-serif;
+  font-weight: 100;
   font-size: 14px;
   line-height: 1.428571429;
   color: #21180f;
