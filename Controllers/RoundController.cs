@@ -21,6 +21,16 @@ public class RoundController : Controller
     }
 
     [HttpGet("/api/rounds/current")]
-    public async Task<IActionResult> GetCurrentRound() =>
-        Json(RoundViewModel.FromModel(await _roundRepository.GetCurrentRoundAsync()));
+    public async Task<IActionResult> GetCurrentRound()
+    {
+        var currentRound = await _roundRepository.GetCurrentRoundAsync();
+        if (currentRound is null)
+        {
+            return Json(null);
+        }
+        else
+        {
+            return Json(RoundViewModel.FromModel(currentRound));
+        }
+    }
 }

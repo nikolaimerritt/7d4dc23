@@ -29,9 +29,12 @@ export class RoundEndpoint {
         return response.map(RoundEndpoint.toRound);
     }
 
-    public async getCurrentRound(): Promise<Round> {
-        return await RoundEndpoint.toRound(
-            await this.connection.get("rounds/current")
-        );
+    public async getCurrentRound(): Promise<Round | undefined> {
+        var response = await this.connection.get("rounds/current");
+        if (response) {
+            return RoundEndpoint.toRound(response);
+        } else {
+            return undefined;
+        }
     }
 }

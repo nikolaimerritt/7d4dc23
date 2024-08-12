@@ -45,14 +45,16 @@ public class SeaRepository
 
     public async Task<bool> TeamCanAccess(Team team, Sea sea)
     {
-        if (await AreAccessible(team.StartingSea, sea))
+        var latestTeamOutcomes = (await _outcomeRepository.InPreviousRoundAsync())
+            .Where(outcome => outcome.Team.Id == team.Id)
+            .ToList();
+        foreach (var outcome in latestTeamOutcomes)
         {
-            return true;
+            if (await AreAccessible(outcome.Sea, sea))
+            {
+                return true;
+            }
         }
-
-        var latestTeamOutcomes = (await _outcomeRepository.FromPreviousRoundAsync()).Where(
-            outcome => outcome.Team.Id == team.Id
-        );
-        return latestTeamOutcomes.Any(outcome => outcome.Sea.Id == sea.Id);
+        return false;
     }
 }

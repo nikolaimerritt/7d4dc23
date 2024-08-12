@@ -184,16 +184,16 @@ export default {
             return planningDescriptions.map((planning) => planning.description);
         },
         describeMove(this: This, move: Move): string {
-            return `${move.team.name} moved ${
+            return `${move.team.name} moved ${this.shipsCount(
                 move.shipCount
-            } ships from ${this.seaName(move.fromSea)} to ${this.seaName(
+            )} from ${this.seaName(move.fromSea)} to ${this.seaName(
                 move.toSea
             )}.`;
         },
         describePurchase(this: This, purchase: Purchase): string {
-            return `${purchase.team.name} bought ${
+            return `${purchase.team.name} bought ${this.shipsCount(
                 purchase.shipCount
-            } ships in ${this.seaName(purchase.sea)}.`;
+            )} in ${this.seaName(purchase.sea)}.`;
         },
         describeOutcomes(this: This, outcomes: Outcome[]): string[] {
             const descriptions: string[] = [];
@@ -201,16 +201,18 @@ export default {
                 descriptions.push(
                     `${victory.winner.team.name} conquers ${this.seaName(
                         victory.sea
-                    )} with ${
+                    )} with ${this.shipsCount(
                         victory.winner.shipsBefore
-                    } ships, beating ${this.joinWithAnd(
+                    )}, beating ${this.joinWithAnd(
                         victory.losers.map(
                             (loser) =>
-                                `${loser.team.name}'s ${loser.shipsBefore} ships`
+                                `${loser.team.name}'s ${this.shipsCount(
+                                    loser.shipsBefore
+                                )}`
                         )
-                    )}. ${victory.winner.team.name} has ${
+                    )}. ${victory.winner.team.name} has ${this.shipsCount(
                         victory.winner.shipsAfter
-                    } ships remaining.`
+                    )} remaining.`
                 );
             }
             const holds = Util.sortByInPlace(
@@ -222,9 +224,9 @@ export default {
                     `${hold.holder.name} holds ${this.joinWithAnd(
                         hold.seas.map(
                             (sea) =>
-                                `${this.seaName(sea.sea)} with ${
-                                    sea.shipCount
-                                } ships`
+                                `${this.seaName(
+                                    sea.sea
+                                )} with ${this.shipsCount(sea.shipCount)}`
                         )
                     )}.`
                 );
@@ -321,6 +323,13 @@ export default {
                 const tail = strings[strings.length - 1];
                 const body = strings.slice(0, strings.length - 1);
                 return `${body.join(", ")} and ${tail}`;
+            }
+        },
+        shipsCount(count: number): string {
+            if (count === 1) {
+                return `${count} ship`;
+            } else {
+                return `${count} ships`;
             }
         },
         toTimeString(date: Date): string {

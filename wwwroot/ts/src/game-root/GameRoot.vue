@@ -33,6 +33,10 @@
                         "
                         :text="'Round has ended'"
                     ></text-pill>
+                    <text-pill
+                        v-else
+                        :text="'Round has not yet started'"
+                    ></text-pill>
                 </div>
             </div>
             <div class="dialog" v-if="dialogText()">

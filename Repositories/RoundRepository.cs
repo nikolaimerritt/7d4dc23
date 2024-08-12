@@ -16,9 +16,10 @@ public class RoundRepository
     public async Task<Round?> GetCurrentRoundAsync()
     {
         var now = DateTime.UtcNow;
-        return await _context
-            .Rounds.OrderByDescending(round => round.StartPlanning)
-            .FirstOrDefaultAsync(round => round.StartPlanning <= now);
+        var playableRounds = await AllPlayableRoundsAsync();
+        return playableRounds
+            .OrderByDescending(round => round.StartPlanning)
+            .FirstOrDefault(round => round.StartPlanning <= now);
     }
 
     public async Task<List<Round>> AllPlayableRoundsAsync() =>

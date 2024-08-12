@@ -29,10 +29,11 @@ export default {
 </script>
 <style scoped>
 .ship {
+    width: fit-content;
     display: flex;
-    width: 60px;
     flex-direction: column;
     align-items: center;
+    padding: 0 12px;
     z-index: 30;
 }
 .icon-container {
@@ -42,7 +43,6 @@ export default {
 
 svg {
     width: 60px;
-    color: blue;
 }
 
 .recolour-image {

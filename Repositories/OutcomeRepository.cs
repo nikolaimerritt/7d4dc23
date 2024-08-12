@@ -24,7 +24,7 @@ public class OutcomeRepository
             .OrderBy(outcome => outcome.Id)
             .ToListAsync();
 
-    public async Task<List<Outcome>> FromPreviousRoundAsync()
+    public async Task<List<Outcome>> InPreviousRoundAsync()
     {
         var previousRound = await _roundRepository.GetPreviousRoundAsync();
         return await WithinAsync(previousRound);

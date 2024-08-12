@@ -49,7 +49,7 @@ public class OutcomeController : Controller
     public async Task<IActionResult> GetLatestOutcomes()
     {
         return Json(
-            (await _outcomeRepository.FromPreviousRoundAsync()).Select(OutcomeViewModel.FromModel)
+            (await _outcomeRepository.InPreviousRoundAsync()).Select(OutcomeViewModel.FromModel)
         );
     }
 
@@ -63,7 +63,7 @@ public class OutcomeController : Controller
         }
 
         var round = await _roundRepository.GetCurrentRoundAsync();
-        var outcomes = await _outcomeRepository.FromPreviousRoundAsync();
+        var outcomes = await _outcomeRepository.InPreviousRoundAsync();
         var virtualOutcomes = outcomes.Select(OutcomeViewModel.FromModel).ToList();
 
         var moves = (await _moveRepository.All())
