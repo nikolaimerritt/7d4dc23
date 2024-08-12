@@ -333,6 +333,8 @@ export default {
 };
 </script>
 <style scoped>
+@import url("https://fonts.googleapis.com/css2?family=Tangerine:wght@400;700&display=swap");
+
 .round-row {
     display: flex;
     overflow-x: auto;
@@ -364,6 +366,7 @@ h2 {
 
 h3 {
     font-family: "Tangerine", cursive;
+    font-style: normal;
     color: black;
     font-size: 1.8rem;
 }

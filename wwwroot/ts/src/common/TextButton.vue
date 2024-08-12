@@ -24,6 +24,7 @@ export default {
 </script>
 <style scoped>
 .button {
+    font-family: "Goudy Regular", sans-serif;
     border-radius: 20px;
     font-size: 14px;
     padding: 2px 8px;
@@ -40,4 +41,3 @@ export default {
     background-color: #e4d39c;
 }
 </style>
-./common/util

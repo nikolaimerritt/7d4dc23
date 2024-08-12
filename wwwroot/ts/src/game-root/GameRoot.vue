@@ -16,28 +16,23 @@
                     </text-button>
                 </div>
                 <div class="menu-section">
-                    <span class="pill"> {{ this.balance }} Coins </span>
-                    <span
-                        class="pill"
+                    <text-pill :text="`${this.balance} coins`"></text-pill>
+                    <text-pill
                         v-if="
                             this.ui.round.timeRemaining !== undefined &&
                             this.ui.round.timeRemaining.seconds() > 0
                         "
-                    >
-                        {{
-                            "Round ends in " +
-                            this.ui.round.timeRemaining.format("HH:mm:ss")
-                        }}
-                    </span>
-                    <span
-                        class="pill"
+                        :text="`Round ends in ${this.ui.round.timeRemaining.format(
+                            'HH:mm:ss'
+                        )}`"
+                    ></text-pill>
+                    <text-pill
                         v-else-if="
                             this.ui.round.timeRemaining !== undefined &&
                             this.ui.round.timeRemaining.seconds() === 0
                         "
-                    >
-                        Round has ended
-                    </span>
+                        :text="'Round has ended'"
+                    ></text-pill>
                 </div>
             </div>
             <div class="dialog" v-if="dialogText()">
@@ -430,15 +425,6 @@ export default {
 .dialog {
     padding: 0 0 12px 12px;
 }
-.pill {
-    border-radius: 20px;
-    font-size: 14px;
-    padding: 2px 8px;
-    margin: 4px 0;
-    background-color: #f8ecbc;
-    border: 1px solid #be9a67;
-}
-
 .horizontal-container {
     width: 100%;
     display: flex;
