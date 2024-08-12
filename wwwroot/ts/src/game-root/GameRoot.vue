@@ -63,24 +63,24 @@
                 >
                 </sea-centre>
             </div>
-            <input-modal
-                v-if="ui.purchase.showModal"
-                :message="'How many points would you like to spend to purchase new ships?'"
-                :buttonText="'Purchase'"
-                :errorMessage="ui.purchase.error"
-                @submission="onSubmitPurchase($event)"
-                @clickOutside="resetActions()"
-            ></input-modal>
-            <input-modal
-                v-if="ui.move.showModal"
-                :message="'How many ships would you like to move?'"
-                :buttonText="'Move'"
-                :errorMessage="ui.move.error"
-                @submission="onSubmitMove($event)"
-                @clickOutside="resetActions()"
-            >
-            </input-modal>
         </div>
+        <input-modal
+            v-if="ui.purchase.showModal"
+            :message="'How many points would you like to spend to purchase new ships?'"
+            :buttonText="'Purchase'"
+            :errorMessage="ui.purchase.error"
+            @submission="onSubmitPurchase($event)"
+            @clickOutside="resetActions()"
+        ></input-modal>
+        <input-modal
+            v-if="ui.move.showModal"
+            :message="'How many ships would you like to move?'"
+            :buttonText="'Move'"
+            :errorMessage="ui.move.error"
+            @submission="onSubmitMove($event)"
+            @clickOutside="resetActions()"
+        >
+        </input-modal>
     </div>
 </template>
 
@@ -432,7 +432,7 @@ export default {
     justify-content: center;
 }
 .left-container {
-    width: 70%;
+    width: 60%;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;

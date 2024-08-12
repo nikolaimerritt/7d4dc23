@@ -35,10 +35,11 @@
             v-else-if="name === 'Arctic'"
             :class="['image-container', imageClass]"
         />
-        <div ref="shipContainer" style="position: relative" v-show="loaded">
+        <div ref="shipContainer" style="position: relative">
             <div class="ship-container">
                 <team-ship
                     v-for="(ship, index) in teamShips"
+                    v-show="loaded"
                     :key="index"
                     :teamName="ship.team.name"
                     :shipCount="ship.shipCount"
@@ -132,6 +133,7 @@ export default {
             largestPath,
             this.$refs.seaImage
         );
+        await Util.sleep(50);
 
         this.loaded = true;
     },
