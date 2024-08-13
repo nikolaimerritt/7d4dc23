@@ -6,7 +6,6 @@ public class TeamViewModel
 {
     public int Id { get; set; }
     public string Name { get; set; }
-    public string ColourHexCode { get; set; }
     public SeaViewModel StartingSea { get; set; }
 
     public static TeamViewModel FromModel(Team team) =>

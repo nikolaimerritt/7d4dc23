@@ -13,6 +13,11 @@ public class Sea
     [NotMapped]
     public List<Sea> AdjacentSeas { get; set; }
 
+    public bool IsAccessible(Sea other) =>
+        Id == other.Id
+        || AdjacentSeas.Any(sea => sea.Id == other.Id)
+        || other.AdjacentSeas.Any(sea => Id == sea.Id);
+
     public static class Names
     {
         public static readonly string NorthPacific = "North Pacific";

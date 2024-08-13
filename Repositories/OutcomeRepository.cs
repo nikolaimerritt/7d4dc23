@@ -7,22 +7,35 @@ namespace PirateConquest.Repositories;
 public class OutcomeRepository
 {
     private readonly AppDbContext _context;
+    private readonly SeaRepository _seaRepository;
     private readonly RoundRepository _roundRepository;
 
-    public OutcomeRepository(AppDbContext context, RoundRepository roundRepository)
+    public OutcomeRepository(
+        AppDbContext context,
+        RoundRepository roundRepository,
+        SeaRepository seaRepository
+    )
     {
         _context = context;
         _roundRepository = roundRepository;
+        _seaRepository = seaRepository;
     }
 
-    public async Task<List<Outcome>> AllAsync() =>
-        await _context
+    public async Task<List<Outcome>> AllAsync()
+    {
+        var outcomes = await _context
             .Outcomes.Include(outcome => outcome.Round)
             .Include(outcome => outcome.Sea)
             .Include(outcome => outcome.Team)
             .ThenInclude(team => team.StartingSea)
             .OrderBy(outcome => outcome.Id)
             .ToListAsync();
+        foreach (var outcome in outcomes)
+        {
+            outcome.Sea.AdjacentSeas = await _seaRepository.AdjacentSeasAsync(outcome.Sea);
+        }
+        return outcomes;
+    }
 
     public async Task<List<Outcome>> InPreviousRoundAsync()
     {
@@ -52,4 +65,33 @@ public class OutcomeRepository
         (await AllAsync())
             .Where(outcome => outcome.RoundId == round.Id && outcome.SeaId == sea.Id)
             .ToList();
+
+    public async Task<List<Sea>> GetAccessibleSeasAsync(Team team)
+    {
+        // TO SELF: very inefficient!
+        var accessibleSeas = new List<Sea>();
+        foreach (var sea in await _seaRepository.AllAsync())
+        {
+            if (await TeamCanAccess(team, sea))
+            {
+                accessibleSeas.Add(sea);
+            }
+        }
+        return accessibleSeas;
+    }
+
+    public async Task<bool> TeamCanAccess(Team team, Sea sea)
+    {
+        var latestTeamOutcomes = (await InPreviousRoundAsync())
+            .Where(outcome => outcome.Team.Id == team.Id)
+            .ToList();
+        foreach (var outcome in latestTeamOutcomes)
+        {
+            if (sea.IsAccessible(outcome.Sea))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }

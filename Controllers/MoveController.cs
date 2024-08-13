@@ -86,7 +86,7 @@ public class MoveController : Controller
 
         var fromSea = await _seaRepository.ByIdAsync(fromSeaId);
         var toSea = await _seaRepository.ByIdAsync(toSeaId);
-        if (fromSea is null || toSea is null || !_seaRepository.AreAccessible(fromSea, toSea))
+        if (fromSea is null || toSea is null || !fromSea.IsAccessible(toSea))
         {
             return Json(ErrorViewModel.SeasAreInaccessible);
         }

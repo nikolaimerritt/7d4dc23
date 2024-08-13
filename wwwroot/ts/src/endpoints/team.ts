@@ -4,7 +4,6 @@ import { Sea } from "./sea";
 export interface Team {
     id: number;
     name: string;
-    colourHexCode: string;
     startingSea: Sea;
 }
 
@@ -19,7 +18,6 @@ export class TeamEndpoint {
         const team: Team = {
             id: object.id,
             name: object.name,
-            colourHexCode: object.colourHexCode,
             startingSea: object.startingSea,
         };
         return team;

@@ -38,7 +38,7 @@
                 <sea-centre
                     v-for="(seaState, index) in this.seaStates"
                     :key="index"
-                    :name="seaState.sea.name"
+                    :sea="seaState.sea"
                     :teamShips="seaState.teamShips"
                     :highlighted="isHighlighted(seaState.sea)"
                     class="sea-centre"

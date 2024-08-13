@@ -16,13 +16,15 @@ public class PurchaseController : Controller
     private readonly TeamRepository _teamRepository;
     private readonly RoundRepository _roundRepository;
     private readonly PointsService _pointsService;
+    private readonly OutcomeRepository _outcomeRepository;
 
     public PurchaseController(
         SeaRepository seaRepository,
         PurchaseRepository purchaseRepository,
         TeamRepository teamRepository,
         RoundRepository roundRepository,
-        PointsService pointsService
+        PointsService pointsService,
+        OutcomeRepository outcomeRepository
     )
     {
         _seaRepository = seaRepository;
@@ -30,6 +32,7 @@ public class PurchaseController : Controller
         _teamRepository = teamRepository;
         _roundRepository = roundRepository;
         _pointsService = pointsService;
+        _outcomeRepository = outcomeRepository;
     }
 
     [HttpGet("/api/purchases")]
@@ -109,7 +112,7 @@ public class PurchaseController : Controller
         }
 
         var sea = await _seaRepository.ByIdAsync(seaId);
-        if (sea is null || !await _seaRepository.TeamCanAccess(team, sea))
+        if (sea is null || !await _outcomeRepository.TeamCanAccess(team, sea))
         {
             return Json(ErrorViewModel.SeasAreInaccessible);
         }

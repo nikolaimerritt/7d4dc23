@@ -12,11 +12,17 @@ public class SeaController : Controller
 {
     private readonly SeaRepository _seaRepository;
     private readonly TeamRepository _teamRepository;
+    private readonly OutcomeRepository _outcomeRepository;
 
-    public SeaController(SeaRepository seaRepository, TeamRepository teamRepository)
+    public SeaController(
+        SeaRepository seaRepository,
+        TeamRepository teamRepository,
+        OutcomeRepository outcomeRepository
+    )
     {
         _seaRepository = seaRepository;
         _teamRepository = teamRepository;
+        _outcomeRepository = outcomeRepository;
     }
 
     [HttpGet("/api/seas")]
@@ -34,7 +40,7 @@ public class SeaController : Controller
         {
             return Json(ErrorViewModel.Unauthorized);
         }
-        var accessibleSeas = await _seaRepository.GetAccessibleSeasAsync(team);
+        var accessibleSeas = await _outcomeRepository.GetAccessibleSeasAsync(team);
         return Json(accessibleSeas.Select(SeaViewModel.FromModel));
     }
 

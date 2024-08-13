@@ -308,11 +308,7 @@ export default {
             }));
         },
         seaName(this: This, sea: Sea): string {
-            if (sea.name === "Indian" || sea.name === "Southern") {
-                return `the ${sea.name} ocean`;
-            } else {
-                return `the ${sea.name}`;
-            }
+            return Util.seaNameLowercase(sea);
         },
         joinWithAnd(strings: string[]): string {
             if (strings.length === 0) {

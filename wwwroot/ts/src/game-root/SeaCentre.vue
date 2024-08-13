@@ -1,40 +1,42 @@
 <template>
-    <div :data-sea-name="name">
-        <NorthPacificSvg
-            ref="seaImage"
-            v-if="name === 'North Pacific'"
-            :class="['image-container', imageClass]"
-        />
-        <SouthPacificSvg
-            ref="seaImage"
-            v-else-if="name === 'South Pacific'"
-            :class="['image-container', imageClass]"
-        />
-        <NorthAtlanticSvg
-            ref="seaImage"
-            v-else-if="name === 'North Atlantic'"
-            :class="['image-container', imageClass]"
-        />
-        <SouthAtlanticSvg
-            ref="seaImage"
-            v-else-if="name === 'South Atlantic'"
-            :class="['image-container', imageClass]"
-        />
-        <SouthernSvg
-            ref="seaImage"
-            v-else-if="name === 'Southern'"
-            :class="['image-container', imageClass]"
-        />
-        <IndianSvg
-            ref="seaImage"
-            v-else-if="name === 'Indian'"
-            :class="['image-container', imageClass]"
-        />
-        <ArcticSvg
-            ref="seaImage"
-            v-else-if="name === 'Arctic'"
-            :class="['image-container', imageClass]"
-        />
+    <div ref="container" :data-sea-name="seaName()">
+        <div>
+            <NorthPacificSvg
+                ref="seaImage"
+                v-if="sea.name === 'North Pacific'"
+                :class="['image-container', imageClass]"
+            />
+            <SouthPacificSvg
+                ref="seaImage"
+                v-else-if="sea.name === 'South Pacific'"
+                :class="['image-container', imageClass]"
+            />
+            <NorthAtlanticSvg
+                ref="seaImage"
+                v-else-if="sea.name === 'North Atlantic'"
+                :class="['image-container', imageClass]"
+            />
+            <SouthAtlanticSvg
+                ref="seaImage"
+                v-else-if="sea.name === 'South Atlantic'"
+                :class="['image-container', imageClass]"
+            />
+            <SouthernSvg
+                ref="seaImage"
+                v-else-if="sea.name === 'Southern'"
+                :class="['image-container', imageClass]"
+            />
+            <IndianSvg
+                ref="seaImage"
+                v-else-if="sea.name === 'Indian'"
+                :class="['image-container', imageClass]"
+            />
+            <ArcticSvg
+                ref="seaImage"
+                v-else-if="sea.name === 'Arctic'"
+                :class="['image-container', imageClass]"
+            />
+        </div>
         <div ref="shipContainer" style="position: relative">
             <div class="ship-container">
                 <team-ship
@@ -47,6 +49,9 @@
                 </team-ship>
             </div>
         </div>
+        <span ref="tooltip" class="sea-name-tooltip" v-show="hover">
+            {{ seaName() }}
+        </span>
     </div>
 </template>
 
@@ -60,6 +65,7 @@ import SouthAtlanticSvg from "../../../imgs/seas/south-atlantic-cropped.svg";
 import SouthernSvg from "../../../imgs/seas/southern-cropped.svg";
 import IndianSvg from "../../../imgs/seas/indian-cropped.svg";
 import ArcticSvg from "../../../imgs/seas/arctic-cropped.svg";
+import { Sea } from "../endpoints/sea";
 interface TeamShips {
     team: Team;
     shipCount: number;
@@ -68,7 +74,7 @@ interface TeamShips {
 type SeaImage = { [seaName: string]: string };
 
 interface Props {
-    name: string;
+    sea: Sea;
     highlighted: boolean;
     teamShips: TeamShips[];
 }
@@ -83,7 +89,9 @@ type This = VueThis<Data & Props>;
 
 export default {
     props: {
-        name: String,
+        sea: {
+            type: Object,
+        },
         highlighted: Boolean,
         teamShips: {
             type: Array<TeamShips>,
@@ -121,6 +129,7 @@ export default {
         for (var path of svgPaths) {
             this.addMouseEvents(path);
         }
+        // this.labelPaths(this.$refs.seaImage);
 
         const largestPath = Util.maxBy(
             svgPaths,
@@ -139,10 +148,28 @@ export default {
     },
     methods: {
         addMouseEvents(path: SVGPathElement) {
-            path.addEventListener("mouseover", () => this.onHover(path));
+            path.addEventListener("mouseover", (event) =>
+                this.onHover(path, event)
+            );
             path.addEventListener("mouseleave", () => this.onHoverExit(path));
             path.addEventListener("mousedown", () => this.emitClick());
+            path.addEventListener("mousemove", (event: MouseEvent) =>
+                this.onMouseMove(event)
+            );
         },
+
+        // // We would like the SVG paths to have tooltips of the sea name.
+        // // vue-svg-loader discards <title/> tags.
+        // // So, we add a title tags to the SVG paths ourselves.
+        // // We append an empty string to the svg's inner HTML to force a re-render.
+        // labelPaths(this: This, svg: SVGPathElement) {
+        //     svg.querySelectorAll("path").forEach((path) => {
+        //         const title = document.createElement("title");
+        //         title.innerHTML = Util.seaNameTitleCase(this.sea);
+        //         path.appendChild(title);
+        //     });
+        //     svg.innerHTML += "";
+        // },
         fitElementTo(
             toFit: HTMLElement,
             fitTo: HTMLElement,
@@ -160,9 +187,21 @@ export default {
             toFit.style.top = `${topOffset}px`;
         },
         onHover(this: This, path: SVGPathElement) {
+            this.hover = true;
             if (this.highlighted) {
-                this.hover = true;
                 path.style.cursor = "pointer";
+            }
+        },
+        onMouseMove(this: This, event: MouseEvent) {
+            if (this.hover) {
+                const left =
+                    event.pageX -
+                    this.$refs.container.getBoundingClientRect().x;
+                const top =
+                    event.pageY -
+                    this.$refs.container.getBoundingClientRect().y;
+                this.$refs.tooltip.style.left = `${left}px`;
+                this.$refs.tooltip.style.top = `${top}px`;
             }
         },
         onHoverExit(this: This, path: SVGPathElement) {
@@ -175,13 +214,16 @@ export default {
             }
         },
         borderRadius(this: This): string {
-            if (this.name === "Arctic") {
+            if (this.sea.name === "Arctic") {
                 return "16px 16px 0 0";
-            } else if (this.name === "Southern") {
+            } else if (this.sea.name === "Southern") {
                 return "0 0 16px 16px";
             } else {
                 return "";
             }
+        },
+        seaName(this: This) {
+            return Util.seaNameTitleCase(this.sea);
         },
     },
     watch: {
@@ -193,8 +235,8 @@ export default {
     },
     computed: {
         imageClass(this: This) {
-            if (this.hover) {
-                return "state-hover";
+            if (this.hover && this.highlighted) {
+                return "state-highlighted-hover";
             } else if (this.highlighted) {
                 return "state-highlighted";
             } else {
@@ -222,13 +264,13 @@ export default {
     top: 0;
     left: 0;
 }
+.state-highlighted-hover {
+    filter: brightness(0) saturate(100%) invert(82%) sepia(27%) saturate(532%)
+        hue-rotate(355deg) brightness(84%) contrast(86%);
+}
 .state-highlighted {
     filter: brightness(0) saturate(100%) invert(96%) sepia(43%) saturate(961%)
         hue-rotate(317deg) brightness(90%) contrast(86%);
-}
-.state-hover {
-    filter: brightness(0) saturate(100%) invert(82%) sepia(27%) saturate(532%)
-        hue-rotate(355deg) brightness(84%) contrast(86%);
 }
 .state-none {
     filter: opacity(0%);
@@ -239,5 +281,12 @@ export default {
 }
 .rounded-bottom {
     border-radius: 0 0 16px 16px;
+}
+
+.sea-name-tooltip {
+    position: fixed;
+    z-index: 50;
+    left: 50px;
+    top: 50px;
 }
 </style>

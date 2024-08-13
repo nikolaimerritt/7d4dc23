@@ -1,4 +1,5 @@
 import * as moment from "moment";
+import { Sea } from "../endpoints/sea";
 
 export type VueThis<Data> = Data & {
     $refs: { [refName: string]: HTMLElement };
@@ -27,6 +28,22 @@ export class Util {
 
     public static getHtmlObjectContent(htmlObject: HTMLElement): HTMLElement {
         return (htmlObject as any).contentDocument;
+    }
+
+    public static seaNameLowercase(sea: Sea): string {
+        if (sea.name === "Indian" || sea.name === "Southern") {
+            return `the ${sea.name} ocean`;
+        } else {
+            return `the ${sea.name}`;
+        }
+    }
+
+    public static seaNameTitleCase(sea: Sea): string {
+        if (sea.name === "Indian" || sea.name === "Southern") {
+            return `The ${sea.name} ocean`;
+        } else {
+            return `The ${sea.name}`;
+        }
     }
 
     public static maxBy<T>(
