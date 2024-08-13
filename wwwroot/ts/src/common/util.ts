@@ -13,12 +13,16 @@ export class Util {
             ...new Map(items.map((item) => [keySelector(item), item])).values(),
         ];
     }
-    public static timeBetween(bigger: Date, smaller: Date): moment.Moment {
+    public static formatTimeBetween(bigger: Date, smaller: Date): string {
+        const duration = moment.duration(moment(bigger).diff(moment(smaller)));
+        return moment.utc(duration.asMilliseconds()).format("HH:mm:ss");
+    }
+    public static timeBetween(bigger: Date, smaller: Date): Date {
         if (bigger < smaller) {
             bigger = smaller;
         }
         const duration = moment.duration(moment(bigger).diff(moment(smaller)));
-        return moment.utc(duration.asMilliseconds());
+        return new Date(duration.asMilliseconds());
     }
 
     public static getHtmlObjectContent(htmlObject: HTMLElement): HTMLElement {
@@ -43,6 +47,13 @@ export class Util {
             }
             return largest;
         }
+    }
+
+    public static minBy<T>(
+        list: T[],
+        score: (element: T) => number
+    ): T | undefined {
+        return Util.maxBy(list, (element) => -1 * score(element));
     }
 
     public static async sleep(milliseconds: number): Promise<void> {
@@ -86,5 +97,9 @@ export class Util {
                 return 1;
             }
         });
+    }
+
+    public static formatTime(datetime: Date): string {
+        return moment(datetime).format("HH:mm:ss");
     }
 }

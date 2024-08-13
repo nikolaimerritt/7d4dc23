@@ -26,7 +26,7 @@ export default {
 .button {
     font-family: "Goudy Regular", sans-serif;
     border-radius: 20px;
-    font-size: 14px;
+    font-size: 16px;
     padding: 2px 8px;
     margin: 4px 0;
     cursor: pointer;

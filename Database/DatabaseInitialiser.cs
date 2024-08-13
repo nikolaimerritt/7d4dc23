@@ -96,7 +96,6 @@ public class DatabaseInitialiser
             {
                 Name = "Team Drake",
                 PlainTextPassword = "AwardTrafficSteeple",
-                ColourHexCode = "#FAECDB",
                 StartingSea = await _context.Seas.FirstOrDefaultAsync(sea =>
                     sea.Name == Sea.Names.NorthPacific
                 )
@@ -105,7 +104,6 @@ public class DatabaseInitialiser
             {
                 Name = "Team Read",
                 PlainTextPassword = "NorthBesiegeSpine",
-                ColourHexCode = "#C9E4DE",
                 StartingSea = await _context.Seas.FirstOrDefaultAsync(sea =>
                     sea.Name == Sea.Names.SouthPacific
                 )
@@ -114,7 +112,6 @@ public class DatabaseInitialiser
             {
                 Name = "Team Kidd",
                 PlainTextPassword = "UnequalGoodbyePossess",
-                ColourHexCode = "#C6DEF1",
                 StartingSea = await _context.Seas.FirstOrDefaultAsync(sea =>
                     sea.Name == Sea.Names.NorthAtlantic
                 )
@@ -123,7 +120,6 @@ public class DatabaseInitialiser
             {
                 Name = "Team Blackbeard",
                 PlainTextPassword = "SpeakBraveWelcome",
-                ColourHexCode = "#DBCDF0",
                 StartingSea = await _context.Seas.FirstOrDefaultAsync(sea =>
                     sea.Name == Sea.Names.SouthAtlantic
                 )
@@ -132,7 +128,6 @@ public class DatabaseInitialiser
             {
                 Name = "Team O'Malley",
                 PlainTextPassword = "ShallotSupposePreach",
-                ColourHexCode = "#F7D9C4",
                 StartingSea = await _context.Seas.FirstOrDefaultAsync(sea =>
                     sea.Name == Sea.Names.Southern
                 )

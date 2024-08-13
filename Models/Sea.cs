@@ -38,12 +38,12 @@ public class Sea
             new Dictionary<string, IReadOnlyList<string>>()
             {
                 [NorthPacific] = new List<string>() { SouthPacific, Arctic },
-                [SouthPacific] = new List<string>() { NorthPacific, Southern },
+                [SouthPacific] = new List<string>() { NorthPacific, Southern, Indian },
                 [Southern] = new List<string>() { SouthPacific, SouthAtlantic, Indian },
-                [SouthAtlantic] = new List<string>() { NorthAtlantic, Southern, NorthAtlantic },
+                [SouthAtlantic] = new List<string>() { Indian, Southern, NorthAtlantic },
                 [NorthAtlantic] = new List<string>() { SouthAtlantic, Arctic },
                 [Arctic] = new List<string>() { NorthAtlantic, NorthPacific },
-                [Indian] = new List<string>() { Southern }
+                [Indian] = new List<string>() { Southern, SouthAtlantic, SouthPacific }
             };
     }
 }

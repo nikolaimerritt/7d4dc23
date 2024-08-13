@@ -133,7 +133,7 @@ export default {
             largestPath,
             this.$refs.seaImage
         );
-        await Util.sleep(50);
+        await Util.sleep(100);
 
         this.loaded = true;
     },

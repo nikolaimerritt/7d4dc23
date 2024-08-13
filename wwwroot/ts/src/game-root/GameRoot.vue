@@ -16,26 +16,13 @@
                     </text-button>
                 </div>
                 <div class="menu-section">
-                    <text-pill :text="`${this.balance} coins`"></text-pill>
                     <text-pill
-                        v-if="
-                            this.ui.round.timeRemaining !== undefined &&
-                            this.ui.round.timeRemaining.seconds() > 0
-                        "
-                        :text="`Round ends in ${this.ui.round.timeRemaining.format(
-                            'HH:mm:ss'
-                        )}`"
+                        v-if="this.balance !== undefined"
+                        :text="`${this.balance} coins`"
                     ></text-pill>
                     <text-pill
-                        v-else-if="
-                            this.ui.round.timeRemaining !== undefined &&
-                            this.ui.round.timeRemaining.seconds() === 0
-                        "
-                        :text="'Round has ended'"
-                    ></text-pill>
-                    <text-pill
-                        v-else
-                        :text="'Round has not yet started'"
+                        v-if="this.ui.round.text"
+                        :text="this.ui.round.text"
                     ></text-pill>
                 </div>
             </div>
@@ -102,7 +89,7 @@ import { Round, RoundEndpoint } from "../endpoints/round";
 import { Util, VueThis } from "../common/util";
 import * as moment from "moment";
 
-const updateTimeRemainingMs = 2_000;
+const updateRoundTextMs = 2_000;
 const updateMapMs = 5_000;
 type Action = "none" | "purchase" | "move";
 
@@ -134,8 +121,8 @@ interface Data {
             error: string;
         };
         round: {
-            timeRemaining?: moment.Moment;
-            updateTimeRemainingHandle?: number;
+            text: string;
+            updateHandle?: number;
         };
         map: {
             updateMapHandle: number;
@@ -146,7 +133,7 @@ interface Data {
     seaStates: SeaState[];
     accessibleSeas: Sea[];
     canMove: boolean;
-    round?: Round;
+    rounds?: Round[];
     seaCentrePositions: SeaCentrePositions;
     seaCentreScale: number | undefined;
 }
@@ -160,7 +147,7 @@ export default {
             balance: undefined,
             accessibleSeas: [],
             canMove: false,
-            round: undefined,
+            rounds: [],
             endpoints: {
                 team: new TeamEndpoint(),
                 purchase: new PurchaseEndpoint(),
@@ -185,8 +172,8 @@ export default {
                     error: "",
                 },
                 round: {
-                    timeRemaining: undefined,
-                    updateTimeRemainingHandle: undefined,
+                    text: "",
+                    updateHandle: undefined,
                 },
                 map: {
                     updateMapHandle: undefined,
@@ -228,11 +215,11 @@ export default {
     async mounted(this: This) {
         this.team = await this.endpoints.team.getTeam();
         await this.refreshMap();
-        this.updateTimeRemaining();
         this.transformSeaCentres();
-        this.ui.round.updateTimeRemainingHandle = window.setInterval(
-            () => this.updateTimeRemaining(),
-            updateTimeRemainingMs
+        this.ui.round.text = this.roundText();
+        this.ui.round.updateHandle = window.setInterval(
+            () => (this.ui.round.text = this.roundText()),
+            updateRoundTextMs
         );
         this.ui.map.updateMapHandle = window.setInterval(
             async () => await this.refreshMap(),
@@ -246,7 +233,7 @@ export default {
             this.seaStates = await this.endpoints.seaState.getSeaStates();
             this.accessibleSeas = await this.endpoints.sea.getAccessibleSeas();
             this.canMove = await this.endpoints.move.canMove();
-            this.round = await this.endpoints.round.getCurrentRound();
+            this.rounds = await this.endpoints.round.getRounds();
         },
         transformSeaCentres(this: This) {
             const mapBackground = this.$refs.mapBackground as HTMLImageElement;
@@ -281,9 +268,6 @@ export default {
             }
         },
         onSeaCentreClick(this: This, sea: Sea) {
-            if (this.ui.action === "none") {
-                return;
-            }
             if (this.ui.action === "purchase") {
                 this.ui.purchase.seaToPurchaseIn = sea;
                 this.ui.purchase.showModal = true;
@@ -390,15 +374,44 @@ export default {
             }
             return "";
         },
-        updateTimeRemaining(this: This) {
-            this.ui.round.timeRemaining = Util.timeBetween(
-                this.round.startCooldown,
-                new Date()
+        roundText(this: This) {
+            const now = new Date();
+            const firstRound = Util.minBy(this.rounds, (round) =>
+                round.startPlanning.getTime()
             );
+            if (now <= firstRound.startPlanning) {
+                return `Round 1 starts in ${Util.formatTimeBetween(
+                    firstRound.startPlanning,
+                    now
+                )}`;
+            }
+
+            for (let i = 0; i < this.rounds.length; i++) {
+                if (
+                    this.rounds[i].startPlanning <= now &&
+                    now <= this.rounds[i].startCooldown
+                ) {
+                    return `Round ${i + 1} ends in ${Util.formatTimeBetween(
+                        this.rounds[i].startCooldown,
+                        now
+                    )}`;
+                } else if (
+                    i + 1 < this.rounds.length &&
+                    this.rounds[i].startCooldown <= now &&
+                    now <= this.rounds[i + 1].startPlanning
+                ) {
+                    return `Round ${i + 2} starts in ${Util.formatTimeBetween(
+                        this.rounds[i + 1].startPlanning,
+                        now
+                    )}`;
+                }
+            }
+
+            return `The game has ended`;
         },
     },
     unmounted(this: This) {
-        window.clearInterval(this.ui.round.updateTimeRemainingHandle);
+        window.clearInterval(this.ui.round.updateHandle);
         window.clearInterval(this.ui.map.updateMapHandle);
         window.removeEventListener("resize", () => this.transformSeaCentres());
     },
