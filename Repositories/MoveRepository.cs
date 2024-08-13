@@ -14,14 +14,19 @@ public class MoveRepository
         _context = context;
     }
 
-    public async Task<List<Move>> All() =>
+    public async Task<List<Move>> AllAsync() =>
         await _context
             .Moves.Include(move => move.FromSea)
             .Include(move => move.ToSea)
             .Include(move => move.Round)
             .Include(move => move.Team)
             .ThenInclude(team => team.StartingSea)
+            .OrderBy(move => move.ToSea.Name)
+            .ThenBy(move => move.Team.Name)
             .ToListAsync();
+
+    public async Task<List<Move>> FromRoundAsync(Round round) =>
+        (await AllAsync()).Where(move => move.Round.Id == round.Id).ToList();
 
     public async Task<bool> AnyInRoundAsync(Team team, Round round) =>
         await _context

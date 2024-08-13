@@ -11,7 +11,6 @@ namespace PirateConquest.Controllers;
 
 public class PurchaseController : Controller
 {
-    private readonly AppDbContext _context;
     private readonly SeaRepository _seaRepository;
     private readonly PurchaseRepository _purchaseRepository;
     private readonly TeamRepository _teamRepository;
@@ -19,7 +18,6 @@ public class PurchaseController : Controller
     private readonly PointsService _pointsService;
 
     public PurchaseController(
-        AppDbContext context,
         SeaRepository seaRepository,
         PurchaseRepository purchaseRepository,
         TeamRepository teamRepository,
@@ -27,7 +25,6 @@ public class PurchaseController : Controller
         PointsService pointsService
     )
     {
-        _context = context;
         _seaRepository = seaRepository;
         _purchaseRepository = purchaseRepository;
         _teamRepository = teamRepository;
@@ -38,7 +35,7 @@ public class PurchaseController : Controller
     [HttpGet("/api/purchases")]
     public async Task<IActionResult> GetPurchases(int? roundId = null)
     {
-        var purchases = await _purchaseRepository.All();
+        var purchases = await _purchaseRepository.AllAsync();
         if (roundId is int id)
         {
             purchases = purchases.Where(purchase => purchase.Round.Id == id).ToList();
@@ -69,7 +66,7 @@ public class PurchaseController : Controller
             return Json(ErrorViewModel.Unauthorized);
         }
 
-        var purchase = (await _purchaseRepository.All()).FirstOrDefault(purchase =>
+        var purchase = (await _purchaseRepository.AllAsync()).FirstOrDefault(purchase =>
             purchase.Team == team && purchase.Id == purchaseId
         );
         if (purchase is null)
@@ -110,13 +107,14 @@ public class PurchaseController : Controller
         {
             return Json(ErrorViewModel.NotEnoughPoints);
         }
-        var sea = await _context.Seas.FirstOrDefaultAsync(sea => sea.Id == seaId);
+
+        var sea = await _seaRepository.ByIdAsync(seaId);
         if (sea is null || !await _seaRepository.TeamCanAccess(team, sea))
         {
             return Json(ErrorViewModel.SeasAreInaccessible);
         }
 
-        await _context.Purchases.AddAsync(
+        await _purchaseRepository.AddAsync(
             new Purchase()
             {
                 Team = team,
@@ -127,7 +125,6 @@ public class PurchaseController : Controller
                 Creation = DateTime.UtcNow
             }
         );
-        await _context.SaveChangesAsync();
         return Json(new OkViewModel());
     }
 
@@ -135,9 +132,9 @@ public class PurchaseController : Controller
     {
         //var pointsGained = await _pointsService.GetPointsAsync(team);
         var pointsGained = 99;
-        var pointsSpent = await _context
-            .Purchases.Where(purchase => purchase.Team == team)
-            .SumAsync(purchase => purchase.Points);
+        var pointsSpent = (await _purchaseRepository.AllAsync())
+            .Where(purchase => purchase.Team == team)
+            .Sum(purchase => purchase.Points);
         return pointsGained - pointsSpent;
     }
 }

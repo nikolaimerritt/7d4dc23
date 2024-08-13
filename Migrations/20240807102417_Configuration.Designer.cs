@@ -38,7 +38,7 @@ namespace PirateConquest.Migrations
 
                     b.HasIndex("SeaId");
 
-                    b.ToTable("AdjacentSeas");
+                    b.ToTable("AdjacentSeasAsync");
                 });
 
             modelBuilder.Entity("PirateConquest.Models.AppConfig", b =>

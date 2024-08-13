@@ -19,7 +19,7 @@ namespace PirateConquest.Migrations
             );
 
             migrationBuilder.CreateTable(
-                name: "AdjacentSeas",
+                name: "AdjacentSeasAsync",
                 columns: table => new
                 {
                     Id = table
@@ -56,13 +56,13 @@ namespace PirateConquest.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_AdjacentSeas_AdjacentToId",
-                table: "AdjacentSeas",
+                table: "AdjacentSeasAsync",
                 column: "AdjacentToId"
             );
 
             migrationBuilder.CreateIndex(
                 name: "IX_AdjacentSeas_SeaId",
-                table: "AdjacentSeas",
+                table: "AdjacentSeasAsync",
                 column: "SeaId"
             );
 
@@ -81,7 +81,7 @@ namespace PirateConquest.Migrations
         {
             migrationBuilder.DropForeignKey(name: "FK_Teams_Seas_StartingSeaId", table: "Teams");
 
-            migrationBuilder.DropTable(name: "AdjacentSeas");
+            migrationBuilder.DropTable(name: "AdjacentSeasAsync");
 
             migrationBuilder.DropIndex(name: "IX_Teams_StartingSeaId", table: "Teams");
 

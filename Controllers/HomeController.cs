@@ -11,18 +11,10 @@ namespace PirateConquest.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
-    private readonly AppDbContext _context;
     private readonly TeamRepository _teamRepository;
 
-    public HomeController(
-        ILogger<HomeController> logger,
-        AppDbContext context,
-        TeamRepository teamRepository
-    )
+    public HomeController(TeamRepository teamRepository)
     {
-        _logger = logger;
-        _context = context;
         _teamRepository = teamRepository;
     }
 

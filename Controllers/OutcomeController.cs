@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PirateConquest.Database;
+using PirateConquest.Models;
 using PirateConquest.Repositories;
 using PirateConquest.Utils;
 using PirateConquest.ViewModels;
@@ -53,83 +54,91 @@ public class OutcomeController : Controller
         );
     }
 
-    [HttpGet("/api/outcomes/virtual/latest")]
-    public async Task<IActionResult> GetLatestVirtualOutcomes()
-    {
-        var team = await _teamRepository.ByIdAsync(User.GetTeamId());
-        if (team is null)
-        {
-            return Json(ErrorViewModel.Unauthorized);
-        }
+    //[HttpGet("/api/outcomes/state/current")]
+    //public async Task<IActionResult> GetLatestVirtualOutcomes()
+    //{
+    //    var round = await _roundRepository.GetCurrentRoundAsync();
+    //    var outcomes = await _outcomeRepository.InPreviousRoundAsync();
+    //    var currentState = outcomes.Select(OutcomeViewModel.FromModel).ToList();
 
-        var round = await _roundRepository.GetCurrentRoundAsync();
-        var outcomes = await _outcomeRepository.InPreviousRoundAsync();
-        var virtualOutcomes = outcomes.Select(OutcomeViewModel.FromModel).ToList();
+    //    foreach (var team in await _teamRepository.AllAsync())
+    //    {
+    //        await AddCurrentPurchases(round, team, currentState);
+    //        await AddCurrentMoves(round, team, currentState);
+    //    }
 
-        var moves = (await _moveRepository.All())
-            .Where(move => move.Round.Id == round.Id && move.Team.Id == team.Id)
-            .ToList();
-        var purchases = await _purchaseRepository.TeamPurchasesAsync(round, team);
-        foreach (var purchase in purchases)
-        {
-            var outcomeInPurchaseDestination = virtualOutcomes.FirstOrDefault(outcome =>
-                outcome.Team.Id == team.Id && outcome.Sea.Id == purchase.Sea.Id
-            );
-            if (outcomeInPurchaseDestination is null)
-            {
-                virtualOutcomes.Add(
-                    OutcomeViewModel.FromModel(
-                        new()
-                        {
-                            Id = -1,
-                            Round = round,
-                            Team = team,
-                            Sea = purchase.Sea,
-                            ShipsAfter = purchase.ShipCount,
-                        }
-                    )
-                );
-            }
-            else
-            {
-                outcomeInPurchaseDestination.ShipsAfter += purchase.ShipCount;
-            }
-        }
+    //    return Json(currentState);
+    //}
 
-        foreach (var move in moves)
-        {
-            var outcomeInExitSea = virtualOutcomes.FirstOrDefault(outcome =>
-                outcome.Team.Id == team.Id && outcome.Sea.Id == move.FromSea.Id
-            );
-            if (outcomeInExitSea is not null)
-            {
-                outcomeInExitSea.ShipsAfter -= move.ShipCount;
-            }
-            var outcomeInEntranceSea = virtualOutcomes.FirstOrDefault(outcome =>
-                outcome.Team.Id == team.Id && outcome.Sea.Id == move.ToSea.Id
-            );
-            if (outcomeInEntranceSea is null)
-            {
-                virtualOutcomes.Add(
-                    OutcomeViewModel.FromModel(
-                        new()
-                        {
-                            Id = -1,
-                            Round = round,
-                            Team = team,
-                            Sea = move.ToSea,
-                            ShipsAfter = move.ShipCount,
-                        }
-                    )
-                );
-            }
-            else
-            {
-                outcomeInEntranceSea.ShipsAfter += move.ShipCount;
-            }
-        }
-        return Json(virtualOutcomes);
-    }
+    //private async Task AddCurrentPurchases(Round round, Team team, List<OutcomeViewModel> currentState)
+    //{
+    //    var purchases = await _purchaseRepository.TeamPurchasesAsync(round, team);
+    //    foreach (var purchase in purchases)
+    //    {
+    //        var outcomeInPurchaseDestination = currentState.FirstOrDefault(outcome =>
+    //            outcome.Team.Id == team.Id && outcome.Sea.Id == purchase.Sea.Id
+    //        );
+    //        if (outcomeInPurchaseDestination is null)
+    //        {
+    //            currentState.Add(
+    //                OutcomeViewModel.FromModel(
+    //                    new()
+    //                    {
+    //                        Id = -1,
+    //                        Round = round,
+    //                        Team = team,
+    //                        Sea = purchase.Sea,
+    //                        ShipsAfter = purchase.ShipCount,
+    //                    }
+    //                )
+    //            );
+    //        }
+    //        else
+    //        {
+    //            outcomeInPurchaseDestination.ShipsAfter += purchase.ShipCount;
+    //        }
+    //    }
+    //}
+
+    //private async Task AddCurrentMoves(Round round, Team team, List<OutcomeViewModel> currentState)
+    //{
+    //    var moves = (await _moveRepository.AllAsync())
+    //        .Where(move => move.Round.Id == round.Id && move.Team.Id == team.Id)
+    //        .ToList();
+
+    //    foreach (var move in moves)
+    //    {
+    //        var outcomeInExitSea = currentState.FirstOrDefault(outcome =>
+    //            outcome.Team.Id == team.Id && outcome.Sea.Id == move.FromSea.Id
+    //        );
+    //        if (outcomeInExitSea is not null)
+    //        {
+    //            outcomeInExitSea.ShipsAfter -= move.ShipCount;
+    //        }
+    //        var outcomeInEntranceSea = currentState.FirstOrDefault(outcome =>
+    //            outcome.Team.Id == team.Id && outcome.Sea.Id == move.ToSea.Id
+    //        );
+    //        if (outcomeInEntranceSea is null)
+    //        {
+    //            currentState.Add(
+    //                OutcomeViewModel.FromModel(
+    //                    new()
+    //                    {
+    //                        Id = -1,
+    //                        Round = round,
+    //                        Team = team,
+    //                        Sea = move.ToSea,
+    //                        ShipsAfter = move.ShipCount,
+    //                    }
+    //                )
+    //            );
+    //        }
+    //        else
+    //        {
+    //            outcomeInEntranceSea.ShipsAfter += move.ShipCount;
+    //        }
+    //    }
+    //}
 
     [HttpGet("/api/outcomes/{outcomeId}")]
     public async Task<IActionResult> GetOutcome(int? outcomeId)

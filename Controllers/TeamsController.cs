@@ -9,12 +9,10 @@ namespace PirateConquest.Controllers;
 
 public class TeamsController : Controller
 {
-    private readonly AppDbContext _context;
     private readonly TeamRepository _teamRepository;
 
-    public TeamsController(AppDbContext context, TeamRepository teamRepository)
+    public TeamsController(TeamRepository teamRepository)
     {
-        _context = context;
         _teamRepository = teamRepository;
     }
 
@@ -42,7 +40,7 @@ public class TeamsController : Controller
     [HttpGet("/api/teams/{teamId}")]
     public async Task<IActionResult> GetTeam(int teamId)
     {
-        var team = await _context.Teams.FirstOrDefaultAsync(team => team.Id == teamId);
+        var team = await _teamRepository.ByIdAsync(teamId);
         if (team is null)
         {
             return NotFound();

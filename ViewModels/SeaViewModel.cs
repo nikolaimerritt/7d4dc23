@@ -8,15 +8,13 @@ public class SeaViewModel
     public string Name { get; set; }
     public List<SeaViewModel> AdjacentSeas { get; set; }
 
-    public static SeaViewModel FromModel(Sea sea, IEnumerable<Sea> adjacentSeas) =>
+    public static SeaViewModel FromModel(Sea sea) =>
         new()
         {
             Id = sea.Id,
             Name = sea.Name,
-            AdjacentSeas = adjacentSeas
-                .Select(sea => new SeaViewModel() { Id = sea.Id, Name = sea.Name })
+            AdjacentSeas = sea
+                .AdjacentSeas.Select(sea => new SeaViewModel() { Id = sea.Id, Name = sea.Name })
                 .ToList()
         };
-
-    public static SeaViewModel FromModel(Sea sea) => new() { Id = sea.Id, Name = sea.Name, };
 }

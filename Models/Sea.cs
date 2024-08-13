@@ -10,6 +10,9 @@ public class Sea
     public int Id { get; set; }
     public string Name { get; set; }
 
+    [NotMapped]
+    public List<Sea> AdjacentSeas { get; set; }
+
     public static class Names
     {
         public static readonly string NorthPacific = "North Pacific";

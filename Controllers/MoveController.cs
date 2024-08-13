@@ -10,21 +10,18 @@ namespace PirateConquest.Controllers;
 
 public class MoveController : Controller
 {
-    private readonly AppDbContext _context;
     private readonly SeaRepository _seaRepository;
     private readonly MoveRepository _moveRepository;
     private readonly TeamRepository _teamRepository;
     private readonly RoundRepository _roundRepository;
 
     public MoveController(
-        AppDbContext context,
         SeaRepository seaRepository,
         MoveRepository moveRepository,
         TeamRepository teamRepository,
         RoundRepository roundRepository
     )
     {
-        _context = context;
         _seaRepository = seaRepository;
         _moveRepository = moveRepository;
         _teamRepository = teamRepository;
@@ -34,7 +31,7 @@ public class MoveController : Controller
     [HttpGet("/api/moves")]
     public async Task<IActionResult> GetMoves(int? roundId = null)
     {
-        var moves = await _moveRepository.All();
+        var moves = await _moveRepository.AllAsync();
         if (roundId is int id)
         {
             moves = moves.Where(move => move.RoundId == id).ToList();
@@ -62,7 +59,7 @@ public class MoveController : Controller
             return Json(ErrorViewModel.Unauthorized);
         }
 
-        var move = (await _moveRepository.All()).FirstOrDefault(move => move.Id == moveId);
+        var move = (await _moveRepository.AllAsync()).FirstOrDefault(move => move.Id == moveId);
         if (move is null)
         {
             return NotFound();
@@ -87,10 +84,9 @@ public class MoveController : Controller
             return Json(ErrorViewModel.PlanningWindowHasEnded);
         }
 
-        var fromSea = await _context.Seas.FirstOrDefaultAsync(sea => sea.Id == fromSeaId);
-        var toSea = await _context.Seas.FirstOrDefaultAsync(sea => sea.Id == toSeaId);
-
-        if (fromSea is null || toSea is null || !await _seaRepository.AreAccessible(fromSea, toSea))
+        var fromSea = await _seaRepository.ByIdAsync(fromSeaId);
+        var toSea = await _seaRepository.ByIdAsync(toSeaId);
+        if (fromSea is null || toSea is null || !_seaRepository.AreAccessible(fromSea, toSea))
         {
             return Json(ErrorViewModel.SeasAreInaccessible);
         }

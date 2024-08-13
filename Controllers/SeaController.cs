@@ -10,17 +10,11 @@ namespace PirateConquest.Controllers;
 
 public class SeaController : Controller
 {
-    private readonly AppDbContext _context;
     private readonly SeaRepository _seaRepository;
     private readonly TeamRepository _teamRepository;
 
-    public SeaController(
-        AppDbContext context,
-        SeaRepository seaRepository,
-        TeamRepository teamRepository
-    )
+    public SeaController(SeaRepository seaRepository, TeamRepository teamRepository)
     {
-        _context = context;
         _seaRepository = seaRepository;
         _teamRepository = teamRepository;
     }
@@ -28,8 +22,8 @@ public class SeaController : Controller
     [HttpGet("/api/seas")]
     public async Task<IActionResult> GetAllSeas()
     {
-        var allSeas = await _context.Seas.ToListAsync();
-        return Json(await Task.WhenAll(allSeas.Select(GetSeaViewModel)));
+        var allSeas = await _seaRepository.AllAsync();
+        return Json(allSeas.Select(SeaViewModel.FromModel));
     }
 
     [HttpGet("/api/seas/accessible")]
@@ -41,26 +35,20 @@ public class SeaController : Controller
             return Json(ErrorViewModel.Unauthorized);
         }
         var accessibleSeas = await _seaRepository.GetAccessibleSeasAsync(team);
-        return Json(await Task.WhenAll(accessibleSeas.Select(GetSeaViewModel)));
+        return Json(accessibleSeas.Select(SeaViewModel.FromModel));
     }
 
     [HttpGet("/api/seas/{seaId}")]
     public async Task<IActionResult> GetSea(int seaId)
     {
-        var sea = await _context.Seas.FirstOrDefaultAsync(sea => sea.Id == seaId);
+        var sea = (await _seaRepository.AllAsync()).Find(sea => sea.Id == seaId);
         if (sea is null)
         {
             return NotFound();
         }
         else
         {
-            return Json(await GetSeaViewModel(sea));
+            return Json(SeaViewModel.FromModel(sea));
         }
-    }
-
-    private async Task<SeaViewModel> GetSeaViewModel(Sea sea)
-    {
-        var adjacentSeas = await _seaRepository.AdjacentSeas(sea);
-        return SeaViewModel.FromModel(sea, adjacentSeas);
     }
 }

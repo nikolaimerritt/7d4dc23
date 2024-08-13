@@ -11,14 +11,7 @@ namespace PirateConquest.Controllers;
 [Authorize(Policy = "IsAdminPolicy")]
 public class AdminController : Controller
 {
-    private readonly ILogger<AdminController> _logger;
-    private readonly AppDbContext _context;
-
-    public AdminController(ILogger<AdminController> logger, AppDbContext context)
-    {
-        _logger = logger;
-        _context = context;
-    }
+    public AdminController() { }
 
     public async Task<IActionResult> Index()
     {

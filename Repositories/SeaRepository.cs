@@ -16,18 +16,36 @@ public class SeaRepository
         _outcomeRepository = outcomeRepository;
     }
 
-    public async Task<List<Sea>> AllAsync() => await _context.Seas.ToListAsync();
+    public async Task<List<Sea>> AllAsync()
+    {
+        var seas = await _context.Seas.OrderBy(sea => sea.Name).ToListAsync();
+        foreach (var sea in seas)
+        {
+            sea.AdjacentSeas = await AdjacentSeasAsync(sea);
+        }
+        return seas;
+    }
 
-    public async Task<List<Sea>> AdjacentSeas(Sea sea) =>
+    public async Task<Sea?> ByIdAsync(int seaId)
+    {
+        var sea = await _context.Seas.FirstOrDefaultAsync(sea => sea.Id == seaId);
+        if (sea is not null)
+        {
+            sea.AdjacentSeas = await AdjacentSeasAsync(sea);
+        }
+        return sea;
+    }
+
+    public async Task<List<Sea>> AdjacentSeasAsync(Sea sea) =>
         await _context
             .AdjacentSeas.Where(adjacentSea => adjacentSea.Sea == sea)
             .Select(adjacentSea => adjacentSea.AdjacentTo)
             .ToListAsync();
 
-    public async Task<bool> AreAccessible(Sea first, Sea second) =>
+    public bool AreAccessible(Sea first, Sea second) =>
         first.Id == second.Id
-        || (await AdjacentSeas(first)).Any(sea => sea.Id == second.Id)
-        || (await AdjacentSeas(second)).Any(sea => sea.Id == first.Id);
+        || first.AdjacentSeas.Any(sea => sea.Id == second.Id)
+        || second.AdjacentSeas.Any(sea => sea.Id == first.Id);
 
     public async Task<List<Sea>> GetAccessibleSeasAsync(Team team)
     {
@@ -50,7 +68,7 @@ public class SeaRepository
             .ToList();
         foreach (var outcome in latestTeamOutcomes)
         {
-            if (await AreAccessible(outcome.Sea, sea))
+            if (AreAccessible(outcome.Sea, sea))
             {
                 return true;
             }

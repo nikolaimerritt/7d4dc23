@@ -49,19 +49,21 @@
                     ref="mapBackground"
                 />
                 <sea-centre
-                    v-for="(seaCentre, index) in this.seaCentres"
+                    v-for="(seaState, index) in this.seaStates"
                     :key="index"
-                    :name="seaCentre.name"
-                    :teamShips="seaCentre.teamShips"
-                    :highlighted="isHighlighted(seaCentre)"
+                    :name="seaState.sea.name"
+                    :teamShips="seaState.teamShips"
+                    :highlighted="isHighlighted(seaState.sea)"
                     class="sea-centre"
-                    @sea-centre-click="onSeaCentreClick(seaCentre)"
+                    @sea-centre-click="onSeaCentreClick(seaState.sea)"
                     :style="{
                         transformOrigin: 'top left',
                         transform: `scale(${seaCentreScale})`,
-                        top: `${100 * seaCentrePositions[seaCentre.name].top}%`,
+                        top: `${
+                            100 * seaCentrePositions[seaState.sea.name].top
+                        }%`,
                         left: `${
-                            100 * seaCentrePositions[seaCentre.name].left
+                            100 * seaCentrePositions[seaState.sea.name].left
                         }%`,
                     }"
                 >
@@ -90,6 +92,7 @@
 
 <script lang="ts">
 import { TeamEndpoint, Team } from "../endpoints/team";
+import { SeaStateEndpoint, SeaState } from "../endpoints/sea-state";
 import { PurchaseEndpoint } from "../endpoints/purchase";
 import { Sea, SeaEndpoint } from "../endpoints/sea";
 import { OutcomeEndpoint } from "../endpoints/outcome";
@@ -102,8 +105,6 @@ import * as moment from "moment";
 const updateTimeRemainingMs = 2_000;
 const updateMapMs = 5_000;
 type Action = "none" | "purchase" | "move";
-type TeamShips = { team: Team; shipCount: number };
-type SeaCentre = Sea & { teamShips: TeamShips[] };
 
 type SeaCentrePositions = {
     [seaName: string]: { top: number; left: number };
@@ -117,6 +118,7 @@ interface Data {
         outcome: OutcomeEndpoint;
         move: MoveEndpoint;
         round: RoundEndpoint;
+        seaState: SeaStateEndpoint;
     };
     ui: {
         action: Action;
@@ -141,7 +143,7 @@ interface Data {
     };
     team?: Team;
     balance?: number;
-    seaCentres: SeaCentre[];
+    seaStates: SeaState[];
     accessibleSeas: Sea[];
     canMove: boolean;
     round?: Round;
@@ -166,8 +168,9 @@ export default {
                 outcome: new OutcomeEndpoint(),
                 move: new MoveEndpoint(),
                 round: new RoundEndpoint(),
+                seaState: new SeaStateEndpoint(),
             },
-            seaCentres: [],
+            seaStates: [],
             ui: {
                 action: "none",
                 purchase: {
@@ -240,45 +243,15 @@ export default {
     methods: {
         async refreshMap(this: This) {
             this.balance = await this.endpoints.purchase.getBalance();
-            this.seaCentres = await this.getSeaCentres();
+            this.seaStates = await this.endpoints.seaState.getSeaStates();
             this.accessibleSeas = await this.endpoints.sea.getAccessibleSeas();
             this.canMove = await this.endpoints.move.canMove();
             this.round = await this.endpoints.round.getCurrentRound();
-        },
-        async getSeaCentres(this: This): Promise<SeaCentre[]> {
-            const latestOutcomes =
-                await this.endpoints.outcome.getLatestOutcomes();
-            const seas = await this.endpoints.sea.getAllSeas();
-            const seaCentres: SeaCentre[] = [];
-            for (const sea of seas) {
-                const outcomesInSea = latestOutcomes.filter(
-                    (outcome) =>
-                        outcome.sea.id == sea.id && outcome.shipsAfter > 0
-                );
-                const seaCentre: SeaCentre = {
-                    ...sea,
-                    teamShips: outcomesInSea.map((outcome) => ({
-                        team: outcome.team,
-                        shipCount: outcome.shipsAfter,
-                    })),
-                };
-                seaCentres.push(seaCentre);
-            }
-            return seaCentres;
         },
         transformSeaCentres(this: This) {
             const mapBackground = this.$refs.mapBackground as HTMLImageElement;
             this.seaCentreScale =
                 mapBackground.width / mapBackground.naturalWidth;
-            console.log(
-                "transformSeaCentres",
-                mapBackground,
-                mapBackground.width,
-                mapBackground.naturalWidth
-            );
-        },
-        onSeaAreaHover(this: This, seaCentre: SeaCentre) {
-            console.log("Sea area hovered over", seaCentre);
         },
         onPurchaseShipsClick(this: This) {
             if (this.ui.action === "none") {
@@ -307,18 +280,18 @@ export default {
                 this.resetActions();
             }
         },
-        onSeaCentreClick(this: This, seaCentre: SeaCentre) {
+        onSeaCentreClick(this: This, sea: Sea) {
             if (this.ui.action === "none") {
                 return;
             }
             if (this.ui.action === "purchase") {
-                this.ui.purchase.seaToPurchaseIn = seaCentre;
+                this.ui.purchase.seaToPurchaseIn = sea;
                 this.ui.purchase.showModal = true;
             } else if (this.ui.action === "move") {
                 if (this.ui.move.seaToMoveFrom === undefined) {
-                    this.ui.move.seaToMoveFrom = seaCentre;
+                    this.ui.move.seaToMoveFrom = sea;
                 } else if (this.ui.move.seaToMoveTo === undefined) {
-                    this.ui.move.seaToMoveTo = seaCentre;
+                    this.ui.move.seaToMoveTo = sea;
                     this.ui.move.showModal = true;
                 }
             }
@@ -373,11 +346,17 @@ export default {
                     )
                 );
             } else if (this.ui.action === "move") {
+                console.log(
+                    "isHighlighted",
+                    sea,
+                    this.ui.move.seaToMoveFrom,
+                    this.ui.move.seaToMoveTo
+                );
                 if (this.ui.move.seaToMoveFrom === undefined) {
-                    return this.seaCentres.some(
-                        (seaCentre) =>
-                            seaCentre.id === sea.id &&
-                            seaCentre.teamShips.some(
+                    return this.seaStates.some(
+                        (seaState) =>
+                            seaState.sea.id === sea.id &&
+                            seaState.teamShips.some(
                                 (teamShip) =>
                                     teamShip.team.id === this.team.id &&
                                     teamShip.shipCount > 0
