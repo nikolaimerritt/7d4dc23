@@ -45,12 +45,12 @@
                     @sea-centre-click="onSeaCentreClick(seaState.sea)"
                     :style="{
                         transformOrigin: 'top left',
-                        transform: `scale(${seaCentreScale})`,
+                        transform: `scale(${ui.seaCentreScale})`,
                         top: `${
-                            100 * seaCentrePositions[seaState.sea.name].top
+                            100 * ui.seaCentrePositions[seaState.sea.name].top
                         }%`,
                         left: `${
-                            100 * seaCentrePositions[seaState.sea.name].left
+                            100 * ui.seaCentrePositions[seaState.sea.name].left
                         }%`,
                     }"
                 >
@@ -94,7 +94,7 @@ const updateMapMs = 5_000;
 type Action = "none" | "purchase" | "move";
 
 type SeaCentrePositions = {
-    [seaName: string]: { top: number; left: number };
+    [seaName: string]: { top: number; left: number; drawOrder: number };
 };
 
 interface Data {
@@ -127,6 +127,8 @@ interface Data {
         map: {
             updateMapHandle: number;
         };
+        seaCentrePositions: SeaCentrePositions;
+        seaCentreScale: number | undefined;
     };
     team?: Team;
     balance?: number;
@@ -134,8 +136,6 @@ interface Data {
     accessibleSeas: Sea[];
     canMove: boolean;
     rounds?: Round[];
-    seaCentrePositions: SeaCentrePositions;
-    seaCentreScale: number | undefined;
 }
 
 type This = VueThis<Data>;
@@ -178,38 +178,45 @@ export default {
                 map: {
                     updateMapHandle: undefined,
                 },
+                seaCentreScale: undefined,
+                seaCentrePositions: {
+                    "North Atlantic": {
+                        top: 0.211,
+                        left: 0.115,
+                        drawOrder: 7,
+                    },
+                    "South Atlantic": {
+                        top: 0.53,
+                        left: 0.223,
+                        drawOrder: 6,
+                    },
+                    Indian: {
+                        top: 0.393,
+                        left: 0.47,
+                        drawOrder: 5,
+                    },
+                    Southern: {
+                        top: 0.862,
+                        left: 0,
+                        drawOrder: 4,
+                    },
+                    Arctic: {
+                        top: 0,
+                        left: 0,
+                        drawOrder: 3,
+                    },
+                    "North Pacific": {
+                        top: 0.213,
+                        left: 0,
+                        drawOrder: 2,
+                    },
+                    "South Pacific": {
+                        top: 0.515,
+                        left: 0,
+                        drawOrder: 1,
+                    },
+                },
             },
-            seaCentrePositions: {
-                "North Pacific": {
-                    top: 0.213,
-                    left: 0,
-                },
-                "South Pacific": {
-                    top: 0.515,
-                    left: 0,
-                },
-                "North Atlantic": {
-                    top: 0.211,
-                    left: 0.115,
-                },
-                "South Atlantic": {
-                    top: 0.53,
-                    left: 0.223,
-                },
-                Southern: {
-                    top: 0.862,
-                    left: 0,
-                },
-                Indian: {
-                    top: 0.393,
-                    left: 0.47,
-                },
-                Arctic: {
-                    top: 0,
-                    left: 0,
-                },
-            },
-            seaCentreScale: undefined,
         };
     },
     async mounted(this: This) {
@@ -230,14 +237,20 @@ export default {
     methods: {
         async refreshMap(this: This) {
             this.balance = await this.endpoints.purchase.getBalance();
-            this.seaStates = await this.endpoints.seaState.getSeaStates();
+            const seaStates = await this.endpoints.seaState.getSeaStates();
+            Util.sortByInPlace(
+                seaStates,
+                (seaState) =>
+                    this.ui.seaCentrePositions[seaState.sea.name]?.drawOrder
+            );
+            this.seaStates = seaStates;
             this.accessibleSeas = await this.endpoints.sea.getAccessibleSeas();
             this.canMove = await this.endpoints.move.canMove();
             this.rounds = await this.endpoints.round.getRounds();
         },
         transformSeaCentres(this: This) {
             const mapBackground = this.$refs.mapBackground as HTMLImageElement;
-            this.seaCentreScale =
+            this.ui.seaCentreScale =
                 mapBackground.width / mapBackground.naturalWidth;
         },
         onPurchaseShipsClick(this: This) {

@@ -143,7 +143,7 @@ public class OutcomeController : Controller
     [HttpGet("/api/outcomes/{outcomeId}")]
     public async Task<IActionResult> GetOutcome(int? outcomeId)
     {
-        var outcome = (await _outcomeRepository.AllAsync()).FirstOrDefault(outcome =>
+        var outcome = (await _outcomeRepository.AllAsync()).Find(outcome =>
             outcome.Id == outcomeId
         );
         if (outcome is null)

@@ -90,17 +90,13 @@ public class PurchaseController : Controller
         {
             return Json(ErrorViewModel.Unauthorized);
         }
+
         var round = await _roundRepository.GetCurrentRoundAsync();
         if (round?.StartCooldown < DateTime.UtcNow)
         {
             return Json(ErrorViewModel.PlanningWindowHasEnded);
         }
 
-        var currentRound = await _roundRepository.GetCurrentRoundAsync();
-        if (currentRound is null)
-        {
-            return BadRequest();
-        }
         var availablePoints = await AvailablePoints(team);
         if (availablePoints is null)
         {
@@ -121,7 +117,7 @@ public class PurchaseController : Controller
             new Purchase()
             {
                 Team = team,
-                Round = currentRound,
+                Round = round,
                 Sea = sea,
                 Points = points,
                 ShipCount = points,

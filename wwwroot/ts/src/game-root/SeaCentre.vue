@@ -1,7 +1,51 @@
 <template>
     <div ref="container" :data-sea-name="seaName()">
         <div>
-            <NorthPacificSvg
+            <arctic-sea
+                ref="seaImage"
+                :class="['image-container', imageClass]"
+                v-if="sea.name === 'Arctic'"
+            >
+            </arctic-sea>
+            <north-atlantic-sea
+                ref="seaImage"
+                :class="['image-container', imageClass]"
+                :style="{ zIndex: 100 }"
+                v-else-if="sea.name === 'North Atlantic'"
+            >
+            </north-atlantic-sea>
+            <north-pacific-sea
+                ref="seaImage"
+                :class="['image-container', imageClass]"
+                v-else-if="sea.name === 'North Pacific'"
+            >
+            </north-pacific-sea>
+            <south-atlantic-sea
+                ref="seaImage"
+                :class="['image-container', imageClass]"
+                :style="{ zIndex: 100 }"
+                v-else-if="sea.name === 'South Atlantic'"
+            >
+            </south-atlantic-sea>
+            <south-pacific-sea
+                ref="seaImage"
+                :class="['image-container', imageClass]"
+                v-else-if="sea.name === 'South Pacific'"
+            >
+            </south-pacific-sea>
+            <indian-sea
+                ref="seaImage"
+                :class="['image-container', imageClass]"
+                :style="{ zIndex: 100 }"
+                v-else-if="sea.name === 'Indian'"
+            ></indian-sea>
+            <southern-sea
+                ref="seaImage"
+                :class="['image-container', imageClass]"
+                v-else-if="sea.name === 'Southern'"
+            ></southern-sea>
+
+            <!-- <NorthPacificSvg
                 ref="seaImage"
                 v-if="sea.name === 'North Pacific'"
                 :class="['image-container', imageClass]"
@@ -35,7 +79,7 @@
                 ref="seaImage"
                 v-else-if="sea.name === 'Arctic'"
                 :class="['image-container', imageClass]"
-            />
+            /> -->
         </div>
         <div ref="shipContainer" style="position: relative">
             <div class="ship-container">
@@ -122,29 +166,27 @@ export default {
         };
     },
     async mounted(this: This) {
-        this.$refs.seaImage.style.borderRadius = this.borderRadius();
-        const svgPaths = Array.from(
-            this.$refs.seaImage.querySelectorAll("path")
-        ) as SVGPathElement[];
-        for (var path of svgPaths) {
-            this.addMouseEvents(path);
-        }
-        // this.labelPaths(this.$refs.seaImage);
-
-        const largestPath = Util.maxBy(
-            svgPaths,
-            (path) =>
-                path.getBoundingClientRect().width *
-                path.getBoundingClientRect().height
-        );
-        this.fitElementTo(
-            this.$refs.shipContainer,
-            largestPath,
-            this.$refs.seaImage
-        );
-        await Util.sleep(100);
-
-        this.loaded = true;
+        // this.$refs.seaImage.style.borderRadius = this.borderRadius();
+        // const svgPaths = Array.from(
+        //     this.$refs.seaImage.querySelectorAll("path")
+        // ) as SVGPathElement[];
+        // for (var path of svgPaths) {
+        //     this.addMouseEvents(path);
+        // }
+        // // this.labelPaths(this.$refs.seaImage);
+        // const largestPath = Util.maxBy(
+        //     svgPaths,
+        //     (path) =>
+        //         path.getBoundingClientRect().width *
+        //         path.getBoundingClientRect().height
+        // );
+        // this.fitElementTo(
+        //     this.$refs.shipContainer,
+        //     largestPath,
+        //     this.$refs.seaImage
+        // );
+        // await Util.sleep(100);
+        // this.loaded = true;
     },
     methods: {
         addMouseEvents(path: SVGPathElement) {

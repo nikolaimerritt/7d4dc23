@@ -3,8 +3,10 @@ import GameRoot from "./GameRoot.vue";
 import SeaCentre from "./SeaCentre.vue";
 import TeamShip from "./TeamShip.vue";
 import Common from "../common/main";
+import { Seas } from "../seas/main";
 
 Common.define();
+Seas.define();
 
 Vue.component("sea-centre", SeaCentre);
 Vue.component("game-root", GameRoot);

@@ -8,12 +8,10 @@ namespace PirateConquest.Repositories;
 public class SeaRepository
 {
     private readonly AppDbContext _context;
-    private readonly OutcomeRepository _outcomeRepository;
 
-    public SeaRepository(AppDbContext context, OutcomeRepository outcomeRepository)
+    public SeaRepository(AppDbContext context)
     {
         _context = context;
-        _outcomeRepository = outcomeRepository;
     }
 
     public async Task<List<Sea>> AllAsync()

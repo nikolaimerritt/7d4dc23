@@ -1,7 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PirateConquest.Database;
-using PirateConquest.Models;
 using PirateConquest.Repositories;
 using PirateConquest.Utils;
 using PirateConquest.ViewModels;
