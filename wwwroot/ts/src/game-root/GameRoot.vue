@@ -47,10 +47,10 @@
                         transformOrigin: 'top left',
                         transform: `scale(${ui.seaCentreScale})`,
                         top: `${
-                            100 * ui.seaCentrePositions[seaState.sea.name].top
+                            100 * ui.seaCentreDrawConfig[seaState.sea.name].top
                         }%`,
                         left: `${
-                            100 * ui.seaCentrePositions[seaState.sea.name].left
+                            100 * ui.seaCentreDrawConfig[seaState.sea.name].left
                         }%`,
                     }"
                 >
@@ -93,7 +93,7 @@ const updateRoundTextMs = 2_000;
 const updateMapMs = 5_000;
 type Action = "none" | "purchase" | "move";
 
-type SeaCentrePositions = {
+type SeaCentreDrawConfig = {
     [seaName: string]: { top: number; left: number; drawOrder: number };
 };
 
@@ -127,7 +127,7 @@ interface Data {
         map: {
             updateMapHandle: number;
         };
-        seaCentrePositions: SeaCentrePositions;
+        seaCentreDrawConfig: SeaCentreDrawConfig;
         seaCentreScale: number | undefined;
     };
     team?: Team;
@@ -179,7 +179,7 @@ export default {
                     updateMapHandle: undefined,
                 },
                 seaCentreScale: undefined,
-                seaCentrePositions: {
+                seaCentreDrawConfig: {
                     "North Atlantic": {
                         top: 0.211,
                         left: 0.115,
@@ -241,7 +241,7 @@ export default {
             Util.sortByInPlace(
                 seaStates,
                 (seaState) =>
-                    this.ui.seaCentrePositions[seaState.sea.name]?.drawOrder
+                    this.ui.seaCentreDrawConfig[seaState.sea.name]?.drawOrder
             );
             this.seaStates = seaStates;
             this.accessibleSeas = await this.endpoints.sea.getAccessibleSeas();

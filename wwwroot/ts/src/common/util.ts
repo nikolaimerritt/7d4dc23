@@ -1,11 +1,22 @@
 import * as moment from "moment";
 import { Sea } from "../endpoints/sea";
 
+export type VueComponentRef = { $el: HTMLElement };
+export type VueRef = HTMLElement | VueComponentRef;
+
 export type VueThis<Data> = Data & {
-    $refs: { [refName: string]: HTMLElement };
+    $refs: { [refName: string]: VueRef };
 } & { [functionName: string]: Function };
 
 export class Util {
+    public static isHtmlElementRef(ref: VueRef): ref is HTMLElement {
+        return ref instanceof HTMLElement;
+    }
+
+    public static isComponentRef(ref: VueRef): ref is VueComponentRef {
+        return "$el" in ref;
+    }
+
     public static uniqueByKey<T>(
         items: T[],
         keySelector: (item: T) => any

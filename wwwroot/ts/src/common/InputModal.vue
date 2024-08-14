@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { VueThis } from "./util";
+import { Util, VueThis } from "./util";
 
 const ClickOutsideEvent = "clickOutside";
 const SubmissionEvent = "submission";
@@ -46,7 +46,10 @@ export default {
     },
     methods: {
         emitClickOutside(this: This, event: PointerEvent) {
-            if (!this.$refs.modalBox.contains(event.target as any)) {
+            if (!Util.isHtmlElementRef(this.$refs.modalBox)) {
+                return;
+            }
+            if (!this.$refs.modalBox.contains(event.target as Node)) {
                 this.$emit(ClickOutsideEvent, true);
             }
         },

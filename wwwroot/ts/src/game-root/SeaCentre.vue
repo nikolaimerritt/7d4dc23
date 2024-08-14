@@ -1,86 +1,45 @@
 <template>
     <div ref="container" :data-sea-name="seaName()">
-        <div>
-            <arctic-sea
-                ref="seaImage"
-                :class="['image-container', imageClass]"
-                v-if="sea.name === 'Arctic'"
-            >
-            </arctic-sea>
-            <north-atlantic-sea
-                ref="seaImage"
-                :class="['image-container', imageClass]"
-                :style="{ zIndex: 100 }"
-                v-else-if="sea.name === 'North Atlantic'"
-            >
-            </north-atlantic-sea>
-            <north-pacific-sea
-                ref="seaImage"
-                :class="['image-container', imageClass]"
-                v-else-if="sea.name === 'North Pacific'"
-            >
-            </north-pacific-sea>
-            <south-atlantic-sea
-                ref="seaImage"
-                :class="['image-container', imageClass]"
-                :style="{ zIndex: 100 }"
-                v-else-if="sea.name === 'South Atlantic'"
-            >
-            </south-atlantic-sea>
-            <south-pacific-sea
-                ref="seaImage"
-                :class="['image-container', imageClass]"
-                v-else-if="sea.name === 'South Pacific'"
-            >
-            </south-pacific-sea>
-            <indian-sea
-                ref="seaImage"
-                :class="['image-container', imageClass]"
-                :style="{ zIndex: 100 }"
-                v-else-if="sea.name === 'Indian'"
-            ></indian-sea>
-            <southern-sea
-                ref="seaImage"
-                :class="['image-container', imageClass]"
-                v-else-if="sea.name === 'Southern'"
-            ></southern-sea>
-
-            <!-- <NorthPacificSvg
-                ref="seaImage"
-                v-if="sea.name === 'North Pacific'"
-                :class="['image-container', imageClass]"
-            />
-            <SouthPacificSvg
-                ref="seaImage"
-                v-else-if="sea.name === 'South Pacific'"
-                :class="['image-container', imageClass]"
-            />
-            <NorthAtlanticSvg
-                ref="seaImage"
-                v-else-if="sea.name === 'North Atlantic'"
-                :class="['image-container', imageClass]"
-            />
-            <SouthAtlanticSvg
-                ref="seaImage"
-                v-else-if="sea.name === 'South Atlantic'"
-                :class="['image-container', imageClass]"
-            />
-            <SouthernSvg
-                ref="seaImage"
-                v-else-if="sea.name === 'Southern'"
-                :class="['image-container', imageClass]"
-            />
-            <IndianSvg
-                ref="seaImage"
-                v-else-if="sea.name === 'Indian'"
-                :class="['image-container', imageClass]"
-            />
-            <ArcticSvg
-                ref="seaImage"
-                v-else-if="sea.name === 'Arctic'"
-                :class="['image-container', imageClass]"
-            /> -->
-        </div>
+        <arctic-sea
+            ref="seaImage"
+            :class="['image-container', imageClass]"
+            v-if="sea.name === 'Arctic'"
+        >
+        </arctic-sea>
+        <north-atlantic-sea
+            ref="seaImage"
+            :class="['image-container', imageClass]"
+            v-else-if="sea.name === 'North Atlantic'"
+        >
+        </north-atlantic-sea>
+        <north-pacific-sea
+            ref="seaImage"
+            :class="['image-container', imageClass]"
+            v-else-if="sea.name === 'North Pacific'"
+        >
+        </north-pacific-sea>
+        <south-atlantic-sea
+            ref="seaImage"
+            :class="['image-container', imageClass]"
+            v-else-if="sea.name === 'South Atlantic'"
+        >
+        </south-atlantic-sea>
+        <south-pacific-sea
+            ref="seaImage"
+            :class="['image-container', imageClass]"
+            v-else-if="sea.name === 'South Pacific'"
+        >
+        </south-pacific-sea>
+        <indian-sea
+            ref="seaImage"
+            :class="['image-container', imageClass]"
+            v-else-if="sea.name === 'Indian'"
+        ></indian-sea>
+        <southern-sea
+            ref="seaImage"
+            :class="['image-container', imageClass]"
+            v-else-if="sea.name === 'Southern'"
+        ></southern-sea>
         <div ref="shipContainer" style="position: relative">
             <div class="ship-container">
                 <team-ship
@@ -93,9 +52,6 @@
                 </team-ship>
             </div>
         </div>
-        <span ref="tooltip" class="sea-name-tooltip" v-show="hover">
-            {{ seaName() }}
-        </span>
     </div>
 </template>
 
@@ -166,27 +122,36 @@ export default {
         };
     },
     async mounted(this: This) {
-        // this.$refs.seaImage.style.borderRadius = this.borderRadius();
-        // const svgPaths = Array.from(
-        //     this.$refs.seaImage.querySelectorAll("path")
-        // ) as SVGPathElement[];
-        // for (var path of svgPaths) {
-        //     this.addMouseEvents(path);
-        // }
-        // // this.labelPaths(this.$refs.seaImage);
-        // const largestPath = Util.maxBy(
-        //     svgPaths,
-        //     (path) =>
-        //         path.getBoundingClientRect().width *
-        //         path.getBoundingClientRect().height
-        // );
-        // this.fitElementTo(
-        //     this.$refs.shipContainer,
-        //     largestPath,
-        //     this.$refs.seaImage
-        // );
-        // await Util.sleep(100);
-        // this.loaded = true;
+        if (Util.isComponentRef(this.$refs.seaImage)) {
+            this.$refs.seaImage.$el.style.borderRadius = this.borderRadius();
+            const svgPaths = Array.from(
+                this.$refs.seaImage.$el.querySelectorAll("path")
+            ) as SVGPathElement[];
+            for (var path of svgPaths) {
+                this.addMouseEvents(path);
+            }
+            const largestPath = Util.maxBy(
+                svgPaths,
+                (path) =>
+                    path.getBoundingClientRect().width *
+                    path.getBoundingClientRect().height
+            );
+            this.fitElementTo(
+                this.$refs.shipContainer,
+                largestPath,
+                this.$refs.seaImage.$el
+            );
+            await Util.sleep(100);
+        } else {
+            console.log(
+                "seaImage",
+                this.$refs.seaImage,
+                Util.isComponentRef(this.$refs.seaImage),
+                this.$refs.seaImage instanceof HTMLElement
+            );
+        }
+
+        this.loaded = true;
     },
     methods: {
         addMouseEvents(path: SVGPathElement) {
@@ -195,23 +160,8 @@ export default {
             );
             path.addEventListener("mouseleave", () => this.onHoverExit(path));
             path.addEventListener("mousedown", () => this.emitClick());
-            path.addEventListener("mousemove", (event: MouseEvent) =>
-                this.onMouseMove(event)
-            );
         },
 
-        // // We would like the SVG paths to have tooltips of the sea name.
-        // // vue-svg-loader discards <title/> tags.
-        // // So, we add a title tags to the SVG paths ourselves.
-        // // We append an empty string to the svg's inner HTML to force a re-render.
-        // labelPaths(this: This, svg: SVGPathElement) {
-        //     svg.querySelectorAll("path").forEach((path) => {
-        //         const title = document.createElement("title");
-        //         title.innerHTML = Util.seaNameTitleCase(this.sea);
-        //         path.appendChild(title);
-        //     });
-        //     svg.innerHTML += "";
-        // },
         fitElementTo(
             toFit: HTMLElement,
             fitTo: HTMLElement,
@@ -232,18 +182,6 @@ export default {
             this.hover = true;
             if (this.highlighted) {
                 path.style.cursor = "pointer";
-            }
-        },
-        onMouseMove(this: This, event: MouseEvent) {
-            if (this.hover) {
-                const left =
-                    event.pageX -
-                    this.$refs.container.getBoundingClientRect().x;
-                const top =
-                    event.pageY -
-                    this.$refs.container.getBoundingClientRect().y;
-                this.$refs.tooltip.style.left = `${left}px`;
-                this.$refs.tooltip.style.top = `${top}px`;
             }
         },
         onHoverExit(this: This, path: SVGPathElement) {
