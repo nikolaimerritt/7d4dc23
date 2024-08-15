@@ -56,12 +56,12 @@
                 >
                 </sea-centre>
             </div>
-            <div class="message-button" title="Messages">
-                <quill-icon
-                    class="message-icon"
-                    @click.native="onMessageButtonClick()"
-                >
-                </quill-icon>
+            <div
+                class="message-button"
+                title="Messages"
+                @click="onMessageButtonClick()"
+            >
+                <quill-icon class="message-icon"> </quill-icon>
             </div>
             <div class="message-board" v-if="ui.messages.showBoard">
                 <message-board></message-board>
