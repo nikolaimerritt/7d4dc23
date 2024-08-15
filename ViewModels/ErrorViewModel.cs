@@ -19,4 +19,7 @@ public class ErrorViewModel
         new() { Error = "You do not have enough ships." };
     public static readonly ErrorViewModel InternalError =
         new() { Error = "There was an internal error." };
+
+    public static readonly ErrorViewModel InvalidMessageRecipient =
+        new() { Error = "The message recipient is invalid." };
 }

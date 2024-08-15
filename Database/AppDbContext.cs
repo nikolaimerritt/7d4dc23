@@ -20,6 +20,8 @@ public class AppDbContext : DbContext
     public DbSet<Outcome> Outcomes { get; set; }
     public DbSet<Configuration> Configurations { get; set; }
 
+    public DbSet<Message> Messages { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlite("Data Source=ctfchallenge.db;");

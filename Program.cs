@@ -74,6 +74,7 @@ static async Task<WebApplication> InitializeServicesAsync(WebApplicationBuilder 
     builder.Services.AddTransient<DatabaseInitialiser>();
     builder.Services.AddTransient<PointsService>();
     builder.Services.AddTransient<ConfigurationRepository>();
+    builder.Services.AddTransient<MessageRepository>();
 
     var app = builder.Build();
     app.UseForwardedHeaders();

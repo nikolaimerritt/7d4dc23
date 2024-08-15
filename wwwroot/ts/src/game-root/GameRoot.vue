@@ -56,6 +56,17 @@
                 >
                 </sea-centre>
             </div>
+            <div class="chat-button" title="Chat">
+                <quill-icon
+                    class="chat-icon"
+                    @click.native="onMessageButtonClick()"
+                >
+                </quill-icon>
+            </div>
+            <message-board
+                class="message-board"
+                v-if="ui.messages.showBoard"
+            ></message-board>
         </div>
         <input-modal
             v-if="ui.purchase.showModal"
@@ -88,6 +99,7 @@ import { Connection } from "../endpoints/main";
 import { Round, RoundEndpoint } from "../endpoints/round";
 import { Util, VueThis } from "../common/util";
 import * as moment from "moment";
+import QuillIcon from "../icons/QuillIcon.vue";
 
 const updateRoundTextMs = 2_000;
 const updateMapMs = 5_000;
@@ -126,6 +138,9 @@ interface Data {
         };
         map: {
             updateMapHandle: number;
+        };
+        messages: {
+            showBoard: boolean;
         };
         seaCentreDrawConfig: SeaCentreDrawConfig;
         seaCentreScale: number | undefined;
@@ -177,6 +192,9 @@ export default {
                 },
                 map: {
                     updateMapHandle: undefined,
+                },
+                messages: {
+                    showBoard: false,
                 },
                 seaCentreScale: undefined,
                 seaCentreDrawConfig: {
@@ -292,6 +310,9 @@ export default {
                     this.ui.move.showModal = true;
                 }
             }
+        },
+        onMessageButtonClick(this: This) {
+            this.ui.messages.showBoard = !this.ui.messages.showBoard;
         },
         async onSubmitPurchase(this: This, pointsToSpend: string) {
             if (this.ui.purchase.showModal) {
@@ -479,5 +500,34 @@ export default {
 .sea-centre {
     position: absolute;
     z-index: 10;
+}
+
+.chat-button {
+    position: fixed;
+    display: inline-block;
+    padding: 12px;
+    bottom: 100px;
+    right: 100px;
+    z-index: 100;
+    border-radius: 50%;
+    border: 2px solid #b18854;
+    background: #e7daa1;
+}
+
+.chat-button:hover {
+    background: #e1c795;
+    cursor: pointer;
+}
+
+.message-board {
+    position: fixed;
+    bottom: 120px;
+    right: 120px;
+}
+
+.chat-icon {
+    color: #2c2215;
+    width: 40px;
+    height: 40px;
 }
 </style>

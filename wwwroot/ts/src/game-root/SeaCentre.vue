@@ -58,13 +58,6 @@
 <script lang="ts">
 import { Team } from "../endpoints/team";
 import { Util, VueThis } from "../common/util";
-import NorthPacificSvg from "../../../imgs/seas/north-pacific-cropped.svg";
-import SouthPacificSvg from "../../../imgs/seas/south-pacific-cropped.svg";
-import NorthAtlanticSvg from "../../../imgs/seas/north-atlantic-cropped.svg";
-import SouthAtlanticSvg from "../../../imgs/seas/south-atlantic-cropped.svg";
-import SouthernSvg from "../../../imgs/seas/southern-cropped.svg";
-import IndianSvg from "../../../imgs/seas/indian-cropped.svg";
-import ArcticSvg from "../../../imgs/seas/arctic-cropped.svg";
 import { Sea } from "../endpoints/sea";
 interface TeamShips {
     team: Team;
@@ -96,15 +89,6 @@ export default {
         teamShips: {
             type: Array<TeamShips>,
         },
-    },
-    components: {
-        NorthPacificSvg,
-        SouthPacificSvg,
-        NorthAtlanticSvg,
-        SouthAtlanticSvg,
-        SouthernSvg,
-        IndianSvg,
-        ArcticSvg,
     },
     data(): Data {
         return {
@@ -142,15 +126,7 @@ export default {
                 this.$refs.seaImage.$el
             );
             await Util.sleep(100);
-        } else {
-            console.log(
-                "seaImage",
-                this.$refs.seaImage,
-                Util.isComponentRef(this.$refs.seaImage),
-                this.$refs.seaImage instanceof HTMLElement
-            );
         }
-
         this.loaded = true;
     },
     methods: {

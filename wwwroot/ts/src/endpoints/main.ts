@@ -6,7 +6,7 @@ export type QueryParams = Record<
 export type Ok = {};
 export type Error = { error: string };
 export type Result<T> = T | Error;
-export type Fallible = Ok | Error;
+export type Fallible = Result<Ok>;
 
 export class Connection {
     public constructor() {}
@@ -39,6 +39,25 @@ export class Connection {
             credentials: "same-origin",
             headers: this.jsonRequestHeaders(),
             body: JSON.stringify(body),
+        });
+        return response.json();
+    }
+
+    public async postText(
+        endpoint: string,
+        queryParams: QueryParams,
+        body: string
+    ): Promise<any> {
+        let url = this.apiUrl(endpoint);
+        const searchParams = this.searchParams(queryParams).toString();
+        if (searchParams.length > 0) {
+            url += `?${searchParams}`;
+        }
+        const response = await fetch(url, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "text/plain" },
+            body,
         });
         return response.json();
     }
