@@ -203,7 +203,8 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import "../../../css/variables.scss";
 .ship-container {
     display: flex;
     flex-direction: row;
@@ -215,7 +216,7 @@ export default {
 }
 
 .image-container {
-    z-index: 30;
+    z-index: $sea-image-z-index;
     position: absolute;
     top: 0;
     left: 0;
@@ -237,12 +238,5 @@ export default {
 }
 .rounded-bottom {
     border-radius: 0 0 16px 16px;
-}
-
-.sea-name-tooltip {
-    position: fixed;
-    z-index: 50;
-    left: 50px;
-    top: 50px;
 }
 </style>

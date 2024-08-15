@@ -29,9 +29,11 @@ export class MessageEndpoint {
         return message;
     }
 
-    public async getMessages(): Promise<Message[]> {
-        const respone = await this.connection.get("messages");
-        return respone.map(MessageEndpoint.toMessage);
+    public async getMessagesBetween(team: Team): Promise<Message[]> {
+        const response = await this.connection.get("messages", {
+            withTeamId: team.id,
+        });
+        return response.map(MessageEndpoint.toMessage);
     }
 
     public async writeMessage(

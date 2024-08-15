@@ -14,14 +14,15 @@ export default {
     },
 };
 </script>
-<style scoped>
+<style lang="scss" scoped>
+@import "../../../css/variables.scss";
 .pill {
     font-family: "Goudy Regular", sans-serif;
     border-radius: 20px;
     font-size: 16px;
     padding: 2px 8px;
     margin: 4px 0;
-    background-color: #f8ecbc;
-    border: 1px solid #be9a67;
+    background-color: $light-button-color;
+    border: 1px solid $border-color;
 }
 </style>

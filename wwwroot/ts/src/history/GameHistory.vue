@@ -332,7 +332,7 @@ export default {
             return moment(date).format("HH:mm");
         },
     },
-    unmounted(this: This) {
+    destroyed(this: This) {
         window.clearInterval(this.ui.historyPollingHandle);
     },
 };

@@ -13,8 +13,8 @@ public class SeaViewModel
         {
             Id = sea.Id,
             Name = sea.Name,
-            AdjacentSeas = sea
-                .AdjacentSeas.Select(sea => new SeaViewModel() { Id = sea.Id, Name = sea.Name })
-                .ToList()
+            AdjacentSeas =
+                sea.AdjacentSeas?.Select(sea => new SeaViewModel() { Id = sea.Id, Name = sea.Name })
+                    .ToList() ?? new()
         };
 }

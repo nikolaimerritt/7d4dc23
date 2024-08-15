@@ -80,7 +80,7 @@ export default {
             return Style.teamColour(teamName);
         },
     },
-    unmounted(this: This) {
+    destroyed(this: This) {
         window.clearInterval(this.ui.leaderboardPollingHandle);
     },
 };
@@ -93,15 +93,6 @@ export default {
     flex-direction: column;
     align-items: center;
     align-content: space-between;
-}
-
-.background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: -1;
-    width: 100%;
-    height: 100%;
 }
 
 .centre-container {

@@ -56,17 +56,16 @@
                 >
                 </sea-centre>
             </div>
-            <div class="chat-button" title="Chat">
+            <div class="message-button" title="Messages">
                 <quill-icon
-                    class="chat-icon"
+                    class="message-icon"
                     @click.native="onMessageButtonClick()"
                 >
                 </quill-icon>
             </div>
-            <message-board
-                class="message-board"
-                v-if="ui.messages.showBoard"
-            ></message-board>
+            <div class="message-board" v-if="ui.messages.showBoard">
+                <message-board></message-board>
+            </div>
         </div>
         <input-modal
             v-if="ui.purchase.showModal"
@@ -444,14 +443,16 @@ export default {
             return `The game has ended`;
         },
     },
-    unmounted(this: This) {
+    destroyed(this: This) {
         window.clearInterval(this.ui.round.updateHandle);
         window.clearInterval(this.ui.map.updateMapHandle);
         window.removeEventListener("resize", () => this.transformSeaCentres());
     },
 };
 </script>
-<style scoped>
+<style lang="scss" scoped>
+@import "../../../css/variables.scss";
+
 .dialog {
     padding: 0 0 12px 12px;
 }
@@ -493,40 +494,41 @@ export default {
     position: relative;
     display: inline-block;
     border-radius: 16px;
-    border: 4px solid #b18854;
-    background: #e7daa1;
+    border: 4px solid $border-color;
+    background: $foreground-color;
 }
 
 .sea-centre {
     position: absolute;
-    z-index: 10;
+    z-index: $sea-z-index;
 }
 
-.chat-button {
+.message-button {
     position: fixed;
     display: inline-block;
     padding: 12px;
     bottom: 100px;
     right: 100px;
-    z-index: 100;
+    z-index: $message-button-z-index;
     border-radius: 50%;
-    border: 2px solid #b18854;
-    background: #e7daa1;
+    border: 2px solid $border-color;
+    background: $foreground-color;
 }
 
-.chat-button:hover {
-    background: #e1c795;
+.message-button:hover {
+    background: $hover-color;
     cursor: pointer;
 }
 
 .message-board {
     position: fixed;
-    bottom: 120px;
-    right: 120px;
+    bottom: 130px;
+    right: 130px;
+    z-index: $message-board-z-index;
 }
 
-.chat-icon {
-    color: #2c2215;
+.message-icon {
+    color: $font-color;
     width: 40px;
     height: 40px;
 }

@@ -34,11 +34,20 @@ public class SeaRepository
         return sea;
     }
 
-    public async Task<List<Sea>> AdjacentSeasAsync(Sea sea) =>
-        await _context
+    public async Task<List<Sea>> AdjacentSeasAsync(Sea sea)
+    {
+        var seas = await _context
             .AdjacentSeas.Where(adjacentSea => adjacentSea.Sea == sea)
             .Select(adjacentSea => adjacentSea.AdjacentTo)
             .ToListAsync();
+        return seas.Select(sea => new Sea()
+            {
+                Id = sea.Id,
+                Name = sea.Name,
+                AdjacentSeas = new()
+            })
+            .ToList();
+    }
 
     public bool AreAccessible(Sea first, Sea second) =>
         first.Id == second.Id

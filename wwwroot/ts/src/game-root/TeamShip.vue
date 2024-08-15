@@ -27,14 +27,15 @@ export default {
     },
 };
 </script>
-<style scoped>
+<style lang="scss" scoped>
+@import "../../../css/variables.scss";
 .ship {
     width: fit-content;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 0 12px;
-    z-index: 30;
+    z-index: $ship-z-index;
 }
 .icon-container {
     position: absolute;
@@ -68,6 +69,6 @@ svg {
 }
 
 span {
-    color: #fff4c7;
+    color: $foreground-color;
 }
 </style>

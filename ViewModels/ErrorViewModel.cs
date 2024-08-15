@@ -22,4 +22,6 @@ public class ErrorViewModel
 
     public static readonly ErrorViewModel InvalidMessageRecipient =
         new() { Error = "The message recipient is invalid." };
+    public static readonly ErrorViewModel MessageTooLong =
+        new() { Error = "The message is too long." };
 }

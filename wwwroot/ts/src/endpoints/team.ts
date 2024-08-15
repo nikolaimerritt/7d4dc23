@@ -27,4 +27,9 @@ export class TeamEndpoint {
         const response = await this.connection.get("teams/self");
         return TeamEndpoint.toTeam(response);
     }
+
+    public async getAllTeams(): Promise<Team[]> {
+        const response = await this.connection.get("teams");
+        return response.map(TeamEndpoint.toTeam);
+    }
 }

@@ -22,7 +22,8 @@ export default {
     },
 };
 </script>
-<style scoped>
+<style lang="scss" scoped>
+@import "../../../css/variables.scss";
 .button {
     font-family: "Goudy Regular", sans-serif;
     border-radius: 20px;
@@ -30,14 +31,14 @@ export default {
     padding: 2px 8px;
     margin: 4px 0;
     cursor: pointer;
-    border: 1px solid #816746;
+    border: 1px solid $border-color;
 }
 
 .button:hover {
-    background-color: #e1c795;
+    background-color: $hover-color;
 }
 
 .button:not(hover) {
-    background-color: #e4d39c;
+    background-color: $button-color;
 }
 </style>

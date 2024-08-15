@@ -19,17 +19,20 @@ public class MessageController : Controller
     }
 
     [HttpGet("/api/messages")]
-    public async Task<IActionResult> GetMessages()
+    public async Task<IActionResult> GetMessages(int withTeamId)
     {
-        var recipient = await _teamRepository.ByIdAsync(User.GetTeamId());
-        if (recipient is null)
+        var teamOne = await _teamRepository.ByIdAsync(User.GetTeamId());
+        if (teamOne is null)
         {
             return Json(ErrorViewModel.Unauthorized);
         }
-        else
+        var teamTwo = await _teamRepository.ByIdAsync(withTeamId);
+        if (teamTwo is null)
         {
-            return Json(await _messageRepository.AllToRecipientAsync(recipient));
+            return Json(ErrorViewModel.InvalidMessageRecipient);
         }
+        var messages = await _messageRepository.AllBetweenAsync(teamTwo, teamOne);
+        return Json(messages);
     }
 
     [HttpPost("/api/messages")]
@@ -47,6 +50,10 @@ public class MessageController : Controller
         if (recipient is null || recipient.Id == sender.Id)
         {
             return Json(ErrorViewModel.InvalidMessageRecipient);
+        }
+        if (messageContent.Length > 250)
+        {
+            return Json(ErrorViewModel.MessageTooLong);
         }
 
         var message = new Message()

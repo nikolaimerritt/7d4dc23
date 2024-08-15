@@ -59,14 +59,15 @@ export default {
     },
 };
 </script>
-<style scoped>
+<style lang="scss" scoped>
+@import "../../../css/variables.scss";
 .modal-wrapper {
     position: fixed;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    z-index: 40;
+    z-index: $modal-z-index;
     display: table-cell;
     vertical-align: middle;
 }
@@ -92,8 +93,8 @@ export default {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: #fff4c7;
-    border: 1px solid #b18854;
+    background-color: $modal-background-color;
+    border: 1px solid $border-color;
     text-align: center;
     gap: 10px;
 }

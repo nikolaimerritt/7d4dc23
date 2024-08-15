@@ -14,11 +14,14 @@ public class MessageRepository
         _context = context;
     }
 
-    public async Task<List<Message>> AllToRecipientAsync(Team recipient) =>
+    public async Task<List<Message>> AllBetweenAsync(Team one, Team two) =>
         await _context
             .Messages.Include(message => message.Sender)
             .Include(message => message.Recipient)
-            .Where(message => message.Recipient.Id == recipient.Id)
+            .Where(message =>
+                message.Sender.Id == one.Id && message.Recipient.Id == two.Id
+                || message.Recipient.Id == one.Id && message.Sender.Id == two.Id
+            )
             .OrderBy(message => message.Creation)
             .ToListAsync();
 
