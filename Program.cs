@@ -76,6 +76,9 @@ static async Task<WebApplication> InitializeServicesAsync(WebApplicationBuilder 
     builder.Services.AddTransient<ConfigurationRepository>();
     builder.Services.AddTransient<MessageRepository>();
 
+    builder.Services.AddControllers(options =>
+        options.InputFormatters.Add(new PlainTextInputFormatter())
+    );
     var app = builder.Build();
     app.UseForwardedHeaders();
     app.UseCoreAdminCustomAuth(

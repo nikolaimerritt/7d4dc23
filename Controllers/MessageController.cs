@@ -1,4 +1,5 @@
-﻿using Hangfire;
+﻿using System.Net.Mime;
+using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using PirateConquest.Models;
 using PirateConquest.Repositories;
@@ -42,6 +43,7 @@ public class MessageController : Controller
     }
 
     [HttpPost("/api/messages")]
+    [Consumes(MediaTypeNames.Text.Plain)]
     public async Task<IActionResult> WriteMessage(
         [FromParameter("teamId")] int toTeamId,
         [FromBody] string messageContent

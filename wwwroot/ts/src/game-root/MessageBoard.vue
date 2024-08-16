@@ -1,31 +1,34 @@
 <template>
     <div>
-        <div class="message-board">
+        <div class="root" v-show="loaded">
             <div class="team-tabs">
                 <div
                     class="team-tab"
                     v-for="(team, index) in otherTeams"
                     :key="index"
                     @click="onTeamTabClick(team)"
+                    :class="{
+                        'team-tab-selected': team.id === selectedTeam?.id,
+                    }"
                 >
                     {{ team.name }}
                 </div>
             </div>
-        </div>
-        <div class="message-container" v-show="loaded">
-            <div
-                class="message"
-                v-for="(message, index) in messages"
-                :key="index"
-            >
-                <h2>{{ message.sender.name }}</h2>
-                <h3>{{ message.creation.toLocaleString() }}</h3>
-                <div class="content">{{ message.content }}</div>
+            <div class="messages">
+                <div
+                    class="message"
+                    v-for="(message, index) in messages"
+                    :key="index"
+                >
+                    <h2>{{ message.sender.name }}</h2>
+                    <h3>{{ message.creation.toLocaleString() }}</h3>
+                    <div class="content">{{ message.content }}</div>
+                </div>
             </div>
             <div class="input-area">
                 <textarea maxlength="250" ref="inputBox"></textarea>
-                <div class="send-icon-container">
-                    <quill-icon class="send-icon"></quill-icon>
+                <div class="send-icon-container" @click="sendMessage()">
+                    <send-icon class="send-icon"></send-icon>
                 </div>
             </div>
         </div>
@@ -49,6 +52,7 @@ interface Data {
 type This = VueThis<Data>;
 
 const UpdateMessageIntervalMs = 10_000;
+const TextAreaRowHeight = 24;
 export default {
     data(): Data {
         return {
@@ -81,8 +85,11 @@ export default {
             this.pollMessagesFrom(team);
         },
         resizeHeight(this: This, inputBox: HTMLTextAreaElement) {
-            inputBox.style.height = "24px";
-            inputBox.style.height = `${inputBox.scrollHeight}px`;
+            inputBox.style.height = `${TextAreaRowHeight}px`;
+            inputBox.style.height = `${Math.min(
+                5 * TextAreaRowHeight,
+                inputBox.scrollHeight
+            )}px`;
         },
         pollMessagesFrom(this: This, team: Team) {
             if (this.updateHandle !== undefined) {
@@ -93,6 +100,18 @@ export default {
                     (this.messages =
                         await this.messageEndpoint.getMessagesBetween(team)),
                 UpdateMessageIntervalMs
+            );
+        },
+        async sendMessage(this: This) {
+            const inputBox = this.$refs.inputBox as HTMLTextAreaElement;
+            console.log(
+                "Sending to team",
+                this.selectedTeam.name,
+                inputBox.value
+            );
+            await this.messageEndpoint.writeMessage(
+                this.selectedTeam,
+                inputBox.value
             );
         },
     },
@@ -108,30 +127,54 @@ export default {
 @import "../assets/style.scss";
 @import url("https://fonts.googleapis.com/css2?family=Tangerine:wght@400;700&display=swap");
 
+$root-border-radius: 12px;
+$root-border-width: 1px;
+
+.root {
+    width: 350px;
+    height: 450px;
+    // display: flex;
+    // flex-direction: column;
+    // justify-content: flex-end;
+    // align-items: center;
+
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+
+    border: $root-border-width solid $border-color;
+    border-radius: $root-border-radius;
+    background-color: $modal-background-color;
+}
+
 .team-tabs {
     width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
 }
 
 .team-tab {
-    width: 100%;
-    background: $background-color;
-    border: 1px solid $font-color;
-}
-
-.message-container {
-    width: 350px;
-    height: 450px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    border: 1px solid $border-color;
-    border-radius: 12px;
-    background-color: $modal-background-color;
+    justify-content: center;
+    padding: 4px;
+    background: $background-color;
+    border: $root-border-width solid $border-color;
+    &:first-of-type {
+        border-top-left-radius: $root-border-radius;
+    }
+
+    &:last-of-type {
+        border-top-right-radius: $root-border-radius;
+    }
+
+    &:hover {
+        background-color: $hover-color;
+        cursor: pointer;
+    }
+}
+
+.team-tab-selected {
+    background-color: $button-color;
 }
 
 .message {
@@ -146,6 +189,18 @@ export default {
     background-color: $background-color;
     border: 1px solid $border-color;
     border-radius: 12px;
+}
+
+.input-area {
+    width: -webkit-fill-available;
+    width: -moz-available;
+    display: flex;
+    height: fit-content;
+    overflow: auto;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-around;
+    margin: 14px;
 }
 
 h2 {
@@ -166,22 +221,15 @@ textarea {
     margin-right: 12px;
 }
 
-.input-area {
-    width: -webkit-fill-available;
-    width: -moz-available;
-    display: flex;
-    height: fit-content;
-    flex-direction: row;
-    align-items: flex-end;
-    justify-content: space-around;
-    margin: 14px;
-}
-
 .send-icon-container {
     padding: 12px;
     border-radius: 50%;
     padding: 5px;
     border: 1px solid $border-color;
+    &:hover {
+        background-color: $hover-color;
+        cursor: pointer;
+    }
 }
 
 .send-icon {
