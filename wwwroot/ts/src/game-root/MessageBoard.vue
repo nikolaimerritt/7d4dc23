@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="root" v-show="loaded">
+        <div class="root" v-show="ui.loaded">
             <div class="team-tabs">
                 <div
                     class="team-tab"
@@ -8,13 +8,13 @@
                     :key="index"
                     @click="onTeamTabClick(team)"
                     :class="{
-                        'team-tab-selected': team.id === selectedTeam?.id,
+                        'team-tab-selected': team.id === ui.selectedTeam?.id,
                     }"
                 >
                     {{ team.name }}
                 </div>
             </div>
-            <div class="messages">
+            <div class="messages" ref="messages">
                 <div
                     class="message"
                     v-for="(message, index) in messages"
@@ -38,15 +38,20 @@
 import { Util, VueThis } from "../common/util";
 import { Message, MessageEndpoint } from "../endpoints/message";
 import { Team, TeamEndpoint } from "../endpoints/team";
+import TeamShipVue from "./TeamShip.vue";
 
 interface Data {
+    endpoints: {
+        message: MessageEndpoint;
+        team: TeamEndpoint;
+    };
+    ui: {
+        loaded: boolean;
+        updateHandle?: number;
+        selectedTeam?: Team;
+    };
     otherTeams: Team[];
-    selectedTeam: Team | undefined;
     messages: Message[];
-    messageEndpoint: MessageEndpoint;
-    teamEndpoint: TeamEndpoint;
-    updateHandle: number | undefined;
-    loaded: boolean;
 }
 
 type This = VueThis<Data>;
@@ -56,18 +61,25 @@ const TextAreaRowHeight = 24;
 export default {
     data(): Data {
         return {
+            endpoints: {
+                message: new MessageEndpoint(),
+                team: new TeamEndpoint(),
+            },
+            ui: {
+                loaded: false,
+                updateHandle: undefined,
+                selectedTeam: undefined,
+            },
             otherTeams: [],
-            selectedTeam: undefined,
+            // Messages are stored in reverse order
+            // so that we can display them in reverse order
+            // and the last message is scrolled to.
             messages: [],
-            messageEndpoint: new MessageEndpoint(),
-            teamEndpoint: new TeamEndpoint(),
-            updateHandle: undefined,
-            loaded: false,
         };
     },
     async mounted(this: This) {
-        const thisTeam = await this.teamEndpoint.getTeam();
-        const allTeams = await this.teamEndpoint.getAllTeams();
+        const thisTeam = await this.endpoints.team.getTeam();
+        const allTeams = await this.endpoints.team.getAllTeams();
         this.otherTeams = allTeams.filter((team) => team.id !== thisTeam.id);
 
         if (Util.isHtmlElementRef(this.$refs.inputBox)) {
@@ -76,12 +88,14 @@ export default {
                 this.resizeHeight(inputBox)
             );
         }
-        this.loaded = true;
+        this.ui.loaded = true;
     },
     methods: {
         async onTeamTabClick(this: This, team: Team) {
-            this.selectedTeam = team;
-            this.messages = await this.messageEndpoint.getMessagesBetween(team);
+            this.ui.selectedTeam = team;
+            this.messages = (
+                await this.endpoints.message.getMessagesBetween(team)
+            ).reverse();
             this.pollMessagesFrom(team);
         },
         resizeHeight(this: This, inputBox: HTMLTextAreaElement) {
@@ -93,31 +107,28 @@ export default {
         },
         pollMessagesFrom(this: This, team: Team) {
             if (this.updateHandle !== undefined) {
-                window.clearInterval(this.updateHandle);
+                window.clearInterval(this.ui.updateHandle);
             }
-            this.updateHandle = window.setInterval(
+            this.ui.updateHandle = window.setInterval(
                 async () =>
                     (this.messages =
-                        await this.messageEndpoint.getMessagesBetween(team)),
+                        await this.endpoints.message.getMessagesBetween(team)),
                 UpdateMessageIntervalMs
             );
         },
         async sendMessage(this: This) {
             const inputBox = this.$refs.inputBox as HTMLTextAreaElement;
-            console.log(
-                "Sending to team",
-                this.selectedTeam.name,
-                inputBox.value
-            );
-            await this.messageEndpoint.writeMessage(
-                this.selectedTeam,
-                inputBox.value
-            );
+            if (inputBox.value.trim().length > 0) {
+                await this.endpoints.message.writeMessage(
+                    this.ui.selectedTeam,
+                    inputBox.value
+                );
+            }
         },
     },
     destroyed(this: This) {
         if (this.updateHandle !== undefined) {
-            window.clearInterval(this.updateHandle);
+            window.clearInterval(this.ui.updateHandle);
         }
     },
 };
@@ -133,10 +144,6 @@ $root-border-width: 1px;
 .root {
     width: 350px;
     height: 450px;
-    // display: flex;
-    // flex-direction: column;
-    // justify-content: flex-end;
-    // align-items: center;
 
     display: grid;
     grid-template-rows: auto 1fr auto;
@@ -156,7 +163,7 @@ $root-border-width: 1px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 4px;
+    padding: 8px;
     background: $background-color;
     border: $root-border-width solid $border-color;
     &:first-of-type {
@@ -177,6 +184,12 @@ $root-border-width: 1px;
     background-color: $button-color;
 }
 
+.messages {
+    display: flex;
+    flex-direction: column-reverse;
+    overflow: scroll;
+}
+
 .message {
     width: -webkit-fill-available;
     width: -moz-available;
@@ -189,6 +202,11 @@ $root-border-width: 1px;
     background-color: $background-color;
     border: 1px solid $border-color;
     border-radius: 12px;
+    overflow-anchor: none;
+
+    &:last-child {
+        overflow-anchor: auto;
+    }
 }
 
 .input-area {
