@@ -5,6 +5,9 @@ import TeamShip from "./TeamShip.vue";
 import Common from "../common/main";
 import { Seas, Icons } from "../assets/main";
 import MessageBoard from "./MessageBoard.vue";
+import VueCookies from "vue-cookies";
+
+Vue.use(VueCookies, { expires: "7d" });
 
 Common.define();
 Seas.define();

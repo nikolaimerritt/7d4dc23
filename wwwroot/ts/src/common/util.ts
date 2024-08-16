@@ -1,5 +1,6 @@
 import * as moment from "moment";
 import { Sea } from "../endpoints/sea";
+import Cookies from "js-cookie";
 
 export type VueComponentRef = { $el: HTMLElement };
 export type VueRef = HTMLElement | VueComponentRef;
@@ -9,6 +10,8 @@ export type VueThis<Data> = Data & {
 } & { [functionName: string]: Function };
 
 export class Util {
+    private static CookiePrefix = "pirate-conquest" as const;
+
     public static isHtmlElementRef(ref: VueRef): ref is HTMLElement {
         return ref instanceof HTMLElement;
     }
@@ -129,5 +132,16 @@ export class Util {
 
     public static formatTime(datetime: Date): string {
         return moment(datetime).format("HH:mm:ss");
+    }
+
+    public static setCookie(name: string, value: string) {
+        Cookies.set(`${Util.CookiePrefix}${name}`, value, {
+            expires: 7,
+            sameSite: "strict",
+        });
+    }
+
+    public static getCookie(name: string): string | undefined {
+        return Cookies.get(`${Util.CookiePrefix}${name}`);
     }
 }

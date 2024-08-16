@@ -16,8 +16,13 @@
             </div>
             <div class="messages" ref="messages">
                 <div
-                    class="message"
                     v-for="(message, index) in messages"
+                    class="message"
+                    :class="
+                        message.sender.id === thisTeam?.id
+                            ? 'message-from'
+                            : 'message-to'
+                    "
                     :key="index"
                 >
                     <h2>{{ message.sender.name }}</h2>
@@ -35,10 +40,10 @@
     </div>
 </template>
 <script lang="ts">
+import Cookies from "js-cookie";
 import { Util, VueThis } from "../common/util";
 import { Message, MessageEndpoint } from "../endpoints/message";
 import { Team, TeamEndpoint } from "../endpoints/team";
-import TeamShipVue from "./TeamShip.vue";
 
 interface Data {
     endpoints: {
@@ -50,6 +55,7 @@ interface Data {
         updateHandle?: number;
         selectedTeam?: Team;
     };
+    thisTeam?: Team;
     otherTeams: Team[];
     messages: Message[];
 }
@@ -57,7 +63,7 @@ interface Data {
 type This = VueThis<Data>;
 
 const UpdateMessageIntervalMs = 10_000;
-const TextAreaRowHeight = 24;
+const LastTeamOpenedCookie = "last-team-opened";
 export default {
     data(): Data {
         return {
@@ -70,6 +76,7 @@ export default {
                 updateHandle: undefined,
                 selectedTeam: undefined,
             },
+            thisTeam: undefined,
             otherTeams: [],
             // Messages are stored in reverse order
             // so that we can display them in reverse order
@@ -78,9 +85,11 @@ export default {
         };
     },
     async mounted(this: This) {
-        const thisTeam = await this.endpoints.team.getTeam();
+        this.thisTeam = await this.endpoints.team.getTeam();
         const allTeams = await this.endpoints.team.getAllTeams();
-        this.otherTeams = allTeams.filter((team) => team.id !== thisTeam.id);
+        this.otherTeams = allTeams.filter(
+            (team) => team.id !== this.thisTeam.id
+        );
 
         if (Util.isHtmlElementRef(this.$refs.inputBox)) {
             const inputBox = this.$refs.inputBox as HTMLTextAreaElement;
@@ -88,6 +97,15 @@ export default {
                 this.resizeHeight(inputBox)
             );
         }
+
+        const lastTeamOpenedId = parseInt(Util.getCookie(LastTeamOpenedCookie));
+        let lastTeamOpened = this.otherTeams[0];
+        if (lastTeamOpenedId !== undefined && !isNaN(lastTeamOpenedId)) {
+            lastTeamOpened =
+                this.otherTeams.find((team) => team.id === lastTeamOpenedId) ??
+                lastTeamOpened;
+        }
+        await this.onTeamTabClick(lastTeamOpened);
         this.ui.loaded = true;
     },
     methods: {
@@ -96,12 +114,14 @@ export default {
             this.messages = (
                 await this.endpoints.message.getMessagesBetween(team)
             ).reverse();
-            this.pollMessagesFrom(team);
+
+            Util.setCookie(LastTeamOpenedCookie, `${team.id}`);
+            // TO SELF: debug
+            // this.pollMessagesFrom(team);
         },
         resizeHeight(this: This, inputBox: HTMLTextAreaElement) {
-            inputBox.style.height = `${TextAreaRowHeight}px`;
-            inputBox.style.height = `${Math.min(
-                5 * TextAreaRowHeight,
+            inputBox.style.height = `${Math.max(
+                inputBox.getBoundingClientRect().height,
                 inputBox.scrollHeight
             )}px`;
         },
@@ -111,8 +131,9 @@ export default {
             }
             this.ui.updateHandle = window.setInterval(
                 async () =>
-                    (this.messages =
-                        await this.endpoints.message.getMessagesBetween(team)),
+                    (this.messages = (
+                        await this.endpoints.message.getMessagesBetween(team)
+                    ).reverse()),
                 UpdateMessageIntervalMs
             );
         },
@@ -140,9 +161,10 @@ export default {
 
 $root-border-radius: 12px;
 $root-border-width: 1px;
+$message-horizontal-shift: 50px;
 
 .root {
-    width: 350px;
+    width: calc(350px + $message-horizontal-shift);
     height: 450px;
 
     display: grid;
@@ -202,11 +224,14 @@ $root-border-width: 1px;
     background-color: $background-color;
     border: 1px solid $border-color;
     border-radius: 12px;
-    overflow-anchor: none;
+}
 
-    &:last-child {
-        overflow-anchor: auto;
-    }
+.message-to {
+    margin-right: $message-horizontal-shift;
+}
+
+.message-from {
+    margin-left: $message-horizontal-shift;
 }
 
 .input-area {
