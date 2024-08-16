@@ -9,4 +9,6 @@ public class Configuration
     public int PlanningMinutes { get; set; }
     public int CooldownMinutes { get; set; }
     public DateTime FirstRoundStartUtc { get; set; }
+    public int MaxMessageCharacters { get; set; }
+    public int MaxMessagesPerTeam { get; set; }
 }

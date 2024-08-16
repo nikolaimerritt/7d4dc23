@@ -204,7 +204,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../../css/variables.scss";
+@import "../assets/style.scss";
 .ship-container {
     display: flex;
     flex-direction: row;

@@ -25,6 +25,9 @@ public class MessageRepository
             .OrderBy(message => message.Creation)
             .ToListAsync();
 
+    public async Task<int> CountMessagesFromAsync(Team sender) =>
+        await _context.Messages.Where(message => message.Sender.Id == sender.Id).CountAsync();
+
     public async Task AddAsync(Message message)
     {
         var messageToAdd = new Message()

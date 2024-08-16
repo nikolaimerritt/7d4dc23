@@ -11,11 +11,17 @@ public class MessageController : Controller
 {
     private readonly MessageRepository _messageRepository;
     private readonly TeamRepository _teamRepository;
+    private readonly ConfigurationRepository _configurationRepository;
 
-    public MessageController(MessageRepository messageRepository, TeamRepository teamRepository)
+    public MessageController(
+        MessageRepository messageRepository,
+        TeamRepository teamRepository,
+        ConfigurationRepository configurationRepository
+    )
     {
         _messageRepository = messageRepository;
         _teamRepository = teamRepository;
+        _configurationRepository = configurationRepository;
     }
 
     [HttpGet("/api/messages")]
@@ -51,9 +57,14 @@ public class MessageController : Controller
         {
             return Json(ErrorViewModel.InvalidMessageRecipient);
         }
-        if (messageContent.Length > 250)
+        var config = await _configurationRepository.GetNonEmptyAsync();
+        if (messageContent.Length > config.MaxMessageCharacters)
         {
             return Json(ErrorViewModel.MessageTooLong);
+        }
+        if (await _messageRepository.CountMessagesFromAsync(sender) > config.MaxMessagesPerTeam)
+        {
+            return Json(ErrorViewModel.TooManyMessages);
         }
 
         var message = new Message()

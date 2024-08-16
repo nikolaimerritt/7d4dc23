@@ -136,7 +136,7 @@ static async Task<Configuration> WaitForConfigurationAsync(WebApplication app)
     {
         var configurationRepository = scope.ServiceProvider.GetService<ConfigurationRepository>();
 
-        await configurationRepository.WriteEmptyAsync();
+        await configurationRepository.WriteDefaultAsync();
     }
     var configuration = null as Configuration;
     do

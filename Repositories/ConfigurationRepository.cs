@@ -7,7 +7,7 @@ namespace PirateConquest.Repositories;
 public class ConfigurationRepository
 {
     private readonly AppDbContext _context;
-    private static readonly Configuration Empty =
+    private static readonly Configuration Default =
         new()
         {
             PlaygroundLeaderboardUrl = "",
@@ -15,7 +15,9 @@ public class ConfigurationRepository
             RoundsCount = -1,
             PlanningMinutes = -1,
             CooldownMinutes = -1,
-            FirstRoundStartUtc = DateTime.MinValue
+            FirstRoundStartUtc = DateTime.MinValue,
+            MaxMessageCharacters = 250,
+            MaxMessagesPerTeam = 1000
         };
 
     public ConfigurationRepository(AppDbContext context)
@@ -23,11 +25,11 @@ public class ConfigurationRepository
         _context = context;
     }
 
-    public async Task WriteEmptyAsync()
+    public async Task WriteDefaultAsync()
     {
         if (!await _context.Configurations.AnyAsync())
         {
-            await _context.Configurations.AddAsync(Empty);
+            await _context.Configurations.AddAsync(Default);
             await _context.SaveChangesAsync();
         }
     }
@@ -48,10 +50,10 @@ public class ConfigurationRepository
     }
 
     private static bool HasEmptyField(Configuration configuration) =>
-        configuration.PlaygroundLeaderboardUrl == Empty.PlaygroundLeaderboardUrl
-        || configuration.CtfId == Empty.CtfId
-        || configuration.RoundsCount == Empty.RoundsCount
-        || configuration.PlanningMinutes == Empty.PlanningMinutes
-        || configuration.CooldownMinutes == Empty.CooldownMinutes
-        || configuration.FirstRoundStartUtc == Empty.FirstRoundStartUtc;
+        configuration.PlaygroundLeaderboardUrl == Default.PlaygroundLeaderboardUrl
+        || configuration.CtfId == Default.CtfId
+        || configuration.RoundsCount == Default.RoundsCount
+        || configuration.PlanningMinutes == Default.PlanningMinutes
+        || configuration.CooldownMinutes == Default.CooldownMinutes
+        || configuration.FirstRoundStartUtc == Default.FirstRoundStartUtc;
 }

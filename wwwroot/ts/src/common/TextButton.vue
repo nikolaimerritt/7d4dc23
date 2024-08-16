@@ -23,7 +23,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "../../../css/variables.scss";
+@import "../assets/style.scss";
 .button {
     font-family: "Goudy Regular", sans-serif;
     border-radius: 20px;

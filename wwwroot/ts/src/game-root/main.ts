@@ -3,8 +3,7 @@ import GameRoot from "./GameRoot.vue";
 import SeaCentre from "./SeaCentre.vue";
 import TeamShip from "./TeamShip.vue";
 import Common from "../common/main";
-import { Seas } from "../seas/main";
-import { Icons } from "../icons/main";
+import { Seas, Icons } from "../assets/main";
 import MessageBoard from "./MessageBoard.vue";
 
 Common.define();

@@ -105,7 +105,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../../css/variables.scss";
+@import "../assets/style.scss";
 @import url("https://fonts.googleapis.com/css2?family=Tangerine:wght@400;700&display=swap");
 
 .team-tabs {

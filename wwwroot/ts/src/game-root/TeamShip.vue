@@ -28,7 +28,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "../../../css/variables.scss";
+@import "../assets/style.scss";
 .ship {
     width: fit-content;
     display: flex;

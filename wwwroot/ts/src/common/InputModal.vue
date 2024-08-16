@@ -60,7 +60,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "../../../css/variables.scss";
+@import "../assets/style.scss";
 .modal-wrapper {
     position: fixed;
     left: 0;

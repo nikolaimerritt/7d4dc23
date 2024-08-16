@@ -98,7 +98,7 @@ import { Connection } from "../endpoints/main";
 import { Round, RoundEndpoint } from "../endpoints/round";
 import { Util, VueThis } from "../common/util";
 import * as moment from "moment";
-import QuillIcon from "../icons/QuillIcon.vue";
+import QuillIcon from "../assets/QuillIcon.vue";
 
 const updateRoundTextMs = 2_000;
 const updateMapMs = 5_000;
@@ -451,8 +451,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "../../../css/variables.scss";
-
+@import "../assets/style.scss";
 .dialog {
     padding: 0 0 12px 12px;
 }
