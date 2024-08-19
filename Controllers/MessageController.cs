@@ -42,6 +42,36 @@ public class MessageController : Controller
         return Json(messages);
     }
 
+    [HttpGet("api/messages/unread")]
+    public async Task<IActionResult> GetUnreadMessages()
+    {
+        var recipient = await _teamRepository.ByIdAsync(User.GetTeamId());
+        if (recipient is null)
+        {
+            return Json(ErrorViewModel.Unauthorized);
+        }
+        var unreadMessages = new List<UnreadMessageViewModel>();
+        foreach (var team in await _teamRepository.AllAsync())
+        {
+            if (team.Id != recipient.Id)
+            {
+                unreadMessages.Add(
+                    new()
+                    {
+                        Sender = TeamViewModel.FromModel(team),
+                        UnreadMessagesCount =
+                            await _messageRepository.CountUnreadMessagesBetweenAsync(
+                                recipient,
+                                team
+                            )
+                    }
+                );
+            }
+        }
+
+        return Json(unreadMessages);
+    }
+
     [HttpPost("/api/messages")]
     [Consumes(MediaTypeNames.Text.Plain)]
     public async Task<IActionResult> WriteMessage(

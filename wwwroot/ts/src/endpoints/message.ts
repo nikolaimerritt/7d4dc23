@@ -10,6 +10,11 @@ export interface Message {
     creation: Date;
 }
 
+interface UnreadMessageCount {
+    sender: Team;
+    unreadMessageCount: number;
+}
+
 export class MessageEndpoint {
     private connection: Connection;
 
@@ -29,11 +34,24 @@ export class MessageEndpoint {
         return message;
     }
 
+    public static toUnreadMessageCount(object: any): UnreadMessageCount {
+        const unread: UnreadMessageCount = {
+            sender: object.sender,
+            unreadMessageCount: object.unreadMessageCount,
+        };
+        return unread;
+    }
+
     public async getMessagesBetween(team: Team): Promise<Message[]> {
         const response = await this.connection.get("messages", {
             withTeamId: team.id,
         });
         return response.map(MessageEndpoint.toMessage);
+    }
+
+    public async getUnreadMessageCounts(): Promise<UnreadMessageCount[]> {
+        const response = await this.connection.get("messages/unread");
+        return response.map(MessageEndpoint.toUnreadMessageCount);
     }
 
     public async writeMessage(

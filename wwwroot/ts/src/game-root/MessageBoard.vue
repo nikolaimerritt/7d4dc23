@@ -25,8 +25,10 @@
                     "
                     :key="index"
                 >
-                    <h2>{{ message.sender.name }}</h2>
-                    <h3>{{ message.creation.toLocaleString() }}</h3>
+                    <div class="message-header">
+                        <h2>{{ message.sender.name }}</h2>
+                        <h3>{{ formatMessageDate(message.creation) }}</h3>
+                    </div>
                     <div class="content">{{ message.content }}</div>
                 </div>
             </div>
@@ -44,6 +46,7 @@ import { Util, VueThis } from "../common/util";
 import { Message, MessageEndpoint } from "../endpoints/message";
 import { Team, TeamEndpoint } from "../endpoints/team";
 import { Connection } from "../endpoints/main";
+import * as moment from "moment";
 
 interface Data {
     endpoints: {
@@ -106,6 +109,7 @@ export default {
                 lastTeamOpened;
         }
         await this.onTeamTabClick(lastTeamOpened);
+        await this.endpoints.message.getUnreadMessageCounts();
         this.ui.loaded = true;
     },
     methods: {
@@ -114,8 +118,7 @@ export default {
             await this.updateMessages(team);
 
             Util.setCookie(LastTeamOpenedCookie, `${team.id}`);
-            // TO SELF: debug
-            // this.pollMessagesFrom(team);
+            this.pollMessagesFrom(team);
         },
         resizeHeight(this: This, inputBox: HTMLTextAreaElement) {
             inputBox.style.height = `${Math.max(
@@ -150,6 +153,23 @@ export default {
                 team
             );
             this.messages = messages.reverse();
+        },
+        formatMessageDate(this: This, date: Date): string {
+            const now = moment(new Date());
+            const toFormat = moment(date);
+            const daysDifference = now.diff(toFormat, "days");
+            if (daysDifference < 1) {
+                return toFormat.format("HH:mm");
+            } else {
+                const dateFormat = {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "numeric",
+                } as const;
+                return date.toLocaleDateString(undefined, dateFormat);
+            }
         },
     },
     destroyed(this: This) {
@@ -251,16 +271,27 @@ $message-horizontal-shift: 50px;
     margin: 14px;
 }
 
+.message-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 100%;
+    margin-bottom: 0.3rem;
+}
+
 h2 {
     font-family: "Pirate", cursive;
     font-weight: 700;
-    font-size: 2rem;
+    font-size: 1.7rem;
+    margin: 0;
 }
 
 h3 {
     font-family: "Tangerine", cursive;
     font-style: normal;
     font-size: 1.2rem;
+    margin: 0;
 }
 
 textarea {

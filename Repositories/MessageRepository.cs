@@ -15,18 +15,22 @@ public class MessageRepository
     }
 
     public async Task<List<Message>> AllBetweenAsync(Team one, Team two) =>
-        await _context
+        await MessagesBetween(one, two).OrderBy(message => message.Creation).ToListAsync();
+
+    public async Task<int> CountMessagesFromAsync(Team sender) =>
+        await _context.Messages.Where(message => message.Sender.Id == sender.Id).CountAsync();
+
+    public async Task<int> CountUnreadMessagesBetweenAsync(Team one, Team two) =>
+        await MessagesBetween(one, two).Where(message => !message.Read).CountAsync();
+
+    private IQueryable<Message> MessagesBetween(Team one, Team two) =>
+        _context
             .Messages.Include(message => message.Sender)
             .Include(message => message.Recipient)
             .Where(message =>
                 message.Sender.Id == one.Id && message.Recipient.Id == two.Id
                 || message.Recipient.Id == one.Id && message.Sender.Id == two.Id
-            )
-            .OrderBy(message => message.Creation)
-            .ToListAsync();
-
-    public async Task<int> CountMessagesFromAsync(Team sender) =>
-        await _context.Messages.Where(message => message.Sender.Id == sender.Id).CountAsync();
+            );
 
     public async Task AddAsync(Message message)
     {
