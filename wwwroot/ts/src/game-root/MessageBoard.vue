@@ -40,10 +40,10 @@
     </div>
 </template>
 <script lang="ts">
-import Cookies from "js-cookie";
 import { Util, VueThis } from "../common/util";
 import { Message, MessageEndpoint } from "../endpoints/message";
 import { Team, TeamEndpoint } from "../endpoints/team";
+import { Connection } from "../endpoints/main";
 
 interface Data {
     endpoints: {
@@ -111,9 +111,7 @@ export default {
     methods: {
         async onTeamTabClick(this: This, team: Team) {
             this.ui.selectedTeam = team;
-            this.messages = (
-                await this.endpoints.message.getMessagesBetween(team)
-            ).reverse();
+            await this.updateMessages(team);
 
             Util.setCookie(LastTeamOpenedCookie, `${team.id}`);
             // TO SELF: debug
@@ -130,21 +128,28 @@ export default {
                 window.clearInterval(this.ui.updateHandle);
             }
             this.ui.updateHandle = window.setInterval(
-                async () =>
-                    (this.messages = (
-                        await this.endpoints.message.getMessagesBetween(team)
-                    ).reverse()),
+                async () => await this.updateMessages(team),
                 UpdateMessageIntervalMs
             );
         },
         async sendMessage(this: This) {
             const inputBox = this.$refs.inputBox as HTMLTextAreaElement;
             if (inputBox.value.trim().length > 0) {
-                await this.endpoints.message.writeMessage(
+                const response = await this.endpoints.message.writeMessage(
                     this.ui.selectedTeam,
                     inputBox.value
                 );
+                if (!Connection.isError(response)) {
+                    this.updateMessages(this.ui.selectedTeam);
+                    inputBox.value = "";
+                }
             }
+        },
+        async updateMessages(this: This, team: Team) {
+            const messages = await this.endpoints.message.getMessagesBetween(
+                team
+            );
+            this.messages = messages.reverse();
         },
     },
     destroyed(this: This) {
