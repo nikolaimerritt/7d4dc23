@@ -20,8 +20,10 @@ public class MessageRepository
     public async Task<int> CountMessagesFromAsync(Team sender) =>
         await _context.Messages.Where(message => message.Sender.Id == sender.Id).CountAsync();
 
-    public async Task<int> CountUnreadMessagesBetweenAsync(Team one, Team two) =>
-        await MessagesBetween(one, two).Where(message => !message.Read).CountAsync();
+    public async Task<int> CountUnreadMessagesAsync(Team sender, Team recipient) =>
+        await MessageFromTo(sender, recipient)
+            .Where(message => !message.ReadByRecipient)
+            .CountAsync();
 
     private IQueryable<Message> MessagesBetween(Team one, Team two) =>
         _context
@@ -32,6 +34,14 @@ public class MessageRepository
                 || message.Recipient.Id == one.Id && message.Sender.Id == two.Id
             );
 
+    private IQueryable<Message> MessageFromTo(Team sender, Team recipient) =>
+        _context
+            .Messages.Include(message => message.Sender)
+            .Include(message => message.Recipient)
+            .Where(message =>
+                message.Sender.Id == sender.Id && message.Recipient.Id == recipient.Id
+            );
+
     public async Task AddAsync(Message message)
     {
         var messageToAdd = new Message()
@@ -39,7 +49,7 @@ public class MessageRepository
             SenderId = message.Sender.Id,
             RecipientId = message.Recipient.Id,
             Content = message.Content,
-            Read = message.Read,
+            ReadByRecipient = message.ReadByRecipient,
             Creation = message.Creation,
         };
         await _context.Messages.AddAsync(messageToAdd);
@@ -52,8 +62,10 @@ public class MessageRepository
             .Messages.Where(message =>
                 message.Recipient.Id == recipient.Id
                 && messageIds.Contains(message.Id)
-                && !message.Read
+                && !message.ReadByRecipient
             )
-            .ExecuteUpdateAsync(message => message.SetProperty(message => message.Read, true));
+            .ExecuteUpdateAsync(message =>
+                message.SetProperty(message => message.ReadByRecipient, true)
+            );
     }
 }

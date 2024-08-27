@@ -11,6 +11,10 @@
                         'team-tab-selected': team.id === ui.selectedTeam?.id,
                     }"
                 >
+                    <circle-icon
+                        class="notification"
+                        v-if="ui.teamsWithNotifications"
+                    ></circle-icon>
                     {{ team.name }}
                 </div>
             </div>
@@ -57,6 +61,7 @@ interface Data {
         loaded: boolean;
         updateHandle?: number;
         selectedTeam?: Team;
+        teamsWithNotifications: Team[];
     };
     thisTeam?: Team;
     otherTeams: Team[];
@@ -78,6 +83,7 @@ export default {
                 loaded: false,
                 updateHandle: undefined,
                 selectedTeam: undefined,
+                teamsWithNotifications: [],
             },
             thisTeam: undefined,
             otherTeams: [],
@@ -109,7 +115,7 @@ export default {
                 lastTeamOpened;
         }
         await this.onTeamTabClick(lastTeamOpened);
-        await this.endpoints.message.getUnreadMessageCounts();
+        console.log(await this.endpoints.message.getUnreadNotifications());
         this.ui.loaded = true;
     },
     methods: {

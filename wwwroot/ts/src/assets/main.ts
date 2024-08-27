@@ -8,6 +8,7 @@ import SouthAtlanticSea from "./SouthAtlanticSea.vue";
 import SouthPacificSea from "./SouthPacificSea.vue";
 import QuillIcon from "./QuillIcon.vue";
 import SendIcon from "./SendIcon.vue";
+import CircleIcon from "./CircleIcon.vue";
 
 export class Seas {
     public static define() {
@@ -25,5 +26,6 @@ export class Icons {
     public static define() {
         Vue.component("quill-icon", QuillIcon);
         Vue.component("send-icon", SendIcon);
+        Vue.component("circle-icon", CircleIcon);
     }
 }

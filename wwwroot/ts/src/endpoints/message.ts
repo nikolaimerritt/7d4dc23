@@ -10,9 +10,9 @@ export interface Message {
     creation: Date;
 }
 
-interface UnreadMessageCount {
+interface UnreadNotification {
     sender: Team;
-    unreadMessageCount: number;
+    unreadMessagesCount: number;
 }
 
 export class MessageEndpoint {
@@ -34,10 +34,10 @@ export class MessageEndpoint {
         return message;
     }
 
-    public static toUnreadMessageCount(object: any): UnreadMessageCount {
-        const unread: UnreadMessageCount = {
+    public static toUnreadMessageCount(object: any): UnreadNotification {
+        const unread: UnreadNotification = {
             sender: object.sender,
-            unreadMessageCount: object.unreadMessageCount,
+            unreadMessagesCount: object.unreadMessagesCount,
         };
         return unread;
     }
@@ -49,8 +49,8 @@ export class MessageEndpoint {
         return response.map(MessageEndpoint.toMessage);
     }
 
-    public async getUnreadMessageCounts(): Promise<UnreadMessageCount[]> {
-        const response = await this.connection.get("messages/unread");
+    public async getUnreadNotifications(): Promise<UnreadNotification[]> {
+        const response = await this.connection.get("messages/notifications");
         return response.map(MessageEndpoint.toUnreadMessageCount);
     }
 

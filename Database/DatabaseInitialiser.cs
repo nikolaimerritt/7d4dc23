@@ -102,7 +102,7 @@ public class DatabaseInitialiser
             },
             new()
             {
-                Name = "Team Read",
+                Name = "Team ReadByRecipient",
                 PlainTextPassword = "NorthBesiegeSpine",
                 StartingSea = await _context.Seas.FirstOrDefaultAsync(sea =>
                     sea.Name == Sea.Names.SouthPacific

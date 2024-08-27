@@ -11,8 +11,8 @@ using PirateConquest.Database;
 namespace PirateConquest.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240816101302_MaxMessages")]
-    partial class MaxMessages
+    [Migration("20240827160335_ReadByRecipient")]
+    partial class ReadByRecipient
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

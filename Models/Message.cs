@@ -13,6 +13,6 @@ public class Message
     public int RecipientId { get; set; }
     public Team Recipient { get; set; }
     public string Content { get; set; }
-    public bool Read { get; set; }
+    public bool ReadByRecipient { get; set; }
     public DateTime Creation { get; set; }
 }

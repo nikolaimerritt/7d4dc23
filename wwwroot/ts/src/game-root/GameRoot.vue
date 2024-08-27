@@ -61,6 +61,12 @@
                 title="Messages"
                 @click="onMessageButtonClick()"
             >
+                <div
+                    class="notification-container"
+                    v-if="ui.messages.hasNotifications"
+                >
+                    <circle-icon class="notification"></circle-icon>
+                </div>
                 <quill-icon class="message-icon"> </quill-icon>
             </div>
             <div class="message-board" v-if="ui.messages.showBoard">
@@ -99,6 +105,7 @@ import { Round, RoundEndpoint } from "../endpoints/round";
 import { Util, VueThis } from "../common/util";
 import * as moment from "moment";
 import QuillIcon from "../assets/QuillIcon.vue";
+import { MessageEndpoint } from "../endpoints/message";
 
 const updateRoundTextMs = 2_000;
 const updateMapMs = 5_000;
@@ -117,6 +124,7 @@ interface Data {
         move: MoveEndpoint;
         round: RoundEndpoint;
         seaState: SeaStateEndpoint;
+        messages: MessageEndpoint;
     };
     ui: {
         action: Action;
@@ -139,6 +147,7 @@ interface Data {
             updateMapHandle: number;
         };
         messages: {
+            hasNotifications: boolean;
             showBoard: boolean;
         };
         seaCentreDrawConfig: SeaCentreDrawConfig;
@@ -170,6 +179,7 @@ export default {
                 move: new MoveEndpoint(),
                 round: new RoundEndpoint(),
                 seaState: new SeaStateEndpoint(),
+                messages: new MessageEndpoint(),
             },
             seaStates: [],
             ui: {
@@ -193,6 +203,7 @@ export default {
                     updateMapHandle: undefined,
                 },
                 messages: {
+                    hasNotifications: false,
                     showBoard: false,
                 },
                 seaCentreScale: undefined,
@@ -264,6 +275,11 @@ export default {
             this.accessibleSeas = await this.endpoints.sea.getAccessibleSeas();
             this.canMove = await this.endpoints.move.canMove();
             this.rounds = await this.endpoints.round.getRounds();
+            if (!this.ui.messages.showBoard) {
+                this.ui.messages.hasNotifications =
+                    (await this.endpoints.messages.getUnreadNotifications())
+                        .length > 0;
+            }
         },
         transformSeaCentres(this: This) {
             const mapBackground = this.$refs.mapBackground as HTMLImageElement;
@@ -517,6 +533,19 @@ export default {
 .message-button:hover {
     background: $hover-color;
     cursor: pointer;
+}
+
+.notification-container {
+    position: relative;
+}
+
+.notification {
+    color: $notification-color;
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    transform: translate(-5%, -50%);
+    left: 100%;
 }
 
 .message-board {

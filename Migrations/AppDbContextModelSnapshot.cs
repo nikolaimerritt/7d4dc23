@@ -87,7 +87,7 @@ namespace PirateConquest.Migrations
                     b.Property<DateTime>("Creation")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("Read")
+                    b.Property<bool>("ReadByRecipient")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("RecipientId")

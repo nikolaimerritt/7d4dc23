@@ -42,28 +42,27 @@ public class MessageController : Controller
         return Json(messages);
     }
 
-    [HttpGet("api/messages/unread")]
-    public async Task<IActionResult> GetUnreadMessages()
+    [HttpGet("api/messages/notifications")]
+    public async Task<IActionResult> GetUnreadNotifications()
     {
         var recipient = await _teamRepository.ByIdAsync(User.GetTeamId());
         if (recipient is null)
         {
             return Json(ErrorViewModel.Unauthorized);
         }
-        var unreadMessages = new List<UnreadMessageViewModel>();
-        foreach (var team in await _teamRepository.AllAsync())
+        var unreadMessages = new List<UnreadNotificationViewModel>();
+        foreach (var sender in await _teamRepository.AllAsync())
         {
-            if (team.Id != recipient.Id)
+            if (sender.Id != recipient.Id)
             {
                 unreadMessages.Add(
                     new()
                     {
-                        Sender = TeamViewModel.FromModel(team),
-                        UnreadMessagesCount =
-                            await _messageRepository.CountUnreadMessagesBetweenAsync(
-                                recipient,
-                                team
-                            )
+                        Sender = TeamViewModel.FromModel(sender),
+                        UnreadMessagesCount = await _messageRepository.CountUnreadMessagesAsync(
+                            sender,
+                            recipient
+                        )
                     }
                 );
             }
@@ -103,7 +102,7 @@ public class MessageController : Controller
         {
             Sender = sender,
             Recipient = recipient,
-            Read = false,
+            ReadByRecipient = false,
             Content = messageContent,
             Creation = DateTime.UtcNow
         };
