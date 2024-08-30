@@ -20,7 +20,7 @@ export default {
     font-family: "Goudy Regular", sans-serif;
     border-radius: 20px;
     font-size: 16px;
-    padding: 2px 8px;
+    padding: 4px 8px 2px 8px;
     margin: 4px 0;
     background-color: $light-button-color;
     border: 1px solid $border-color;

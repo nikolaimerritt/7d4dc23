@@ -356,7 +356,7 @@ $message-horizontal-shift: 50px;
 
 h2 {
     font-family: "Pirate", cursive;
-    font-weight: 700;
+    font-weight: $pirate-font-weight;
     font-size: 1.7rem;
     margin: 0;
 }

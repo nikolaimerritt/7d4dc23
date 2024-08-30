@@ -337,7 +337,8 @@ export default {
     },
 };
 </script>
-<style scoped>
+<style lang="scss" scoped>
+@import "../assets/style.scss";
 @import url("https://fonts.googleapis.com/css2?family=Tangerine:wght@400;700&display=swap");
 
 .round-row {
@@ -362,7 +363,7 @@ export default {
 
 h2 {
     font-family: "Pirate", cursive;
-    font-weight: 700;
+    font-weight: $pirate-font-weight;
     font-size: 3.5rem;
     color: #2c2215;
     margin-bottom: 0;

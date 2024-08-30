@@ -28,7 +28,7 @@ export default {
     font-family: "Goudy Regular", sans-serif;
     border-radius: 20px;
     font-size: 16px;
-    padding: 2px 8px;
+    padding: 4px 8px 2px 8px;
     margin: 4px 0;
     cursor: pointer;
     border: 1px solid $border-color;

@@ -3,14 +3,15 @@
         <div ref="modalBox" class="modal-box">
             <span class="message"> {{ message }} </span>
             <input v-model="inputText" />
-            <text-button
-                style="margin: 24px 0"
-                :text="buttonText"
-                @buttonClick="emitSubmission()"
-            ></text-button>
-            <span class="error-message" v-show="errorMessage">
+            <span class="error-message">
                 {{ errorMessage }}
             </span>
+            <div class="submit-button">
+                <text-button
+                    :text="buttonText"
+                    @buttonClick="emitSubmission()"
+                ></text-button>
+            </div>
         </div>
     </div>
 </template>
@@ -73,11 +74,11 @@ export default {
 }
 
 .message {
-    padding: 24px 12px 0 12px;
+    padding: 36px 12px 0 12px;
 }
 
 .error-message {
-    padding: 0 0 12px 0;
+    height: 24px;
 }
 
 .modal-box {
@@ -97,5 +98,9 @@ export default {
     border: 1px solid $border-color;
     text-align: center;
     gap: 10px;
+}
+
+.submit-button {
+    margin-bottom: 20px;
 }
 </style>

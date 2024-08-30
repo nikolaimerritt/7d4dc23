@@ -85,7 +85,8 @@ export default {
     },
 };
 </script>
-<style scoped>
+<style lang="scss" scoped>
+@import "../assets/style.scss";
 .main-container {
     width: 100%;
     height: 100%;
@@ -120,6 +121,7 @@ table {
 
 th {
     font-family: "Pirate", cursive;
+    font-weight: $pirate-font-weight;
     color: #2c2215;
     font-size: 3.5rem;
 }
