@@ -1,48 +1,55 @@
 <template>
-    <div>
-        <div class="round-row">
+    <div class="root">
+        <div class="scroll-column">
+            <img :src="'../../../imgs/scroll-top.png'" />
             <div
                 v-for="(history, index) in this.roundHistory"
                 :key="`history-${index}`"
-                class="round-card"
+                class="scroll-segment"
+                :style="{
+                    backgroundImage: 'url(../../../imgs/scroll-middle.png)',
+                    backgroundSize: 'contain',
+                }"
             >
-                <div class="round-content">
-                    <h2>Round {{ index + 1 }}</h2>
-                    <h3>
-                        {{ toTimeString(history.round.startPlanning) }} to
-                        {{ toTimeString(history.round.end) }}
-                    </h3>
-                    <div
-                        v-if="
-                            history.moves.length > 0 ||
-                            history.purchases.length > 0 ||
-                            history.outcomes.length > 0
-                        "
-                    >
-                        <ul>
-                            <li
-                                v-for="(
-                                    planning, index
-                                ) in describeRoundPlanning(history)"
-                                :key="`planning-${index}`"
-                            >
-                                {{ planning }}
-                            </li>
-                            <li
-                                v-for="(
-                                    outcomeDescription, index
-                                ) in describeOutcomes(history.outcomes)"
-                                :key="`outcome-description-${index}`"
-                            >
-                                {{ outcomeDescription }}
-                            </li>
-                        </ul>
-                    </div>
-                    <div v-else class="nothing-happened">
-                        Nothing yet has happened.
-                    </div>
+                <h2>Round {{ index + 1 }}</h2>
+                <h3>
+                    {{ toTimeString(history.round.startPlanning) }} to
+                    {{ toTimeString(history.round.end) }}
+                </h3>
+                <div
+                    v-if="
+                        history.moves.length > 0 ||
+                        history.purchases.length > 0 ||
+                        history.outcomes.length > 0
+                    "
+                >
+                    <ul>
+                        <li
+                            v-for="(planning, index) in describeRoundPlanning(
+                                history
+                            )"
+                            :key="`planning-${index}`"
+                        >
+                            {{ planning }}
+                        </li>
+                        <li
+                            v-for="(
+                                outcomeDescription, index
+                            ) in describeOutcomes(history.outcomes)"
+                            :key="`outcome-description-${index}`"
+                        >
+                            {{ outcomeDescription }}
+                        </li>
+                    </ul>
+                </div>
+                <div v-else class="nothing-happened">
+                    Nothing yet has happened.
                 </div>
             </div>
+            <img
+                :src="'../../../imgs/scroll-bottom.png'"
+                style="padding: 0 3px 0 3px"
+            />
         </div>
         <monster-row></monster-row>
     </div>
@@ -124,9 +131,8 @@ export default {
         };
     },
     async mounted(this: This) {
-        await this.refreshHistory();
-        this.ui.historyPollingHandle = window.setInterval(
-            async () => await this.refreshHistory(),
+        this.ui.historyPollingHandle = await Util.doAndRepeat(
+            () => this.refreshHistory(),
             this.ui.historyPollingMs
         );
     },
@@ -137,7 +143,11 @@ export default {
                 const existingHistoryIndex = this.roundHistory.findIndex(
                     (existingHistory) => existingHistory.round.id === round.id
                 );
-                if (existingHistoryIndex === -1) {
+                // TO SELF: debug
+                if (
+                    existingHistoryIndex === -1 &&
+                    this.roundHistory.length < 2
+                ) {
                     this.roundHistory.push(history);
                 } else {
                     this.roundHistory.splice(existingHistoryIndex, 1, history);
@@ -341,20 +351,24 @@ export default {
 @import "../assets/style.scss";
 @import url("https://fonts.googleapis.com/css2?family=Tangerine:wght@400;700&display=swap");
 
-.round-row {
+.root {
     display: flex;
-    overflow-x: auto;
-    gap: 8%;
-    padding: 5% 8% 2% 8%;
+    flex-direction: row;
+    justify-content: center;
 }
 
-.round-card {
-    flex: 0 0 auto;
-    width: 400px;
-    border: 2px solid #be9a67;
-    border-radius: 16px;
-    background-color: #f8ecbc;
-    padding: 0 24px 12px 24px;
+.scroll-column {
+    display: flex;
+    flex-direction: column;
+    overflow-x: auto;
+    width: 800px;
+    margin: 32px 0 128px 0;
+}
+
+.scroll-segment {
+    width: 100%;
+    aspect-ratio: 850 / 257;
+    padding: 10px 40px 10px 80px;
 }
 
 .round-content {
