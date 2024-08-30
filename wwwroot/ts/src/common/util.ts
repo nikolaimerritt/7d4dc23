@@ -115,6 +115,14 @@ export class Util {
         }
     }
 
+    public static async doAndRepeat(
+        toRepeat: () => Promise<void>,
+        delayMs: number
+    ): Promise<number> {
+        await toRepeat();
+        return window.setInterval(toRepeat, delayMs);
+    }
+
     public static sortByInPlace<T>(items: T[], sortKey: (item: T) => any): T[] {
         return items.sort((first, second) => {
             const firstKey = sortKey(first);

@@ -55,16 +55,20 @@ public class MessageController : Controller
         {
             if (sender.Id != recipient.Id)
             {
-                unreadMessages.Add(
-                    new()
-                    {
-                        Sender = TeamViewModel.FromModel(sender),
-                        UnreadMessagesCount = await _messageRepository.CountUnreadMessagesAsync(
-                            sender,
-                            recipient
-                        )
-                    }
+                var unreadMessagesCount = await _messageRepository.CountUnreadMessagesAsync(
+                    sender,
+                    recipient
                 );
+                if (unreadMessagesCount > 0)
+                {
+                    unreadMessages.Add(
+                        new()
+                        {
+                            Sender = TeamViewModel.FromModel(sender),
+                            UnreadMessagesCount = unreadMessagesCount
+                        }
+                    );
+                }
             }
         }
 

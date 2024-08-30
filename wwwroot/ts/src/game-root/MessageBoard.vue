@@ -1,6 +1,18 @@
 <template>
     <div>
-        <div class="root" v-show="ui.loaded">
+        <div
+            class="message-button"
+            title="Messages"
+            @click="toggleShowMessages()"
+        >
+            <circle-icon
+                class="notification"
+                style="transform: translate(0%, -60%)"
+                v-if="ui.teamIdsWithNotifications.length > 0"
+            ></circle-icon>
+            <quill-icon class="message-icon"> </quill-icon>
+        </div>
+        <div class="messages-root" v-show="ui.visibility === 'show'">
             <div class="team-tabs">
                 <div
                     class="team-tab"
@@ -13,7 +25,8 @@
                 >
                     <circle-icon
                         class="notification"
-                        v-if="ui.teamsWithNotifications"
+                        style="transform: translate(40%, -120%)"
+                        v-if="ui.teamIdsWithNotifications.includes(team.id)"
                     ></circle-icon>
                     {{ team.name }}
                 </div>
@@ -51,6 +64,7 @@ import { Message, MessageEndpoint } from "../endpoints/message";
 import { Team, TeamEndpoint } from "../endpoints/team";
 import { Connection } from "../endpoints/main";
 import * as moment from "moment";
+import { util } from "vue/types/umd";
 
 interface Data {
     endpoints: {
@@ -58,10 +72,11 @@ interface Data {
         team: TeamEndpoint;
     };
     ui: {
-        loaded: boolean;
-        updateHandle?: number;
+        visibility: "show" | "loading" | "hide";
+        updateMessagesHandle?: number;
+        updateNotificationsHandle?: number;
         selectedTeam?: Team;
-        teamsWithNotifications: Team[];
+        teamIdsWithNotifications: number[];
     };
     thisTeam?: Team;
     otherTeams: Team[];
@@ -80,10 +95,11 @@ export default {
                 team: new TeamEndpoint(),
             },
             ui: {
-                loaded: false,
-                updateHandle: undefined,
+                visibility: "hide",
+                updateMessagesHandle: undefined,
+                updateNotificationsHandle: undefined,
                 selectedTeam: undefined,
-                teamsWithNotifications: [],
+                teamIdsWithNotifications: [],
             },
             thisTeam: undefined,
             otherTeams: [],
@@ -93,53 +109,65 @@ export default {
             messages: [],
         };
     },
-    async mounted(this: This) {
-        this.thisTeam = await this.endpoints.team.getTeam();
-        const allTeams = await this.endpoints.team.getAllTeams();
-        this.otherTeams = allTeams.filter(
-            (team) => team.id !== this.thisTeam.id
+    async mounted() {
+        this.ui.updateNotificationsHandle = await Util.doAndRepeat(
+            () => this.updateNotifications(),
+            UpdateMessageIntervalMs
         );
-
-        if (Util.isHtmlElementRef(this.$refs.inputBox)) {
-            const inputBox = this.$refs.inputBox as HTMLTextAreaElement;
-            this.$refs.inputBox.addEventListener("input", () =>
-                this.resizeHeight(inputBox)
-            );
-        }
-
-        const lastTeamOpenedId = parseInt(Util.getCookie(LastTeamOpenedCookie));
-        let lastTeamOpened = this.otherTeams[0];
-        if (lastTeamOpenedId !== undefined && !isNaN(lastTeamOpenedId)) {
-            lastTeamOpened =
-                this.otherTeams.find((team) => team.id === lastTeamOpenedId) ??
-                lastTeamOpened;
-        }
-        await this.onTeamTabClick(lastTeamOpened);
-        console.log(await this.endpoints.message.getUnreadNotifications());
-        this.ui.loaded = true;
     },
     methods: {
+        async toggleShowMessages(this: This) {
+            if (this.ui.visibility === "show") {
+                this.ui.visibility = "hide";
+            } else if (this.ui.visibility === "hide") {
+                await this.loadMessageContainer();
+            }
+        },
+        async loadMessageContainer(this: This) {
+            this.ui.visibility = "loading";
+            this.thisTeam = await this.endpoints.team.getTeam();
+            const allTeams = await this.endpoints.team.getAllTeams();
+            this.otherTeams = allTeams
+                .filter((team) => team.id !== this.thisTeam.id)
+                // TO SELF: debug
+                .sort((a, b) => a.name.at(-1).localeCompare(b.name.at(-1)));
+
+            if (Util.isHtmlElementRef(this.$refs.inputBox)) {
+                const inputBox = this.$refs.inputBox as HTMLTextAreaElement;
+                this.$refs.inputBox.addEventListener("input", () =>
+                    this.resizeHeight(inputBox)
+                );
+            }
+
+            const lastTeamOpenedId = parseInt(
+                Util.getCookie(LastTeamOpenedCookie)
+            );
+            let lastTeamOpened = this.otherTeams[0];
+            if (lastTeamOpenedId !== undefined && !isNaN(lastTeamOpenedId)) {
+                lastTeamOpened =
+                    this.otherTeams.find(
+                        (team) => team.id === lastTeamOpenedId
+                    ) ?? lastTeamOpened;
+            }
+            await this.onTeamTabClick(lastTeamOpened);
+            this.ui.visibility = "show";
+        },
         async onTeamTabClick(this: This, team: Team) {
             this.ui.selectedTeam = team;
-            await this.updateMessages(team);
-
             Util.setCookie(LastTeamOpenedCookie, `${team.id}`);
-            this.pollMessagesFrom(team);
+            if (this.ui.updateMessagesHandle !== undefined) {
+                window.clearInterval(this.ui.updateMessagesHandle);
+            }
+            this.ui.updateMessagesHandle = await Util.doAndRepeat(
+                () => this.updateMessages(team),
+                UpdateMessageIntervalMs
+            );
         },
         resizeHeight(this: This, inputBox: HTMLTextAreaElement) {
             inputBox.style.height = `${Math.max(
                 inputBox.getBoundingClientRect().height,
                 inputBox.scrollHeight
             )}px`;
-        },
-        pollMessagesFrom(this: This, team: Team) {
-            if (this.updateHandle !== undefined) {
-                window.clearInterval(this.ui.updateHandle);
-            }
-            this.ui.updateHandle = window.setInterval(
-                async () => await this.updateMessages(team),
-                UpdateMessageIntervalMs
-            );
         },
         async sendMessage(this: This) {
             const inputBox = this.$refs.inputBox as HTMLTextAreaElement;
@@ -158,7 +186,16 @@ export default {
             const messages = await this.endpoints.message.getMessagesBetween(
                 team
             );
+            await this.endpoints.message.markMessagesAsRead(messages);
+            await this.updateNotifications();
             this.messages = messages.reverse();
+        },
+        async updateNotifications(this: This) {
+            const notifications =
+                await this.endpoints.message.getUnreadNotifications();
+            this.ui.teamIdsWithNotifications = notifications.map(
+                (notification) => notification.sender.id
+            );
         },
         formatMessageDate(this: This, date: Date): string {
             const now = moment(new Date());
@@ -179,8 +216,11 @@ export default {
         },
     },
     destroyed(this: This) {
-        if (this.updateHandle !== undefined) {
-            window.clearInterval(this.ui.updateHandle);
+        for (const handle in [
+            this.ui.updateMessagesHandle,
+            this.ui.updateNotificationsHandle,
+        ]) {
+            window.clearInterval(handle);
         }
     },
 };
@@ -194,7 +234,11 @@ $root-border-radius: 12px;
 $root-border-width: 1px;
 $message-horizontal-shift: 50px;
 
-.root {
+.messages-root {
+    position: fixed;
+    bottom: 130px;
+    right: 130px;
+    z-index: $message-board-z-index;
     width: calc(350px + $message-horizontal-shift);
     height: 450px;
 
@@ -206,6 +250,29 @@ $message-horizontal-shift: 50px;
     background-color: $modal-background-color;
 }
 
+.message-icon {
+    color: $font-color;
+    width: 40px;
+    height: 40px;
+}
+
+.message-button {
+    position: fixed;
+    display: inline-block;
+    padding: 12px;
+    bottom: 100px;
+    right: 100px;
+    z-index: $message-button-z-index;
+    border-radius: 50%;
+    border: 2px solid $border-color;
+    background: $foreground-color;
+}
+
+.message-button:hover {
+    background: $hover-color;
+    cursor: pointer;
+}
+
 .team-tabs {
     width: 100%;
     display: grid;
@@ -213,6 +280,7 @@ $message-horizontal-shift: 50px;
 }
 
 .team-tab {
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -240,7 +308,7 @@ $message-horizontal-shift: 50px;
 .messages {
     display: flex;
     flex-direction: column-reverse;
-    overflow: scroll;
+    overflow-y: scroll;
 }
 
 .message {
@@ -294,9 +362,8 @@ h2 {
 }
 
 h3 {
-    font-family: "Tangerine", cursive;
     font-style: normal;
-    font-size: 1.2rem;
+    font-size: 0.7rem;
     margin: 0;
 }
 
@@ -315,6 +382,15 @@ textarea {
         background-color: $hover-color;
         cursor: pointer;
     }
+}
+
+.notification {
+    color: $notification-color;
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    right: 0;
+    z-index: $notification-z-index;
 }
 
 .send-icon {

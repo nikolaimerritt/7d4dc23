@@ -56,23 +56,8 @@
                 >
                 </sea-centre>
             </div>
-            <div
-                class="message-button"
-                title="Messages"
-                @click="onMessageButtonClick()"
-            >
-                <div
-                    class="notification-container"
-                    v-if="ui.messages.hasNotifications"
-                >
-                    <circle-icon class="notification"></circle-icon>
-                </div>
-                <quill-icon class="message-icon"> </quill-icon>
-            </div>
-            <div class="message-board" v-if="ui.messages.showBoard">
-                <message-board></message-board>
-            </div>
         </div>
+        <message-board></message-board>
         <input-modal
             v-if="ui.purchase.showModal"
             :message="'How many points would you like to spend to purchase new ships?'"
@@ -106,6 +91,7 @@ import { Util, VueThis } from "../common/util";
 import * as moment from "moment";
 import QuillIcon from "../assets/QuillIcon.vue";
 import { MessageEndpoint } from "../endpoints/message";
+import MessageBoard from "./MessageBoard.vue";
 
 const updateRoundTextMs = 2_000;
 const updateMapMs = 5_000;
@@ -249,16 +235,14 @@ export default {
     },
     async mounted(this: This) {
         this.team = await this.endpoints.team.getTeam();
-        await this.refreshMap();
+        this.ui.map.updateMapHandle = await Util.doAndRepeat(
+            () => this.refreshMap(),
+            updateMapMs
+        );
         this.transformSeaCentres();
-        this.ui.round.text = this.roundText();
-        this.ui.round.updateHandle = window.setInterval(
+        this.ui.round.updateHandle = await Util.doAndRepeat(
             () => (this.ui.round.text = this.roundText()),
             updateRoundTextMs
-        );
-        this.ui.map.updateMapHandle = window.setInterval(
-            async () => await this.refreshMap(),
-            updateMapMs
         );
         window.addEventListener("resize", () => this.transformSeaCentres());
     },
@@ -516,48 +500,5 @@ export default {
 .sea-centre {
     position: absolute;
     z-index: $sea-z-index;
-}
-
-.message-button {
-    position: fixed;
-    display: inline-block;
-    padding: 12px;
-    bottom: 100px;
-    right: 100px;
-    z-index: $message-button-z-index;
-    border-radius: 50%;
-    border: 2px solid $border-color;
-    background: $foreground-color;
-}
-
-.message-button:hover {
-    background: $hover-color;
-    cursor: pointer;
-}
-
-.notification-container {
-    position: relative;
-}
-
-.notification {
-    color: $notification-color;
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    transform: translate(-5%, -50%);
-    left: 100%;
-}
-
-.message-board {
-    position: fixed;
-    bottom: 130px;
-    right: 130px;
-    z-index: $message-board-z-index;
-}
-
-.message-icon {
-    color: $font-color;
-    width: 40px;
-    height: 40px;
 }
 </style>
