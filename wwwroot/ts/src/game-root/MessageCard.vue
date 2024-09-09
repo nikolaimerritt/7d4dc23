@@ -7,10 +7,22 @@
     >
         <div class="message-header">
             <h2>{{ message.sender.name }}</h2>
-            <h3>{{ formatMessageDate(message.creation) }}</h3>
+            <div class="subheading">
+                {{ formatMessageDate(message.creation) }}
+            </div>
         </div>
-        <div class="content">
+        <div
+            class="content"
+            :class="truncateContent ? 'truncated-message' : 'full-message'"
+        >
             {{ message.content }}
+        </div>
+        <div
+            class="toggle-read-more subheading"
+            v-show="contentTooLong"
+            @click="onToggleReadMoreClick()"
+        >
+            {{ truncateContent ? "Read more" : "Read less" }}
         </div>
     </div>
 </template>
@@ -18,7 +30,23 @@
 import Vue from "vue";
 import { Message } from "../endpoints/message";
 import * as moment from "moment";
+import { VueThis } from "../common/util";
+import { Team } from "../endpoints/team";
 
+interface Data {
+    contentTooLong: boolean;
+    truncateContent: boolean;
+}
+
+interface Props {
+    message: Message;
+    recipient: Team;
+}
+
+type This = VueThis<Data & Props>;
+
+const MaxContentLines = 4;
+const MaxContentChars = 128;
 export default {
     props: {
         message: {
@@ -30,7 +58,25 @@ export default {
             required: true,
         },
     },
+    data(): Data {
+        return {
+            contentTooLong: false,
+            truncateContent: false,
+        };
+    },
+    mounted(this: This) {
+        const linesInMessage = [...this.message.content.matchAll(/\n/g)].length;
+        this.contentTooLong =
+            linesInMessage > MaxContentLines ||
+            this.message.content.length > MaxContentChars;
+        if (this.contentTooLong) {
+            this.truncateContent = true;
+        }
+    },
     methods: {
+        onToggleReadMoreClick(this: This) {
+            this.truncateContent = !this.truncateContent;
+        },
         formatMessageDate(date: Date): string {
             const now = moment(new Date());
             const toFormat = moment(date);
@@ -84,9 +130,9 @@ h2 {
     margin: 0;
 }
 
-h3 {
+.subheading {
     font-style: normal;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     margin: 0;
 }
 
@@ -99,7 +145,18 @@ h3 {
 }
 
 .content {
+    overflow: hidden;
     overflow-wrap: anywhere;
     white-space: pre-line;
+    max-height: 5em;
+}
+
+.content.full-message {
+    max-height: none;
+}
+
+.toggle-read-more {
+    cursor: pointer;
+    padding-left: 2px;
 }
 </style>
