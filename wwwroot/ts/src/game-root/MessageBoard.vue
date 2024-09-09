@@ -32,24 +32,12 @@
                 </div>
             </div>
             <div class="messages" ref="messages">
-                <div
+                <message-card
                     v-for="(message, index) in messages"
-                    class="message"
-                    :class="
-                        message.sender.id === thisTeam?.id
-                            ? 'message-from'
-                            : 'message-to'
-                    "
                     :key="index"
-                >
-                    <div class="message-header">
-                        <h2>{{ message.sender.name }}</h2>
-                        <h3>{{ formatMessageDate(message.creation) }}</h3>
-                    </div>
-                    <div class="content">
-                        {{ message.content }}
-                    </div>
-                </div>
+                    :message="message"
+                    :recipient="thisTeam"
+                ></message-card>
             </div>
             <div class="input-area">
                 <textarea maxlength="250" ref="inputBox"></textarea>
@@ -65,7 +53,6 @@ import { Util, VueThis } from "../common/util";
 import { Message, MessageEndpoint } from "../endpoints/message";
 import { Team, TeamEndpoint } from "../endpoints/team";
 import { Connection } from "../endpoints/main";
-import * as moment from "moment";
 
 interface Data {
     endpoints: {
@@ -202,23 +189,6 @@ export default {
                 (notification) => notification.sender.id
             );
         },
-        formatMessageDate(this: This, date: Date): string {
-            const now = moment(new Date());
-            const toFormat = moment(date);
-            const daysDifference = now.diff(toFormat, "days");
-            if (daysDifference < 1) {
-                return toFormat.format("HH:mm");
-            } else {
-                const dateFormat = {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                    hour: "numeric",
-                    minute: "numeric",
-                } as const;
-                return date.toLocaleDateString(undefined, dateFormat);
-            }
-        },
     },
     destroyed(this: This) {
         for (const handle in [
@@ -316,33 +286,6 @@ $message-horizontal-shift: 50px;
     overflow-y: scroll;
 }
 
-.message {
-    width: -webkit-fill-available;
-    width: -moz-available;
-    padding: 12px;
-    margin: 14px;
-    z-index: inherit;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    background-color: $background-color;
-    border: 1px solid $border-color;
-    border-radius: 12px;
-}
-
-.message-to {
-    margin-right: $message-horizontal-shift;
-}
-
-.message-from {
-    margin-left: $message-horizontal-shift;
-}
-
-.content {
-    overflow-wrap: anywhere;
-    white-space: pre-line;
-}
-
 .input-area {
     width: -webkit-fill-available;
     width: -moz-available;
@@ -353,28 +296,6 @@ $message-horizontal-shift: 50px;
     align-items: flex-end;
     justify-content: space-around;
     margin: 14px;
-}
-
-.message-header {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-end;
-    width: 100%;
-    margin-bottom: 0.3rem;
-}
-
-h2 {
-    font-family: "Pirate", cursive;
-    font-weight: $pirate-font-weight;
-    font-size: 1.7rem;
-    margin: 0;
-}
-
-h3 {
-    font-style: normal;
-    font-size: 0.7rem;
-    margin: 0;
 }
 
 textarea {
