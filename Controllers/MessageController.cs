@@ -97,7 +97,10 @@ public class MessageController : Controller
         {
             return Json(ErrorViewModel.MessageTooLong);
         }
-        if (await _messageRepository.CountMessagesFromAsync(sender) > config.MaxMessagesPerTeam)
+        if (
+            await _messageRepository.CountMessagesFromAsync(sender, recipient)
+            > config.MaxMessagesPerTeam
+        )
         {
             return Json(ErrorViewModel.TooManyMessages);
         }

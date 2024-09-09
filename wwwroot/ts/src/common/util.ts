@@ -12,6 +12,14 @@ export type VueThis<Data> = Data & {
 export class Util {
     private static CookiePrefix = "pirate-conquest" as const;
 
+    public static clamp(
+        lowerBound: number,
+        toClamp: number,
+        upperBound: number
+    ): number {
+        return Math.min(upperBound, Math.max(toClamp, lowerBound));
+    }
+
     public static isHtmlElementRef(ref: VueRef): ref is HTMLElement {
         return ref instanceof HTMLElement;
     }

@@ -43,7 +43,7 @@
         <div ref="shipContainer" style="position: relative">
             <div class="ship-container">
                 <team-ship
-                    v-for="(ship, index) in teamShips"
+                    v-for="(ship, index) in presentTeamShips"
                     v-show="loaded"
                     :key="index"
                     :teamName="ship.team.name"
@@ -190,6 +190,9 @@ export default {
         },
     },
     computed: {
+        presentTeamShips(this: This) {
+            return this.teamShips.filter((teamShip) => teamShip.shipCount > 0);
+        },
         imageClass(this: This) {
             if (this.hover && this.highlighted) {
                 return "state-highlighted-hover";

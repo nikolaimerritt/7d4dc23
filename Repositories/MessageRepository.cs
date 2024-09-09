@@ -17,8 +17,12 @@ public class MessageRepository
     public async Task<List<Message>> AllBetweenAsync(Team one, Team two) =>
         await MessagesBetween(one, two).OrderBy(message => message.Creation).ToListAsync();
 
-    public async Task<int> CountMessagesFromAsync(Team sender) =>
-        await _context.Messages.Where(message => message.Sender.Id == sender.Id).CountAsync();
+    public async Task<int> CountMessagesFromAsync(Team sender, Team recipient) =>
+        await _context
+            .Messages.Where(message =>
+                message.Sender.Id == sender.Id && message.Recipient.Id == recipient.Id
+            )
+            .CountAsync();
 
     public async Task<int> CountUnreadMessagesAsync(Team sender, Team recipient) =>
         await MessageFromTo(sender, recipient)

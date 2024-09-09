@@ -46,7 +46,9 @@
                         <h2>{{ message.sender.name }}</h2>
                         <h3>{{ formatMessageDate(message.creation) }}</h3>
                     </div>
-                    <div class="content">{{ message.content }}</div>
+                    <div class="content">
+                        {{ message.content }}
+                    </div>
                 </div>
             </div>
             <div class="input-area">
@@ -64,7 +66,6 @@ import { Message, MessageEndpoint } from "../endpoints/message";
 import { Team, TeamEndpoint } from "../endpoints/team";
 import { Connection } from "../endpoints/main";
 import * as moment from "moment";
-import { util } from "vue/types/umd";
 
 interface Data {
     endpoints: {
@@ -86,6 +87,8 @@ interface Data {
 type This = VueThis<Data>;
 
 const UpdateMessageIntervalMs = 10_000;
+const MinInputHeightPx = 50;
+const MaxInputHeightPx = 120;
 const LastTeamOpenedCookie = "last-team-opened";
 export default {
     data(): Data {
@@ -109,11 +112,12 @@ export default {
             messages: [],
         };
     },
-    async mounted() {
+    async mounted(this: This) {
         this.ui.updateNotificationsHandle = await Util.doAndRepeat(
             () => this.updateNotifications(),
             UpdateMessageIntervalMs
         );
+        console.log("contents", this.$refs.content);
     },
     methods: {
         async toggleShowMessages(this: This) {
@@ -164,9 +168,10 @@ export default {
             );
         },
         resizeHeight(this: This, inputBox: HTMLTextAreaElement) {
-            inputBox.style.height = `${Math.max(
-                inputBox.getBoundingClientRect().height,
-                inputBox.scrollHeight
+            inputBox.style.height = `${Util.clamp(
+                MinInputHeightPx,
+                inputBox.scrollHeight,
+                MaxInputHeightPx
             )}px`;
         },
         async sendMessage(this: This) {
@@ -331,6 +336,11 @@ $message-horizontal-shift: 50px;
 
 .message-from {
     margin-left: $message-horizontal-shift;
+}
+
+.content {
+    overflow-wrap: anywhere;
+    white-space: pre-line;
 }
 
 .input-area {
