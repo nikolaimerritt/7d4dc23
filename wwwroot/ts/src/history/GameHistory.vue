@@ -138,24 +138,22 @@ export default {
     },
     methods: {
         async refreshHistory(this: This) {
-            this.roundHistories.splice(0, this.roundHistories.length);
             for (const round of await this.endpoints.round.getRounds()) {
                 const history = await this.getRoundHistory(round);
-                console.log("Got history ", history, "for round", round);
-                this.roundHistories.push(history);
-                // this.roundHistories.push(history);
-                // const existingHistoryIndex = this.roundHistories.findIndex(
-                //     (existingHistory) => existingHistory.round.id === round.id
-                // );
-                // // TO SELF: debug
-                // if (
-                //     existingHistoryIndex === -1 &&
-                //     this.roundHistories.length < 2
-                // ) {
-                //     this.roundHistories.push(history);
-                // } else {
-                //     this.roundHistories.splice(existingHistoryIndex, 1, history);
-                // }
+                const existingHistoryIndex = this.roundHistories.findIndex(
+                    (existingHistory) => existingHistory.round.id === round.id
+                );
+                // We avoid replacing the list another list, because
+                // this would make the UI element disappear and reappear
+                if (existingHistoryIndex >= 0) {
+                    this.roundHistories.splice(
+                        existingHistoryIndex,
+                        1,
+                        history
+                    );
+                } else {
+                    this.roundHistories.push(history);
+                }
             }
         },
         async getRoundHistory(this: This, round: Round): Promise<RoundHistory> {
