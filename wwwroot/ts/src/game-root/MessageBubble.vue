@@ -2,7 +2,7 @@
     <div
         class="root"
         :class="
-            message.sender.id === recipient.id ? 'message-to' : 'message-from'
+            message.sender.id === recipient.id ? 'message-from' : 'message-to'
         "
     >
         <div class="message-header">
@@ -27,7 +27,6 @@
     </div>
 </template>
 <script lang="ts">
-import Vue from "vue";
 import { Message } from "../endpoints/message";
 import * as moment from "moment";
 import { VueThis } from "../common/util";
@@ -149,6 +148,10 @@ h2 {
     overflow-wrap: anywhere;
     white-space: pre-line;
     max-height: 5em;
+    /* This is a hack. For some reason, 
+    `white-space: pre-line` adds a new line 
+    to the start of every message.*/
+    margin-top: -14px;
 }
 
 .content.full-message {

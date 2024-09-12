@@ -39,7 +39,7 @@ public class MessageController : Controller
             return Json(ErrorViewModel.InvalidMessageRecipient);
         }
         var messages = await _messageRepository.AllBetweenAsync(teamTwo, teamOne);
-        return Json(messages);
+        return Json(messages.Select(MessageViewModel.FromModel));
     }
 
     [HttpGet("api/messages/notifications")]

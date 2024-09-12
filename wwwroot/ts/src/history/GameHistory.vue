@@ -3,7 +3,7 @@
         <div class="scroll-column">
             <img :src="'../../../imgs/scroll-top.png'" />
             <div
-                v-for="(history, index) in this.roundHistory"
+                v-for="(history, index) in roundHistories"
                 :key="`history-${index}`"
                 class="scroll-segment"
                 :style="{
@@ -100,7 +100,7 @@ interface Hold {
 }
 
 interface Data {
-    roundHistory: RoundHistory[];
+    roundHistories: RoundHistory[];
     endpoints: {
         move: MoveEndpoint;
         purchase: PurchaseEndpoint;
@@ -117,7 +117,7 @@ type This = VueThis<Data>;
 export default {
     data(): Data {
         return {
-            roundHistory: [],
+            roundHistories: [],
             endpoints: {
                 move: new MoveEndpoint(),
                 purchase: new PurchaseEndpoint(),
@@ -138,20 +138,24 @@ export default {
     },
     methods: {
         async refreshHistory(this: This) {
+            this.roundHistories.splice(0, this.roundHistories.length);
             for (const round of await this.endpoints.round.getRounds()) {
                 const history = await this.getRoundHistory(round);
-                const existingHistoryIndex = this.roundHistory.findIndex(
-                    (existingHistory) => existingHistory.round.id === round.id
-                );
-                // TO SELF: debug
-                if (
-                    existingHistoryIndex === -1 &&
-                    this.roundHistory.length < 2
-                ) {
-                    this.roundHistory.push(history);
-                } else {
-                    this.roundHistory.splice(existingHistoryIndex, 1, history);
-                }
+                console.log("Got history ", history, "for round", round);
+                this.roundHistories.push(history);
+                // this.roundHistories.push(history);
+                // const existingHistoryIndex = this.roundHistories.findIndex(
+                //     (existingHistory) => existingHistory.round.id === round.id
+                // );
+                // // TO SELF: debug
+                // if (
+                //     existingHistoryIndex === -1 &&
+                //     this.roundHistories.length < 2
+                // ) {
+                //     this.roundHistories.push(history);
+                // } else {
+                //     this.roundHistories.splice(existingHistoryIndex, 1, history);
+                // }
             }
         },
         async getRoundHistory(this: This, round: Round): Promise<RoundHistory> {

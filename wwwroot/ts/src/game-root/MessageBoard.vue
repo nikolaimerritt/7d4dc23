@@ -32,12 +32,19 @@
                 </div>
             </div>
             <div class="messages" ref="messages">
-                <message-card
-                    v-for="(message, index) in messages"
-                    :key="index"
-                    :message="message"
-                    :recipient="thisTeam"
-                ></message-card>
+                <div v-if="messages.length > 0">
+                    <message-bubble
+                        v-for="(message, index) in messages"
+                        :key="index"
+                        :message="message"
+                        :recipient="thisTeam"
+                    ></message-bubble>
+                </div>
+                <div v-else class="no-messages-container">
+                    <span class="no-messages-text">
+                        No messages yet. Start a conversation!
+                    </span>
+                </div>
             </div>
             <div class="input-area">
                 <textarea maxlength="250" ref="inputBox"></textarea>
@@ -93,9 +100,6 @@ export default {
             },
             thisTeam: undefined,
             otherTeams: [],
-            // Messages are stored in reverse order
-            // so that we can display them in reverse order
-            // and the last message is scrolled to.
             messages: [],
         };
     },
@@ -118,10 +122,9 @@ export default {
             this.ui.visibility = "loading";
             this.thisTeam = await this.endpoints.team.getTeam();
             const allTeams = await this.endpoints.team.getAllTeams();
-            this.otherTeams = allTeams
-                .filter((team) => team.id !== this.thisTeam.id)
-                // TO SELF: debug
-                .sort((a, b) => a.name.at(-1).localeCompare(b.name.at(-1)));
+            this.otherTeams = allTeams.filter(
+                (team) => team.id !== this.thisTeam.id
+            );
 
             if (Util.isHtmlElementRef(this.$refs.inputBox)) {
                 const inputBox = this.$refs.inputBox as HTMLTextAreaElement;
@@ -175,12 +178,11 @@ export default {
             }
         },
         async updateMessages(this: This, team: Team) {
-            const messages = await this.endpoints.message.getMessagesBetween(
+            this.messages = await this.endpoints.message.getMessagesBetween(
                 team
             );
-            await this.endpoints.message.markMessagesAsRead(messages);
+            await this.endpoints.message.markMessagesAsRead(this.messages);
             await this.updateNotifications();
-            this.messages = messages.reverse();
         },
         async updateNotifications(this: This) {
             const notifications =
@@ -327,5 +329,16 @@ textarea {
 .send-icon {
     width: 20px;
     height: 20px;
+}
+
+.no-messages-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.no-messages-text {
+    margin-bottom: 10%;
 }
 </style>

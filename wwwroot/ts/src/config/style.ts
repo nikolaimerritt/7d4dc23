@@ -9,7 +9,7 @@ export class Style {
                 return "#9b5c74";
             case "Team Read":
                 return "#5a67a3";
-            case "Team O'Malley":
+            case "Team Morgan":
                 return "#708c56";
             default:
                 return "#000000";
