@@ -29,6 +29,7 @@
             <div class="dialog" v-if="dialogText()">
                 {{ dialogText() }}
             </div>
+            <tutorial></tutorial>
             <div class="map-container">
                 <img
                     :src="'/imgs/seas/map-sepia-2.png'"

@@ -7,6 +7,7 @@ import { Seas, Icons } from "../assets/main";
 import MessageBoard from "./MessageBoard.vue";
 import VueCookies from "vue-cookies";
 import MessageBubble from "./MessageBubble.vue";
+import Tutorial from "./Tutorial.vue";
 
 Vue.use(VueCookies, { expires: "7d" });
 
@@ -14,6 +15,7 @@ Common.define();
 Seas.define();
 Icons.define();
 
+Vue.component("tutorial", Tutorial);
 Vue.component("sea-centre", SeaCentre);
 Vue.component("game-root", GameRoot);
 Vue.component("team-ship", TeamShip);

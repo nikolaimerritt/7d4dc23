@@ -40,15 +40,15 @@ export default {
     position: relative;
     top: 50%;
     left: 50%;
-    width: 300px;
+    width: 400px;
     height: fill-content;
     min-height: 200px;
-    margin: -150px 0 0 -150px;
+    margin: -200px 0 0 -200px;
     border-radius: 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     background-color: $modal-background-color;
     border: 1px solid $border-color;
     text-align: center;
