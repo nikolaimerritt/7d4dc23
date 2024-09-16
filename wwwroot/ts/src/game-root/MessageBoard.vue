@@ -41,9 +41,7 @@
                     ></message-bubble>
                 </div>
                 <div v-else class="no-messages-container">
-                    <span class="no-messages-text">
-                        No messages yet. Start a conversation!
-                    </span>
+                    <span> No messages yet. Start a conversation! </span>
                 </div>
             </div>
             <div class="input-area">
@@ -332,13 +330,10 @@ textarea {
 }
 
 .no-messages-container {
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-end;
-}
-
-.no-messages-text {
-    margin-bottom: 10%;
+    justify-content: center;
 }
 </style>

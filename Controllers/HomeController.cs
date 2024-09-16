@@ -29,12 +29,6 @@ public class HomeController : Controller
     }
 
     [Authorize]
-    public IActionResult Schedule()
-    {
-        return View();
-    }
-
-    [Authorize]
     public IActionResult Leaderboard()
     {
         return View();
