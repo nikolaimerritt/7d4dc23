@@ -60,7 +60,7 @@
         <message-board></message-board>
         <tutorial
             :show="ui.showTutorial"
-            @completed="ui.showTutorial = false"
+            @completed="onCompletedTutorial()"
         ></tutorial>
         <div
             class="tutorial-button"
@@ -104,6 +104,7 @@ import { MessageEndpoint } from "../endpoints/message";
 
 const updateRoundTextMs = 2_000;
 const updateMapMs = 5_000;
+const hasCompletedTutorialCookie = "completed-tutorial";
 type Action = "none" | "purchase" | "move";
 
 type SeaCentreDrawConfig = {
@@ -256,6 +257,9 @@ export default {
             updateRoundTextMs
         );
         window.addEventListener("resize", () => this.transformSeaCentres());
+        if (!this.hasCompletedTutorial()) {
+            this.ui.showTutorial = true;
+        }
     },
     methods: {
         async refreshMap(this: This) {
@@ -447,6 +451,14 @@ export default {
 
             return `The game has ended`;
         },
+        hasCompletedTutorial(): boolean {
+            const cookie = Util.getCookie(hasCompletedTutorialCookie);
+            return cookie !== undefined && cookie.length > 0;
+        },
+        onCompletedTutorial(this: This) {
+            Util.setCookie(hasCompletedTutorialCookie, "true");
+            this.ui.showTutorial = false;
+        },
     },
     destroyed(this: This) {
         window.clearInterval(this.ui.round.updateHandle);
@@ -517,7 +529,7 @@ export default {
     position: fixed;
     display: inline-block;
     padding: 4px;
-    bottom: 100px;
+    bottom: $bottom-buttons-offset;
     right: 60px;
     z-index: $message-button-z-index;
     border-radius: 50%;

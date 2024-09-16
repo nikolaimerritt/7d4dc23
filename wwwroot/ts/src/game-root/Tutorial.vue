@@ -37,7 +37,7 @@ const Instructions: Instruction[] = [
     },
     {
         title: "Rounds",
-        body: `In each round, you can spend points earned through solving flags to purchase pirate ships. You can also move ships that you already own.`,
+        body: "In each round, you can spend points earned through solving flags to purchase pirate ships. You can also move ships that you already own.",
     },
     {
         title: "Combat",
