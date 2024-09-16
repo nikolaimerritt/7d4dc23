@@ -518,7 +518,7 @@ export default {
     display: inline-block;
     padding: 4px;
     bottom: 100px;
-    right: 200px;
+    right: 60px;
     z-index: $message-button-z-index;
     border-radius: 50%;
     border: 2px solid $border-color;

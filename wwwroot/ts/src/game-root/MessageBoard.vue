@@ -210,8 +210,8 @@ $message-horizontal-shift: 50px;
 
 .messages-root {
     position: fixed;
-    bottom: 130px;
-    right: 130px;
+    bottom: 100px;
+    right: 250px;
     z-index: $message-board-z-index;
     width: calc(350px + $message-horizontal-shift);
     height: 450px;
@@ -235,7 +235,7 @@ $message-horizontal-shift: 50px;
     display: inline-block;
     padding: 12px;
     bottom: 100px;
-    right: 100px;
+    right: 140px;
     z-index: $message-button-z-index;
     border-radius: 50%;
     border: 2px solid $border-color;
