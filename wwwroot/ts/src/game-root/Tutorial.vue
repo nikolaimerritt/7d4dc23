@@ -1,5 +1,5 @@
 <template>
-    <div v-if="instructionIndex < instructions.length">
+    <div v-if="show">
         <div v-for="(instruction, index) in instructions" :key="index">
             <modal-wrapper
                 v-if="instructionIndex === index"
@@ -69,9 +69,16 @@ export default {
             instructionIndex: 0,
         };
     },
+    props: {
+        show: Boolean,
+    },
     methods: {
         nextInstruction(this: This) {
-            this.instructionIndex++;
+            this.instructionIndex =
+                (this.instructionIndex + 1) % this.instructions.length;
+            if (this.instructionIndex === 0) {
+                this.$emit("completed");
+            }
         },
     },
 };

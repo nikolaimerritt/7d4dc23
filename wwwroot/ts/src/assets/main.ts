@@ -9,6 +9,7 @@ import SouthPacificSea from "./SouthPacificSea.vue";
 import QuillIcon from "./QuillIcon.vue";
 import SendIcon from "./SendIcon.vue";
 import CircleIcon from "./CircleIcon.vue";
+import QuestionIcon from "./QuestionIcon.vue";
 
 export class Seas {
     public static define() {
@@ -27,5 +28,6 @@ export class Icons {
         Vue.component("quill-icon", QuillIcon);
         Vue.component("send-icon", SendIcon);
         Vue.component("circle-icon", CircleIcon);
+        Vue.component("question-icon", QuestionIcon);
     }
 }

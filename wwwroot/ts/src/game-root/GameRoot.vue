@@ -29,7 +29,6 @@
             <div class="dialog" v-if="dialogText()">
                 {{ dialogText() }}
             </div>
-            <tutorial></tutorial>
             <div class="map-container">
                 <img
                     :src="'/imgs/seas/map-sepia-2.png'"
@@ -59,6 +58,17 @@
             </div>
         </div>
         <message-board></message-board>
+        <tutorial
+            :show="ui.showTutorial"
+            @completed="ui.showTutorial = false"
+        ></tutorial>
+        <div
+            class="tutorial-button"
+            title="Show Tutorial"
+            @click="ui.showTutorial = true"
+        >
+            <question-icon class="tutorial-icon"></question-icon>
+        </div>
         <input-modal
             v-if="ui.purchase.showModal"
             :message="'How many points would you like to spend to purchase new ships?'"
@@ -90,9 +100,7 @@ import { Connection } from "../endpoints/main";
 import { Round, RoundEndpoint } from "../endpoints/round";
 import { Util, VueThis } from "../common/util";
 import * as moment from "moment";
-import QuillIcon from "../assets/QuillIcon.vue";
 import { MessageEndpoint } from "../endpoints/message";
-import MessageBoard from "./MessageBoard.vue";
 
 const updateRoundTextMs = 2_000;
 const updateMapMs = 5_000;
@@ -137,6 +145,7 @@ interface Data {
             hasNotifications: boolean;
             showBoard: boolean;
         };
+        showTutorial: boolean;
         seaCentreDrawConfig: SeaCentreDrawConfig;
         seaCentreScale: number | undefined;
     };
@@ -194,6 +203,7 @@ export default {
                     showBoard: false,
                 },
                 seaCentreScale: undefined,
+                showTutorial: false,
                 seaCentreDrawConfig: {
                     "North Atlantic": {
                         top: 0.211,
@@ -364,12 +374,6 @@ export default {
                     )
                 );
             } else if (this.ui.action === "move") {
-                console.log(
-                    "isHighlighted",
-                    sea,
-                    this.ui.move.seaToMoveFrom,
-                    this.ui.move.seaToMoveTo
-                );
                 if (this.ui.move.seaToMoveFrom === undefined) {
                     return this.seaStates.some(
                         (seaState) =>
@@ -501,5 +505,28 @@ export default {
 .sea-centre {
     position: absolute;
     z-index: $sea-z-index;
+}
+
+.tutorial-icon {
+    color: $font-color;
+    width: 30px;
+    height: 30px;
+}
+
+.tutorial-button {
+    position: fixed;
+    display: inline-block;
+    padding: 4px;
+    bottom: 100px;
+    right: 200px;
+    z-index: $message-button-z-index;
+    border-radius: 50%;
+    border: 2px solid $border-color;
+    background: $foreground-color;
+
+    &:hover {
+        background: $hover-color;
+        cursor: pointer;
+    }
 }
 </style>

@@ -106,7 +106,6 @@ export default {
             () => this.updateNotifications(),
             UpdateMessageIntervalMs
         );
-        console.log("contents", this.$refs.content);
     },
     methods: {
         async toggleShowMessages(this: This) {
@@ -241,11 +240,11 @@ $message-horizontal-shift: 50px;
     border-radius: 50%;
     border: 2px solid $border-color;
     background: $foreground-color;
-}
 
-.message-button:hover {
-    background: $hover-color;
-    cursor: pointer;
+    &:hover {
+        background: $hover-color;
+        cursor: pointer;
+    }
 }
 
 .team-tabs {
