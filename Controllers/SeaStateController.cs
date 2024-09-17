@@ -34,11 +34,10 @@ public class SeaStateController : Controller
     [HttpGet("/api/sea-states")]
     public async Task<IActionResult> GetSeaStates()
     {
-        var now = DateTime.UtcNow;
         var round = await _roundRepository.GetCurrentRoundAsync();
         var outcomes = await _outcomeRepository.InPreviousRoundAsync();
         var seaStates = await GetStateFromOutcomes(outcomes);
-        if (round is not null && round.StartPlanning <= now && now < round.StartCooldown)
+        if (round is not null)
         {
             await AddCurrentPurchases(round, seaStates);
             await AddCurrentMoves(round, seaStates);

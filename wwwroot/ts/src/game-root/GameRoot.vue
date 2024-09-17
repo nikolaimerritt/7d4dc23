@@ -6,10 +6,12 @@
                     <text-button
                         v-if="balance !== undefined && balance > 0"
                         :text="'Purchase ships'"
+                        :enabled="!ui.round.isFighting"
                         @buttonClick="onPurchaseShipsClick()"
                     ></text-button>
                     <text-button
                         :text="'Move ships'"
+                        :enabled="!ui.round.isFighting"
                         @buttonClick="onMoveShipsClick()"
                     >
                     </text-button>

@@ -8,31 +8,16 @@
         <div class="submit-button">
             <text-button
                 :text="buttonText"
+                :enabled="true"
                 @buttonClick="emitSubmission()"
             ></text-button>
         </div>
     </modal-wrapper>
-    <!-- <div class="modal-wrapper" @click="emitClickOutside($event)">
-        <div ref="modalBox" class="modal-box">
-            <span class="message"> {{ message }} </span>
-            <input v-model="inputText" />
-            <span class="error-message">
-                {{ errorMessage }}
-            </span>
-            <div class="submit-button">
-                <text-button
-                    :text="buttonText"
-                    @buttonClick="emitSubmission()"
-                ></text-button>
-            </div>
-        </div>
-    </div> -->
 </template>
 
 <script lang="ts">
 import { Util, VueThis } from "./util";
 
-const ClickOutsideEvent = "clickOutside";
 const SubmissionEvent = "submission";
 
 interface Props {

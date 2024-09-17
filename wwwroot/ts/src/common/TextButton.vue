@@ -1,5 +1,5 @@
 <template>
-    <div class="button" @click="$emit(clickEvent)">
+    <div class="button" :class="{ disabled: !enabled }" @click="onClick()">
         {{ text }}
     </div>
 </template>
@@ -8,17 +8,22 @@ import { VueThis } from "./util";
 
 interface Props {
     text: string;
+    enabled: boolean;
 }
 
+const ClickEvent = "buttonClick";
 type This = VueThis<Props>;
 export default {
     props: {
         text: String,
+        enabled: Boolean,
     },
-    data() {
-        return {
-            clickEvent: "buttonClick",
-        };
+    methods: {
+        onClick(this: This) {
+            if (this.enabled) {
+                this.$emit(ClickEvent);
+            }
+        },
     },
 };
 </script>
@@ -32,9 +37,14 @@ export default {
     margin: 4px 0;
     cursor: pointer;
     border: 1px solid $border-color;
+
+    &.disabled {
+        cursor: default;
+        background-color: $light-button-color;
+    }
 }
 
-.button:hover {
+.button:not(.disabled):hover {
     background-color: $hover-color;
 }
 

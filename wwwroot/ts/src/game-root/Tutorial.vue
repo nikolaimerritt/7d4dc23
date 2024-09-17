@@ -13,6 +13,7 @@
                     <text-button
                         @buttonClick="nextInstruction()"
                         class="tutorial-button"
+                        :enabled="true"
                         :text="
                             index + 1 < instructions.length ? 'Next' : 'Finish'
                         "
