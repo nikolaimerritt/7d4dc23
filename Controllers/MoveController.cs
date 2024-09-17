@@ -114,6 +114,6 @@ public class MoveController : Controller
     private async Task<bool> CanMoveAsync(Team team)
     {
         var round = await _roundRepository.GetCurrentRoundAsync();
-        return !await _moveRepository.AnyInRoundAsync(team, round);
+        return round is not null && !await _moveRepository.AnyInRoundAsync(team, round);
     }
 }

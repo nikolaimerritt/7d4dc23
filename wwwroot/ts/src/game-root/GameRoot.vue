@@ -41,6 +41,7 @@
                     :sea="seaState.sea"
                     :teamShips="seaState.teamShips"
                     :highlighted="isHighlighted(seaState.sea)"
+                    :isFightingRound="ui.round.isFighting"
                     class="sea-centre"
                     @sea-centre-click="onSeaCentreClick(seaState.sea)"
                     :style="{
@@ -137,6 +138,7 @@ interface Data {
         };
         round: {
             text: string;
+            isFighting: boolean;
             updateHandle?: number;
         };
         map: {
@@ -194,6 +196,7 @@ export default {
                 },
                 round: {
                     text: "",
+                    isFighting: false,
                     updateHandle: undefined,
                 },
                 map: {
@@ -248,12 +251,12 @@ export default {
     async mounted(this: This) {
         this.team = await this.endpoints.team.getTeam();
         this.ui.map.updateMapHandle = await Util.doAndRepeat(
-            () => this.refreshMap(),
+            () => this.updateMap(),
             updateMapMs
         );
         this.transformSeaCentres();
         this.ui.round.updateHandle = await Util.doAndRepeat(
-            () => (this.ui.round.text = this.roundText()),
+            () => this.updateRounds(),
             updateRoundTextMs
         );
         window.addEventListener("resize", () => this.transformSeaCentres());
@@ -262,7 +265,7 @@ export default {
         }
     },
     methods: {
-        async refreshMap(this: This) {
+        async updateMap(this: This) {
             this.balance = await this.endpoints.purchase.getBalance();
             const seaStates = await this.endpoints.seaState.getSeaStates();
             Util.sortByInPlace(
@@ -279,6 +282,24 @@ export default {
                     (await this.endpoints.messages.getUnreadNotifications())
                         .length > 0;
             }
+        },
+        updateRounds(this: This) {
+            const now = new Date();
+            this.ui.round.text = this.roundText();
+            const currentRound = this.rounds.find(
+                (round) => round.startPlanning <= now && now < round.end
+            );
+            this.ui.round.isFighting =
+                currentRound !== undefined && currentRound.startCooldown <= now;
+            console.log(
+                "updateRounds",
+                currentRound.startPlanning,
+                currentRound.startCooldown,
+                currentRound.end,
+                "now",
+                now,
+                this.ui.round.isFighting
+            );
         },
         transformSeaCentres(this: This) {
             const mapBackground = this.$refs.mapBackground as HTMLImageElement;
@@ -343,7 +364,7 @@ export default {
                         this.ui.purchase.error = result.error;
                     } else {
                         this.resetActions();
-                        await this.refreshMap();
+                        await this.updateMap();
                     }
                 }
             }
@@ -364,7 +385,7 @@ export default {
                         this.ui.move.error = result.error;
                     } else {
                         this.resetActions();
-                        await this.refreshMap();
+                        await this.updateMap();
                     }
                 }
             }

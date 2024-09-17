@@ -38,7 +38,7 @@ public class SeaStateController : Controller
         var round = await _roundRepository.GetCurrentRoundAsync();
         var outcomes = await _outcomeRepository.InPreviousRoundAsync();
         var seaStates = await GetStateFromOutcomes(outcomes);
-        if (round.StartPlanning <= now && now < round.StartCooldown)
+        if (round is not null && round.StartPlanning <= now && now < round.StartCooldown)
         {
             await AddCurrentPurchases(round, seaStates);
             await AddCurrentMoves(round, seaStates);

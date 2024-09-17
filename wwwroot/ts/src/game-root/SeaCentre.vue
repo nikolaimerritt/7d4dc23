@@ -48,6 +48,7 @@
                     :key="index"
                     :teamName="ship.team.name"
                     :shipCount="ship.shipCount"
+                    :isFighting="isFighting"
                 >
                 </team-ship>
             </div>
@@ -70,6 +71,7 @@ interface Props {
     sea: Sea;
     highlighted: boolean;
     teamShips: TeamShips[];
+    isFightingRound: boolean;
 }
 
 interface Data {
@@ -89,6 +91,7 @@ export default {
         teamShips: {
             type: Array<TeamShips>,
         },
+        isFightingRound: Boolean,
     },
     data(): Data {
         return {
@@ -192,6 +195,9 @@ export default {
     computed: {
         presentTeamShips(this: This) {
             return this.teamShips.filter((teamShip) => teamShip.shipCount > 0);
+        },
+        isFighting(this: This) {
+            return this.isFightingRound && this.presentTeamShips.length >= 2;
         },
         imageClass(this: This) {
             if (this.hover && this.highlighted) {

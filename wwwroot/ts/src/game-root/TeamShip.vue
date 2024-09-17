@@ -3,6 +3,11 @@
         <div class="icon-container">
             <ShipSvg :style="{ color: shipColour() }" />
             <span class="ship-count"> {{ shipCount }} </span>
+            <img
+                v-if="isFighting"
+                :src="'../../../imgs/fire.gif'"
+                class="fire"
+            />
         </div>
         <div class="team-name">{{ teamName }}</div>
     </div>
@@ -16,6 +21,7 @@ export default {
     props: {
         teamName: String,
         shipCount: Number,
+        isFighting: Boolean,
     },
     methods: {
         shipColour() {
@@ -61,6 +67,13 @@ svg {
     display: inline-block;
     width: 100%;
     text-align: center;
+}
+
+.fire {
+    position: absolute;
+    width: 40px;
+    bottom: 20px;
+    left: 10px;
 }
 .team-name {
     margin-top: 60px;

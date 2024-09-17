@@ -146,6 +146,11 @@ export class Util {
         });
     }
 
+    public static sortBy<T>(items: T[], sortKey: (item: T) => any): T[] {
+        const itemsCopy = [...items];
+        return this.sortByInPlace(itemsCopy, sortKey);
+    }
+
     public static formatTime(datetime: Date): string {
         return moment(datetime).format("HH:mm:ss");
     }
