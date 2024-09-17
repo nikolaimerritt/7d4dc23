@@ -50,8 +50,4 @@ export class MoveEndpoint {
             shipCount,
         });
     }
-
-    public async canMove(): Promise<boolean> {
-        return await this.connection.get("moves/can-move");
-    }
 }

@@ -9,7 +9,6 @@
                         @buttonClick="onPurchaseShipsClick()"
                     ></text-button>
                     <text-button
-                        v-if="canMove"
                         :text="'Move ships'"
                         @buttonClick="onMoveShipsClick()"
                     >
@@ -156,7 +155,6 @@ interface Data {
     balance?: number;
     seaStates: SeaState[];
     accessibleSeas: Sea[];
-    canMove: boolean;
     rounds?: Round[];
 }
 
@@ -168,7 +166,6 @@ export default {
             team: undefined,
             balance: undefined,
             accessibleSeas: [],
-            canMove: false,
             rounds: [],
             endpoints: {
                 team: new TeamEndpoint(),
@@ -275,7 +272,6 @@ export default {
             );
             this.seaStates = seaStates;
             this.accessibleSeas = await this.endpoints.sea.getAccessibleSeas();
-            this.canMove = await this.endpoints.move.canMove();
             this.rounds = await this.endpoints.round.getRounds();
             if (!this.ui.messages.showBoard) {
                 this.ui.messages.hasNotifications =

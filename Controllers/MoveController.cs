@@ -39,17 +39,6 @@ public class MoveController : Controller
         return Json(moves.Select(MoveViewModel.FromModel));
     }
 
-    [HttpGet("/api/moves/can-move")]
-    public async Task<IActionResult> CanMove()
-    {
-        var team = await _teamRepository.ByIdAsync(User.GetTeamId());
-        if (team is null)
-        {
-            return Json(ErrorViewModel.Unauthorized);
-        }
-        return Json(await CanMoveAsync(team));
-    }
-
     [HttpGet("/api/moves/{moveId}")]
     public async Task<IActionResult> GetTeamMove(int moveId)
     {
@@ -74,7 +63,7 @@ public class MoveController : Controller
     public async Task<IActionResult> PutMove(int fromSeaId, int toSeaId, int shipCount)
     {
         var team = await _teamRepository.ByIdAsync(User.GetTeamId());
-        if (team is null || !await CanMoveAsync(team))
+        if (team is null)
         {
             return Json(ErrorViewModel.Unauthorized);
         }
@@ -109,11 +98,5 @@ public class MoveController : Controller
             }
         );
         return Json(new OkViewModel());
-    }
-
-    private async Task<bool> CanMoveAsync(Team team)
-    {
-        var round = await _roundRepository.GetCurrentRoundAsync();
-        return round is not null && !await _moveRepository.AnyInRoundAsync(team, round);
     }
 }
