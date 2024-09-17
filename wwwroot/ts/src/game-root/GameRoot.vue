@@ -6,12 +6,12 @@
                     <text-button
                         v-if="balance !== undefined && balance > 0"
                         :text="'Purchase ships'"
-                        :enabled="!ui.round.isFighting"
+                        :enabled="ui.round.state === 'move'"
                         @buttonClick="onPurchaseShipsClick()"
                     ></text-button>
                     <text-button
                         :text="'Move ships'"
-                        :enabled="!ui.round.isFighting"
+                        :enabled="ui.round.state === 'move'"
                         @buttonClick="onMoveShipsClick()"
                     >
                     </text-button>
@@ -42,7 +42,7 @@
                     :sea="seaState.sea"
                     :teamShips="seaState.teamShips"
                     :highlighted="isHighlighted(seaState.sea)"
-                    :isFightingRound="ui.round.isFighting"
+                    :isFightingRound="ui.round.state === 'fighting'"
                     class="sea-centre"
                     @sea-centre-click="onSeaCentreClick(seaState.sea)"
                     :style="{
@@ -108,6 +108,7 @@ const updateRoundTextMs = 2_000;
 const updateMapMs = 5_000;
 const hasCompletedTutorialCookie = "completed-tutorial";
 type Action = "none" | "purchase" | "move";
+type RoundState = "move" | "fighting" | "ended";
 
 type SeaCentreDrawConfig = {
     [seaName: string]: { top: number; left: number; drawOrder: number };
@@ -139,7 +140,7 @@ interface Data {
         };
         round: {
             text: string;
-            isFighting: boolean;
+            state: RoundState;
             updateHandle?: number;
         };
         map: {
@@ -195,7 +196,7 @@ export default {
                 },
                 round: {
                     text: "",
-                    isFighting: false,
+                    state: "ended",
                     updateHandle: undefined,
                 },
                 map: {
@@ -287,8 +288,14 @@ export default {
             const currentRound = this.rounds.find(
                 (round) => round.startPlanning <= now && now < round.end
             );
-            this.ui.round.isFighting =
-                currentRound !== undefined && currentRound.startCooldown <= now;
+            if (currentRound === undefined) {
+                this.ui.round.state = "ended";
+            } else if (now < currentRound.startCooldown) {
+                this.ui.round.state = "move";
+            } else {
+                this.ui.round.state = "fighting";
+            }
+            console.log("round state", this.ui.round.state);
         },
         transformSeaCentres(this: This) {
             const mapBackground = this.$refs.mapBackground as HTMLImageElement;
