@@ -22,6 +22,9 @@
                     :class="{
                         'team-tab-selected': team.id === ui.selectedTeam?.id,
                     }"
+                    :style="{
+                        borderBottom: `2px solid ${teamColour(team)}`,
+                    }"
                 >
                     <circle-icon
                         class="notification"
@@ -58,6 +61,7 @@ import { Util, VueThis } from "../common/util";
 import { Message, MessageEndpoint } from "../endpoints/message";
 import { Team, TeamEndpoint } from "../endpoints/team";
 import { Connection } from "../endpoints/main";
+import { Style } from "../config/style";
 
 interface Data {
     endpoints: {
@@ -187,6 +191,9 @@ export default {
             this.ui.teamIdsWithNotifications = notifications.map(
                 (notification) => notification.sender.id
             );
+        },
+        teamColour(this: This, team: Team) {
+            return Style.teamColour(team.name);
         },
     },
     destroyed(this: This) {
