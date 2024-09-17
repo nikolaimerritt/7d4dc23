@@ -2,9 +2,9 @@ export class Style {
     public static teamColour(teamName: string): string {
         switch (teamName) {
             case "Team Drake":
-                return "#c37b39";
+                return "#d8822e";
             case "Team Blackbeard":
-                return "#ba5737";
+                return "#d14f31";
             case "Team Kidd":
                 return "#9b5c74";
             case "Team Read":
