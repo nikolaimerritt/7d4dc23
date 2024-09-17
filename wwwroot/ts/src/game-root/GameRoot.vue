@@ -291,15 +291,6 @@ export default {
             );
             this.ui.round.isFighting =
                 currentRound !== undefined && currentRound.startCooldown <= now;
-            console.log(
-                "updateRounds",
-                currentRound.startPlanning,
-                currentRound.startCooldown,
-                currentRound.end,
-                "now",
-                now,
-                this.ui.round.isFighting
-            );
         },
         transformSeaCentres(this: This) {
             const mapBackground = this.$refs.mapBackground as HTMLImageElement;
@@ -394,9 +385,7 @@ export default {
             if (this.ui.action === "purchase") {
                 return (
                     this.ui.purchase.seaToPurchaseIn === undefined &&
-                    this.accessibleSeas.some(
-                        (accessibleSea) => sea.id === accessibleSea.id
-                    )
+                    this.seaIsAccessible(sea)
                 );
             } else if (this.ui.action === "move") {
                 if (this.ui.move.seaToMoveFrom === undefined) {
@@ -412,6 +401,7 @@ export default {
                 } else if (this.ui.move.seaToMoveTo === undefined) {
                     return (
                         sea.id !== this.ui.move.seaToMoveFrom.id &&
+                        this.seaIsAccessible(sea) &&
                         this.ui.move.seaToMoveFrom.adjacentSeas.some(
                             (adjacentSea) => adjacentSea.id === sea.id
                         )
@@ -422,6 +412,11 @@ export default {
             } else {
                 return false;
             }
+        },
+        seaIsAccessible(this: This, sea: Sea): boolean {
+            return this.accessibleSeas.some(
+                (accessibleSea) => sea.id === accessibleSea.id
+            );
         },
         dialogText(this: This): string {
             if (this.ui.action === "move") {
