@@ -23,7 +23,7 @@
                         'team-tab-selected': team.id === ui.selectedTeam?.id,
                     }"
                     :style="{
-                        borderBottom: `2px solid ${teamColour(team)}`,
+                        borderBottom: `3px solid ${teamColour(team)}`,
                     }"
                 >
                     <circle-icon
@@ -258,6 +258,7 @@ $message-horizontal-shift: 50px;
     width: 100%;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    border-bottom: 1px solid $modal-background-color;
 }
 
 .team-tab {

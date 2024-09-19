@@ -133,7 +133,11 @@ public class OutcomeService
 
     private static int RandomBoost(int shipCount)
     {
-        if (5 <= shipCount && shipCount <= Math.Ceiling(1.0 / (MaxBoostFactor - 1)))
+        if (shipCount < 5)
+        {
+            return shipCount;
+        }
+        else if (shipCount <= Math.Ceiling(1.0 / (MaxBoostFactor - 1)))
         {
             return Random.Next(shipCount, shipCount + 1);
         }
