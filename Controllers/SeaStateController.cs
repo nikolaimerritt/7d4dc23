@@ -157,7 +157,17 @@ public class SeaStateController : Controller
                 var teamShips = stateInEntranceSea.TeamShips.Find(teamShips =>
                     teamShips.Team.Id == move.Team.Id
                 );
-                if (teamShips is not null)
+                if (teamShips is null)
+                {
+                    stateInEntranceSea.TeamShips.Add(
+                        new()
+                        {
+                            Team = TeamViewModel.FromModel(move.Team),
+                            ShipCount = move.ShipCount
+                        }
+                    );
+                }
+                else
                 {
                     teamShips.ShipCount += move.ShipCount;
                 }

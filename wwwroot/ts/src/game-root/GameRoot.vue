@@ -44,7 +44,7 @@
                     :highlighted="isHighlighted(seaState.sea)"
                     :isFightingRound="ui.round.state === 'fighting'"
                     class="sea-centre"
-                    @sea-centre-click="onSeaCentreClick(seaState.sea)"
+                    @sea-centre-click="onSeaCentreClick(seaState)"
                     :style="{
                         transformOrigin: 'top left',
                         transform: `scale(${ui.seaCentreScale})`,
@@ -82,16 +82,22 @@
             @submission="onSubmitPurchase($event)"
             @clickOutside="resetActions()"
         ></slider-modal>
-        <input-modal
+        <slider-modal
             v-if="ui.move.showModal"
             :title="'Move Ships'"
             :message="'How many ships would you like to move?'"
             :buttonText="'Move'"
-            :errorMessage="ui.move.error"
+            :errorMessage="ui.move.subtext"
+            :slider="{
+                min: 0,
+                max: maxShipsThatCanBeMoved(),
+                step: 1,
+            }"
             @submission="onSubmitMove($event)"
+            @inputChange="onMoveInputChange($event)"
             @clickOutside="resetActions()"
         >
-        </input-modal>
+        </slider-modal>
     </div>
 </template>
 
@@ -111,6 +117,7 @@ import { Round, RoundEndpoint } from "../endpoints/round";
 import { Util, VueThis } from "../common/util";
 import * as moment from "moment";
 import { MessageEndpoint } from "../endpoints/message";
+import TeamShip from "./TeamShip.vue";
 
 const updateRoundTextMs = 2_000;
 const updateMapMs = 5_000;
@@ -142,9 +149,9 @@ interface Data {
         };
         move: {
             showModal: boolean;
-            seaToMoveFrom?: Sea;
-            seaToMoveTo?: Sea;
-            error: string;
+            seaToMoveFrom?: SeaState;
+            seaToMoveTo?: SeaState;
+            subtext: string;
         };
         round: {
             text: string;
@@ -202,7 +209,7 @@ export default {
                     showModal: false,
                     seaToMoveFrom: undefined,
                     seaToMoveTo: undefined,
-                    error: "",
+                    subtext: "",
                 },
                 round: {
                     text: "",
@@ -324,7 +331,7 @@ export default {
             this.ui.purchase.subtext = "";
 
             this.ui.move.showModal = false;
-            this.ui.move.error = "";
+            this.ui.move.subtext = "";
             this.ui.move.seaToMoveFrom = undefined;
             this.ui.move.seaToMoveTo = undefined;
             this.ui.move.showModal = false;
@@ -336,15 +343,15 @@ export default {
                 this.resetActions();
             }
         },
-        onSeaCentreClick(this: This, sea: Sea) {
+        onSeaCentreClick(this: This, seaState: SeaState) {
             if (this.ui.action === "purchase") {
-                this.ui.purchase.seaToPurchaseIn = sea;
+                this.ui.purchase.seaToPurchaseIn = seaState.sea;
                 this.ui.purchase.showModal = true;
             } else if (this.ui.action === "move") {
                 if (this.ui.move.seaToMoveFrom === undefined) {
-                    this.ui.move.seaToMoveFrom = sea;
+                    this.ui.move.seaToMoveFrom = seaState;
                 } else if (this.ui.move.seaToMoveTo === undefined) {
-                    this.ui.move.seaToMoveTo = sea;
+                    this.ui.move.seaToMoveTo = seaState;
                     this.ui.move.showModal = true;
                 }
             }
@@ -352,14 +359,30 @@ export default {
         onMessageButtonClick(this: This) {
             this.ui.messages.showBoard = !this.ui.messages.showBoard;
         },
-        onPurchaseInputChange(this: This, newPoints: number) {
-            const shipCount = Math.floor(newPoints / this.pointsPerShip);
+        onPurchaseInputChange(this: This, points: number) {
+            const shipCount = Math.floor(points / this.pointsPerShip);
             if (shipCount > 0) {
                 const shipsPlural = shipCount === 1 ? "ship" : "ships";
-                this.ui.purchase.subtext = `You are about to purhcase ${shipCount} ${shipsPlural}.`;
+                const pointsPlural = points === 1 ? "point" : "points";
+                this.ui.purchase.subtext = `You are about to purhcase ${shipCount} ${shipsPlural} for ${points} ${pointsPlural}.`;
             } else {
                 this.ui.purchase.subtext = "";
             }
+        },
+        onMoveInputChange(this: This, shipsToMove: number) {
+            console.log("onMoveInputChange", this.maxShipsThatCanBeMoved());
+            if (shipsToMove > 0) {
+                const shipsPlural = shipsToMove === 1 ? "ship" : "ships";
+                this.ui.move.subtext = `You are about to move ${shipsToMove} ${shipsPlural}.`;
+            } else {
+                this.ui.move.subtext = "";
+            }
+        },
+        maxShipsThatCanBeMoved(this: This): number {
+            const seaToMoveFrom = this.ui.move.seaToMoveFrom;
+            return seaToMoveFrom?.teamShips?.find(
+                (teamShip) => teamShip.team.id === this.team.id
+            )?.shipCount;
         },
         async onSubmitPurchase(this: This, pointsToSpend: string) {
             if (this.ui.purchase.showModal) {
@@ -385,16 +408,16 @@ export default {
             if (this.ui.move.showModal) {
                 const ships = parseInt(shipsToMove);
                 if (isNaN(ships)) {
-                    this.ui.move.error =
+                    this.ui.move.subtext =
                         "Please choose a valid number of ships to move.";
                 } else {
                     const result = await this.endpoints.move.moveShips(
-                        this.ui.move.seaToMoveFrom,
-                        this.ui.move.seaToMoveTo,
+                        this.ui.move.seaToMoveFrom.sea,
+                        this.ui.move.seaToMoveTo.sea,
                         ships
                     );
                     if (Connection.isError(result)) {
-                        this.ui.move.error = result.error;
+                        this.ui.move.subtext = result.error;
                     } else {
                         this.resetActions();
                         await this.updateMap();
@@ -413,9 +436,9 @@ export default {
                     return this.canMoveFromSea(sea);
                 } else if (this.ui.move.seaToMoveTo === undefined) {
                     return (
-                        sea.id !== this.ui.move.seaToMoveFrom.id &&
+                        sea.id !== this.ui.move.seaToMoveFrom.sea.id &&
                         this.seaIsAccessible(sea) &&
-                        this.ui.move.seaToMoveFrom.adjacentSeas.some(
+                        this.ui.move.seaToMoveFrom.sea.adjacentSeas.some(
                             (adjacentSea) => adjacentSea.id === sea.id
                         )
                     );
