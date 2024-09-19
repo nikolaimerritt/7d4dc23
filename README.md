@@ -47,6 +47,8 @@ The server is written in C# following the MVC pattern, and is backed by a SQLite
 
 When the server starts, it waits until all the configuration entries are present in the database, which include configurations for round timings. When this is present, the server declares all rounds in the database in advance. The server then schedules the OutcomeService to write each round's outcomes (see below) just before the end of the round. Only then does the server start serving pages. **If the game isn't starting, this is probably why!**
 
+The server also creates an "Initial Round". This is the round in which each team gets its initial ten ships. This is a little hacky, and is a consequence of my design.
+
 During each round's planning phase, the server accepts requests from teams to purchase ships with points gained from CTFs, and requests to move ships.
 
 Just before the end of each round, the server takes into account the actions players made in each sea, and calculates the result of team fights. These are recorded as Outcomes. Outcomes record, within a round, how many ships a team has in a given sea. This is how gameplay is recorded. Previous outcomes are used to calculate the Outcomes for subsequent rounds.

@@ -218,7 +218,7 @@ export default {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    align-items: center;
+    align-content: center;
     flex-wrap: wrap;
     width: 100%;
     height: 100%;

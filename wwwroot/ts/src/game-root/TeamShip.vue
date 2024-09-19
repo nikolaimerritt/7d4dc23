@@ -37,6 +37,7 @@ export default {
 @import "../assets/style.scss";
 .ship {
     width: fit-content;
+    height: fit-content;
     display: flex;
     flex-direction: column;
     align-items: center;

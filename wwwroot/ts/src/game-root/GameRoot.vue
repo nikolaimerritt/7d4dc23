@@ -93,7 +93,11 @@
 
 <script lang="ts">
 import { TeamEndpoint, Team } from "../endpoints/team";
-import { SeaStateEndpoint, SeaState } from "../endpoints/sea-state";
+import {
+    SeaStateEndpoint,
+    SeaState,
+    TeamShipCount,
+} from "../endpoints/sea-state";
 import { PurchaseEndpoint } from "../endpoints/purchase";
 import { Sea, SeaEndpoint } from "../endpoints/sea";
 import { OutcomeEndpoint } from "../endpoints/outcome";
@@ -267,13 +271,11 @@ export default {
     methods: {
         async updateMap(this: This) {
             this.balance = await this.endpoints.purchase.getBalance();
-            const seaStates = await this.endpoints.seaState.getSeaStates();
-            Util.sortByInPlace(
-                seaStates,
+            this.seaStates = Util.sortBy(
+                await this.endpoints.seaState.getSeaStates(),
                 (seaState) =>
                     this.ui.seaCentreDrawConfig[seaState.sea.name]?.drawOrder
             );
-            this.seaStates = seaStates;
             this.accessibleSeas = await this.endpoints.sea.getAccessibleSeas();
             this.rounds = await this.endpoints.round.getRounds();
             if (!this.ui.messages.showBoard) {
@@ -295,7 +297,6 @@ export default {
             } else {
                 this.ui.round.state = "fighting";
             }
-            console.log("round state", this.ui.round.state);
         },
         transformSeaCentres(this: This) {
             const mapBackground = this.$refs.mapBackground as HTMLImageElement;
