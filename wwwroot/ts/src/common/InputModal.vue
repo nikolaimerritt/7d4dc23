@@ -1,5 +1,6 @@
 <template>
     <modal-wrapper @clickOutside="$emit('clickOutside', $event)">
+        <h3>{{ title }}</h3>
         <span class="message"> {{ message }} </span>
         <input v-model="inputText" />
         <span class="error-message">
@@ -33,6 +34,7 @@ interface Data {
 type This = VueThis<Data & Props>;
 export default {
     props: {
+        title: String,
         message: String,
         buttonText: String,
         errorMessage: String,
@@ -51,8 +53,12 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import "../assets/style.scss";
+h3 {
+    padding-top: 30px;
+}
+
 .message {
-    padding: 36px 12px 0 12px;
+    padding: 0 12px;
 }
 
 .error-message {

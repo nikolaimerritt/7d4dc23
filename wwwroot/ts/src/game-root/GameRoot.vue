@@ -3,7 +3,7 @@
         <div class="left-container">
             <div class="menu-bar">
                 <div class="menu-section">
-                    <text-button
+                    <!-- <text-button
                         v-if="balance !== undefined && balance > 0"
                         :text="'Purchase ships'"
                         :enabled="ui.round.state === 'move'"
@@ -12,6 +12,18 @@
                     <text-button
                         :text="'Move ships'"
                         :enabled="ui.round.state === 'move'"
+                        @buttonClick="onMoveShipsClick()"
+                    >
+                    </text-button> -->
+                    <text-button
+                        v-if="balance !== undefined && balance > 0"
+                        :text="'Purchase ships'"
+                        :enabled="true"
+                        @buttonClick="onPurchaseShipsClick()"
+                    ></text-button>
+                    <text-button
+                        :text="'Move ships'"
+                        :enabled="true"
                         @buttonClick="onMoveShipsClick()"
                     >
                     </text-button>
@@ -73,6 +85,7 @@
         </div>
         <input-modal
             v-if="ui.purchase.showModal"
+            :title="'Purchase Ships'"
             :message="'How many points would you like to spend to purchase new ships?'"
             :buttonText="'Purchase'"
             :errorMessage="ui.purchase.error"
@@ -81,6 +94,7 @@
         ></input-modal>
         <input-modal
             v-if="ui.move.showModal"
+            :title="'Move Ships'"
             :message="'How many ships would you like to move?'"
             :buttonText="'Move'"
             :errorMessage="ui.move.error"
