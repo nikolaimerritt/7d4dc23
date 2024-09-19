@@ -17,6 +17,7 @@ public class PurchaseController : Controller
     private readonly RoundRepository _roundRepository;
     private readonly PointsService _pointsService;
     private readonly OutcomeRepository _outcomeRepository;
+    private readonly ConfigurationRepository _configurationRepository;
 
     public PurchaseController(
         SeaRepository seaRepository,
@@ -24,7 +25,8 @@ public class PurchaseController : Controller
         TeamRepository teamRepository,
         RoundRepository roundRepository,
         PointsService pointsService,
-        OutcomeRepository outcomeRepository
+        OutcomeRepository outcomeRepository,
+        ConfigurationRepository configurationRepository
     )
     {
         _seaRepository = seaRepository;
@@ -33,6 +35,7 @@ public class PurchaseController : Controller
         _roundRepository = roundRepository;
         _pointsService = pointsService;
         _outcomeRepository = outcomeRepository;
+        _configurationRepository = configurationRepository;
     }
 
     [HttpGet("/api/purchases")]
@@ -97,8 +100,9 @@ public class PurchaseController : Controller
             return Json(ErrorViewModel.PlanningWindowHasEnded);
         }
 
+        var configuration = await _configurationRepository.GetNonEmptyAsync();
         var availablePoints = await AvailablePoints(team);
-        if (availablePoints is null)
+        if (availablePoints is null || configuration is null)
         {
             return Json(ErrorViewModel.InternalError);
         }
@@ -113,14 +117,16 @@ public class PurchaseController : Controller
             return Json(ErrorViewModel.SeasAreInaccessible);
         }
 
+        var shipsBought = (int)Math.Floor(points / (double)configuration.PointsPerShip);
+        var pointsSpent = shipsBought * configuration.PointsPerShip;
         await _purchaseRepository.AddAsync(
             new Purchase()
             {
                 Team = team,
                 Round = round,
                 Sea = sea,
-                Points = points,
-                ShipCount = points,
+                ShipCount = shipsBought,
+                Points = pointsSpent,
                 Creation = DateTime.UtcNow
             }
         );

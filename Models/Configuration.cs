@@ -12,4 +12,8 @@ public class Configuration
     public int MaxMessageCharacters { get; set; }
     public int MaxMessagesPerTeam { get; set; }
     public int TeamStartingShips { get; set; }
+
+    // NOTE: this does not propagate to the frontend.
+    // Update the frontend if you are changing this.
+    public int PointsPerShip { get; set; }
 }

@@ -19,6 +19,7 @@ public class ConfigurationRepository
             MaxMessageCharacters = 250,
             MaxMessagesPerTeam = 1000,
             TeamStartingShips = -1,
+            PointsPerShip = -1,
         };
 
     public ConfigurationRepository(AppDbContext context)
