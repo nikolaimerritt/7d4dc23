@@ -82,8 +82,12 @@ public class OutcomeRepository
 
     public async Task<bool> TeamCanAccess(Team team, Sea sea)
     {
+        if (_seaRepository.AreAccessible(sea, team.StartingSea))
+        {
+            return true;
+        }
         var latestTeamOutcomes = (await InPreviousRoundAsync())
-            .Where(outcome => outcome.Team.Id == team.Id)
+            .Where(outcome => outcome.Team.Id == team.Id && outcome.ShipsAfter > 0)
             .ToList();
         foreach (var outcome in latestTeamOutcomes)
         {

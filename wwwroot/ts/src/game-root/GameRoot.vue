@@ -3,27 +3,15 @@
         <div class="left-container">
             <div class="menu-bar">
                 <div class="menu-section">
-                    <!-- <text-button
-                        v-if="balance !== undefined && balance > 0"
+                    <text-button
+                        v-if="balance !== undefined && balance >= pointsPerShip"
                         :text="'Purchase ships'"
                         :enabled="ui.round.state === 'move'"
                         @buttonClick="onPurchaseShipsClick()"
                     ></text-button>
                     <text-button
                         :text="'Move ships'"
-                        :enabled="ui.round.state === 'move'"
-                        @buttonClick="onMoveShipsClick()"
-                    >
-                    </text-button> -->
-                    <text-button
-                        v-if="balance !== undefined && balance > 0"
-                        :text="'Purchase ships'"
-                        :enabled="true"
-                        @buttonClick="onPurchaseShipsClick()"
-                    ></text-button>
-                    <text-button
-                        :text="'Move ships'"
-                        :enabled="true"
+                        :enabled="ui.round.state === 'move' && canMove()"
                         @buttonClick="onMoveShipsClick()"
                     >
                     </text-button>
@@ -31,7 +19,7 @@
                 <div class="menu-section">
                     <text-pill
                         v-if="this.balance !== undefined"
-                        :text="`${this.balance} coins`"
+                        :text="`${this.balance} points`"
                     ></text-pill>
                     <text-pill
                         v-if="this.ui.round.text"
@@ -83,15 +71,17 @@
         >
             <question-icon class="tutorial-icon"></question-icon>
         </div>
-        <input-modal
+        <slider-modal
             v-if="ui.purchase.showModal"
             :title="'Purchase Ships'"
             :message="'How many points would you like to spend to purchase new ships?'"
             :buttonText="'Purchase'"
-            :errorMessage="ui.purchase.error"
+            :errorMessage="ui.purchase.subtext"
+            :slider="{ min: 0, max: balance, step: pointsPerShip }"
+            @inputChange="onPurchaseInputChange($event)"
             @submission="onSubmitPurchase($event)"
             @clickOutside="resetActions()"
-        ></input-modal>
+        ></slider-modal>
         <input-modal
             v-if="ui.move.showModal"
             :title="'Move Ships'"
@@ -148,7 +138,7 @@ interface Data {
         purchase: {
             showModal: boolean;
             seaToPurchaseIn?: Sea;
-            error: string;
+            subtext: string;
         };
         move: {
             showModal: boolean;
@@ -174,6 +164,7 @@ interface Data {
     };
     team?: Team;
     balance?: number;
+    pointsPerShip: number;
     seaStates: SeaState[];
     accessibleSeas: Sea[];
     rounds?: Round[];
@@ -186,6 +177,7 @@ export default {
         return {
             team: undefined,
             balance: undefined,
+            pointsPerShip: 5,
             accessibleSeas: [],
             rounds: [],
             endpoints: {
@@ -204,7 +196,7 @@ export default {
                 purchase: {
                     showModal: false,
                     seaToPurchaseIn: undefined,
-                    error: "",
+                    subtext: "",
                 },
                 move: {
                     showModal: false,
@@ -329,7 +321,7 @@ export default {
 
             this.ui.purchase.showModal = false;
             this.ui.purchase.seaToPurchaseIn = undefined;
-            this.ui.purchase.error = "";
+            this.ui.purchase.subtext = "";
 
             this.ui.move.showModal = false;
             this.ui.move.error = "";
@@ -360,11 +352,20 @@ export default {
         onMessageButtonClick(this: This) {
             this.ui.messages.showBoard = !this.ui.messages.showBoard;
         },
+        onPurchaseInputChange(this: This, newPoints: number) {
+            const shipCount = Math.floor(newPoints / this.pointsPerShip);
+            if (shipCount > 0) {
+                const shipsPlural = shipCount === 1 ? "ship" : "ships";
+                this.ui.purchase.subtext = `You are about to purhcase ${shipCount} ${shipsPlural}.`;
+            } else {
+                this.ui.purchase.subtext = "";
+            }
+        },
         async onSubmitPurchase(this: This, pointsToSpend: string) {
             if (this.ui.purchase.showModal) {
                 const points = parseInt(pointsToSpend);
                 if (isNaN(points)) {
-                    this.ui.purchase.error =
+                    this.ui.purchase.subtext =
                         "Please choose a valid number of points.";
                 } else {
                     const result = await this.endpoints.purchase.purchaseShips(
@@ -372,7 +373,7 @@ export default {
                         points
                     );
                     if (Connection.isError(result)) {
-                        this.ui.purchase.error = result.error;
+                        this.ui.purchase.subtext = result.error;
                     } else {
                         this.resetActions();
                         await this.updateMap();
@@ -409,15 +410,7 @@ export default {
                 );
             } else if (this.ui.action === "move") {
                 if (this.ui.move.seaToMoveFrom === undefined) {
-                    return this.seaStates.some(
-                        (seaState) =>
-                            seaState.sea.id === sea.id &&
-                            seaState.teamShips.some(
-                                (teamShip) =>
-                                    teamShip.team.id === this.team.id &&
-                                    teamShip.shipCount > 0
-                            )
-                    );
+                    return this.canMoveFromSea(sea);
                 } else if (this.ui.move.seaToMoveTo === undefined) {
                     return (
                         sea.id !== this.ui.move.seaToMoveFrom.id &&
@@ -436,6 +429,22 @@ export default {
         seaIsAccessible(this: This, sea: Sea): boolean {
             return this.accessibleSeas.some(
                 (accessibleSea) => sea.id === accessibleSea.id
+            );
+        },
+        canMoveFromSea(this: This, sea: Sea): boolean {
+            return this.seaStates.some(
+                (seaState) =>
+                    seaState.sea.id === sea.id &&
+                    seaState.teamShips.some(
+                        (teamShip) =>
+                            teamShip.team.id === this.team.id &&
+                            teamShip.shipCount > 0
+                    )
+            );
+        },
+        canMove(this: This): boolean {
+            return this.seaStates.some((seaState) =>
+                this.canMoveFromSea(seaState.sea)
             );
         },
         dialogText(this: This): string {

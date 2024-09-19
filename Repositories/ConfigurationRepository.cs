@@ -17,7 +17,8 @@ public class ConfigurationRepository
             CooldownMinutes = -1,
             FirstRoundStartUtc = DateTime.MinValue,
             MaxMessageCharacters = 250,
-            MaxMessagesPerTeam = 1000
+            MaxMessagesPerTeam = 1000,
+            TeamStartingShips = -1,
         };
 
     public ConfigurationRepository(AppDbContext context)
@@ -55,5 +56,6 @@ public class ConfigurationRepository
         || configuration.RoundsCount == Default.RoundsCount
         || configuration.PlanningMinutes == Default.PlanningMinutes
         || configuration.CooldownMinutes == Default.CooldownMinutes
-        || configuration.FirstRoundStartUtc == Default.FirstRoundStartUtc;
+        || configuration.FirstRoundStartUtc == Default.FirstRoundStartUtc
+        || configuration.TeamStartingShips == Default.TeamStartingShips;
 }

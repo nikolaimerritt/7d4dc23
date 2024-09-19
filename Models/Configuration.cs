@@ -11,4 +11,5 @@ public class Configuration
     public DateTime FirstRoundStartUtc { get; set; }
     public int MaxMessageCharacters { get; set; }
     public int MaxMessagesPerTeam { get; set; }
+    public int TeamStartingShips { get; set; }
 }

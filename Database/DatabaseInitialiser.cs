@@ -15,10 +15,6 @@ namespace PirateConquest.Database;
 
 public class DatabaseInitialiser
 {
-    public static readonly int DEFAULT_MAX_CTF_POINTS = 100;
-    public static readonly int DEFAULT_MAX_FLAG_POINTS = 100;
-    public static readonly int StartingShips = 10;
-
     private readonly AppDbContext _context;
 
     public DatabaseInitialiser(AppDbContext context)
@@ -47,7 +43,7 @@ public class DatabaseInitialiser
 
         if (!await _context.Outcomes.AnyAsync())
         {
-            await CreateInitialOutcome();
+            await CreateInitialOutcomes(configuration);
         }
 
         if (!await _context.Rounds.Where(round => !round.IsInitial).AnyAsync())
@@ -137,7 +133,7 @@ public class DatabaseInitialiser
         await _context.SaveChangesAsync();
     }
 
-    private async Task CreateInitialOutcome()
+    private async Task CreateInitialOutcomes(Configuration configuration)
     {
         var past = DateTime.UtcNow - TimeSpan.FromDays(1);
         var initialRound = new Round()
@@ -154,7 +150,7 @@ public class DatabaseInitialiser
             Round = initialRound,
             Team = team,
             Sea = team.StartingSea,
-            ShipsAfter = StartingShips
+            ShipsAfter = configuration.TeamStartingShips
         });
         await _context.Outcomes.AddRangeAsync(initialOutcomes);
         await _context.SaveChangesAsync();
