@@ -370,7 +370,6 @@ export default {
             }
         },
         onMoveInputChange(this: This, shipsToMove: number) {
-            console.log("onMoveInputChange", this.maxShipsThatCanBeMoved());
             if (shipsToMove > 0) {
                 const shipsPlural = shipsToMove === 1 ? "ship" : "ships";
                 this.ui.move.subtext = `You are about to move ${shipsToMove} ${shipsPlural}.`;

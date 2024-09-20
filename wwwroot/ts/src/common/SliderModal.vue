@@ -46,7 +46,7 @@ interface Props {
 }
 
 interface Data {
-    selectedNumber: number;
+    selectedNumber: string;
 }
 
 type This = VueThis<Data & Props>;
@@ -60,17 +60,17 @@ export default {
     },
     data(): Data {
         return {
-            selectedNumber: 0,
+            selectedNumber: "0",
         };
     },
     methods: {
         emitSubmission(this: This) {
-            this.$emit(SubmissionEvent, this.selectedNumber);
+            this.$emit(SubmissionEvent, parseFloat(this.selectedNumber));
         },
     },
     watch: {
-        selectedNumber(this: This, newSelectedNumber) {
-            this.$emit(InputChangeEvent, newSelectedNumber);
+        selectedNumber(this: This, newSelectedNumber: string) {
+            this.$emit(InputChangeEvent, parseFloat(newSelectedNumber));
         },
     },
 };
