@@ -154,6 +154,9 @@ static async Task<Configuration> WaitForConfigurationAsync(WebApplication app)
         }
         if (configuration is null)
         {
+            Console.WriteLine(
+                "Waiting for all configuration entries to be present in the database."
+            );
             await Task.Delay(TimeSpan.FromMinutes(1));
         }
     } while (configuration is null);

@@ -1,14 +1,15 @@
-## Docker
+# How to Run
+## You will need:
+- The `.NET 7` runtime.
+- An SQLite browser. (I use https://sqlitebrowser.org/)
 
-The easiest way to run this is to use docker. Start by creating the container:
-
-    docker build -t whudunnit -f Dockerfile .
-
-Then run the container:
-
-    docker run -p 80:80 --restart always --name whudunnit-app whudunnit
-
-You can access the app at http://localhost:80.
+## Running the server
+1. Navigate into the project root and run `dotnet run`.
+2. If this is your first time running the server:
+  - open `ctfchallenge.db` with a SQLite browser. 
+  - Create a first row in the `Configurations` table if it does not exist. 
+  - Fill in the row to set up the server's configuration. Write your changes.
+3. After at most a minute, the server will read the configurations and start accepting requests. The game is now ready to play!
 
 # Documentation
 ## Entities
