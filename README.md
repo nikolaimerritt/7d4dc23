@@ -1,11 +1,13 @@
 # How to Run
 ## You will need:
 - The `.NET 7` runtime.
+- Node `v20`
 - An SQLite browser. (I use https://sqlitebrowser.org/)
 
 ## Running the server
-1. Navigate into the project root and run `dotnet run`.
-2. If this is your first time running the server:
+1. From the project root, run `npm run build-ts` to compile the frontend. 
+2. Run `dotnet run` to start the server.
+3. If this is your first time running the server:
   - open `ctfchallenge.db` with a SQLite browser. 
   - Create a first row in the `Configurations` table if it does not exist. 
   - Fill in the row to set up the server's configuration. Write your changes.
