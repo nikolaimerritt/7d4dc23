@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import { Util, VueThis } from "./util";
+import { VueThis } from "./util";
 
 const SubmissionEvent = "submission";
 const InputChangeEvent = "inputChange";
@@ -79,6 +79,10 @@ export default {
 @import "../assets/style.scss";
 h3 {
     padding-top: 30px;
+}
+
+input {
+    accent-color: $dark-accent-color;
 }
 
 .slider-container {
