@@ -1,17 +1,26 @@
 # How to Run
-## You will need:
-- The `.NET 7` runtime.
-- Node `v20`
-- An SQLite browser. (I use https://sqlitebrowser.org/)
 
-## Running the server
-1. From the project root, run `npm run build-ts` to compile the frontend. 
-2. Run `dotnet run` to start the server.
-3. If this is your first time running the server:
+## If this is your first time running the server:
+You will need to set configuration values via the database. 
   - open `ctfchallenge.db` with a SQLite browser. 
   - Create a first row in the `Configurations` table if it does not exist. 
   - Fill in the row to set up the server's configuration. Write your changes.
-3. After at most a minute, the server will read the configurations and start accepting requests. The game is now ready to play!
+
+## Running the server
+Build the server using docker:
+```bash
+docker build --tag 'pirate-conquest' .
+```
+
+Run the server using Docker:
+```sh
+docker run -d -p 5000:5000 --volume "$(pwd)/ctfchallenge.db:/App/ctfchallenge.db:rw" pirate-conquest:latest
+```
+
+The server is accessible over HTTP at port `5000`.
+
+## Updating the database
+Because we are using a shared volume, updates to the database are synchronised between the host and the docker container. However, the server caches database values, so you will need to restart the docker container to have database changes propogate from the host to the server.
 
 # Documentation
 ## Entities

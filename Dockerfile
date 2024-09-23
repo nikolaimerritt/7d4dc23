@@ -1,5 +1,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
 WORKDIR /App
+EXPOSE 5000
 
 # Installing Node
 RUN apt-get update && apt-get install -y software-properties-common npm
@@ -21,8 +22,6 @@ RUN dotnet publish -c Release -o out
 FROM mcr.microsoft.com/dotnet/aspnet:7.0
 WORKDIR /App
 EXPOSE 5000
-ENV DOTNET_RUNNING_IN_CONTAINER="true"
 COPY --from=build-env /App/out .
 COPY --from=build-env App/wwwroot .
-COPY --from=build-env App/ctfchallenge.db .
 ENTRYPOINT ["dotnet", "PirateConquest.dll"]
