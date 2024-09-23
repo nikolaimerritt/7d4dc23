@@ -20,6 +20,8 @@ RUN dotnet publish -c Release -o out
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:7.0
 WORKDIR /App
+EXPOSE 5000
+ENV DOTNET_RUNNING_IN_CONTAINER="true"
 COPY --from=build-env /App/out .
 COPY --from=build-env App/wwwroot .
 COPY --from=build-env App/ctfchallenge.db .
