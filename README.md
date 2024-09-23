@@ -17,7 +17,7 @@ Run the server using Docker:
 docker run -d -p 5000:5000 --volume "$(pwd)/ctfchallenge.db:/App/ctfchallenge.db:rw" pirate-conquest:latest
 ```
 
-The server is accessible over HTTP at port `5000`.
+The server is accessible over HTTP at port `5000`. Since the database is a shared volume, the database will be unaffected if you restart the docker container. 
 
 ## Updating the database
 Because we are using a shared volume, updates to the database are synchronised between the host and the docker container. However, the server caches database values, so you will need to restart the docker container to have database changes propogate from the host to the server.
