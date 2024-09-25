@@ -33,7 +33,7 @@ public class PointsService
                 );
                 if (
                     teamEntry is JToken token
-                    && int.TryParse(token["Points"].ToString(), out var points)
+                    && int.TryParse(token["points"]?.ToString(), out var points)
                 )
                 {
                     return points;

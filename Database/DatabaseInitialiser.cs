@@ -90,7 +90,7 @@ public class DatabaseInitialiser
         {
             new()
             {
-                Name = "Team Drake",
+                Name = "drake",
                 PlainTextPassword = "AwardTrafficSteeple",
                 StartingSea = await _context.Seas.FirstOrDefaultAsync(sea =>
                     sea.Name == Sea.Names.NorthPacific
@@ -98,7 +98,7 @@ public class DatabaseInitialiser
             },
             new()
             {
-                Name = "Team ReadByRecipient",
+                Name = "read",
                 PlainTextPassword = "NorthBesiegeSpine",
                 StartingSea = await _context.Seas.FirstOrDefaultAsync(sea =>
                     sea.Name == Sea.Names.SouthPacific
@@ -106,7 +106,7 @@ public class DatabaseInitialiser
             },
             new()
             {
-                Name = "Team Kidd",
+                Name = "kidd",
                 PlainTextPassword = "UnequalGoodbyePossess",
                 StartingSea = await _context.Seas.FirstOrDefaultAsync(sea =>
                     sea.Name == Sea.Names.NorthAtlantic
@@ -114,7 +114,7 @@ public class DatabaseInitialiser
             },
             new()
             {
-                Name = "Team Blackbeard",
+                Name = "blackbeard",
                 PlainTextPassword = "SpeakBraveWelcome",
                 StartingSea = await _context.Seas.FirstOrDefaultAsync(sea =>
                     sea.Name == Sea.Names.SouthAtlantic
@@ -122,7 +122,7 @@ public class DatabaseInitialiser
             },
             new()
             {
-                Name = "Team O'Malley",
+                Name = "morgan",
                 PlainTextPassword = "ShallotSupposePreach",
                 StartingSea = await _context.Seas.FirstOrDefaultAsync(sea =>
                     sea.Name == Sea.Names.Southern
