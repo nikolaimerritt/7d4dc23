@@ -19,4 +19,6 @@ public class Configuration
     // NOTE: this does not propagate to the frontend.
     // Update the frontend if you are changing this.
     public int PointsPerShip { get; set; }
+
+    public bool DebugAssignMaxPoints { get; set; }
 }

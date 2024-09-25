@@ -135,11 +135,15 @@ public class PurchaseController : Controller
 
     private async Task<int?> AvailablePoints(Team team)
     {
-        //var pointsGained = await _pointsService.GetPointsAsync(team);
+        var config = await _configurationRepository.GetNonEmptyAsync();
         var pointsGained = 99;
+        if (config is null || !config.DebugAssignMaxPoints)
+        {
+            pointsGained = await _pointsService.GetPointsAsync(team);
+        }
         var pointsSpent = (await _purchaseRepository.AllAsync())
             .Where(purchase => purchase.Team == team)
             .Sum(purchase => purchase.Points);
-        return pointsGained - pointsSpent;
+        return Math.Max(pointsGained - pointsSpent, 0);
     }
 }
