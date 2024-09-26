@@ -178,7 +178,7 @@ static async Task InitializeDatabaseAsync(WebApplication app, Configuration conf
     {
         backgroundJobClient.Schedule(
             () => outcomeService.WriteOutcomes(round),
-            round.End - TimeSpan.FromSeconds(5)
+            round.End - TimeSpan.FromSeconds(30)
         );
     }
 }
