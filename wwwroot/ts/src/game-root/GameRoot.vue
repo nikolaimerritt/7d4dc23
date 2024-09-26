@@ -176,6 +176,7 @@ interface Data {
     seaStates: SeaState[];
     accessibleSeas: Sea[];
     rounds?: Round[];
+    musicBox: MusicBox;
 }
 
 type This = VueThis<Data>;
@@ -188,6 +189,7 @@ export default {
             pointsPerShip: 5,
             accessibleSeas: [],
             rounds: [],
+            musicBox: new MusicBox(),
             endpoints: {
                 team: new TeamEndpoint(),
                 purchase: new PurchaseEndpoint(),
@@ -281,7 +283,8 @@ export default {
         if (!this.hasCompletedTutorial()) {
             this.ui.showTutorial = true;
         }
-        MusicBox.playIntro();
+        this.musicBox.playIntro().then(() => console.log("Intro finished!"));
+        window.setTimeout(() => this.musicBox.playIntro(), 3_000);
     },
     methods: {
         async updateMap(this: This) {
