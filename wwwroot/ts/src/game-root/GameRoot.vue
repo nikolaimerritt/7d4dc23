@@ -158,6 +158,8 @@ interface Data {
             text: string;
             state: RoundState;
             updateHandle?: number;
+            playedFightStartMusic: Round;
+            playedFightEndMusic: Round;
         };
         map: {
             updateMapHandle: number;
@@ -189,7 +191,7 @@ export default {
             pointsPerShip: 5,
             accessibleSeas: [],
             rounds: [],
-            musicBox: new MusicBox(),
+            musicBox: MusicBox.Singleton,
             endpoints: {
                 team: new TeamEndpoint(),
                 purchase: new PurchaseEndpoint(),
@@ -218,6 +220,8 @@ export default {
                     text: "",
                     state: "ended",
                     updateHandle: undefined,
+                    playedFightStartMusic: undefined,
+                    playedFightEndMusic: undefined,
                 },
                 map: {
                     updateMapHandle: undefined,
@@ -283,8 +287,13 @@ export default {
         if (!this.hasCompletedTutorial()) {
             this.ui.showTutorial = true;
         }
-        this.musicBox.playIntro().then(() => console.log("Intro finished!"));
-        window.setTimeout(() => this.musicBox.playIntro(), 3_000);
+        const now = new Date();
+        if (
+            this.rounds.some((round) => now <= round.end) &&
+            !this.musicBox.isPlaying()
+        ) {
+            this.musicBox.queue(MusicBox.Intro);
+        }
     },
     methods: {
         async updateMap(this: This) {
@@ -314,6 +323,25 @@ export default {
                 this.ui.round.state = "move";
             } else {
                 this.ui.round.state = "fighting";
+            }
+
+            if (
+                currentRound !== undefined &&
+                this.ui.round.state === "fighting" &&
+                this.ui.round.playedFightStartMusic?.id !== currentRound.id
+            ) {
+                this.musicBox.queue(MusicBox.FightStart);
+                this.musicBox.queue(MusicBox.FightAmbient, true);
+                this.ui.round.playedFightStartMusic = currentRound;
+            } else if (
+                this.ui.round.state !== "fighting" &&
+                this.ui.round.playedFightStartMusic !== undefined &&
+                this.ui.round.playedFightEndMusic?.id !==
+                    this.ui.round.playedFightStartMusic.id
+            ) {
+                this.musicBox.queue(MusicBox.FightEnd);
+                this.ui.round.playedFightEndMusic =
+                    this.ui.round.playedFightStartMusic;
             }
         },
         transformSeaCentres(this: This) {

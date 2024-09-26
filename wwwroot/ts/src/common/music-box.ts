@@ -1,46 +1,72 @@
-import introAudio from "../../../audio/intro.mp3";
-import fightStartAudio from "../../../audio/fight-start.mp3";
-import fightAmbientAudio from "../../../audio/fight-ambient.mp3";
-import fightEndAudio from "../../../audio/fight-end.mp3";
+import introPath from "../../../audio/intro.mp3";
+import fightStartPath from "../../../audio/fight-start.mp3";
+import fightAmbientPath from "../../../audio/fight-ambient.mp3";
+import fightEndPath from "../../../audio/fight-end.mp3";
+import { TimeScale } from "chart.js";
 
+interface Sound {
+    name: "intro" | "fight-start" | "fight-end" | "fight-ambient";
+    path: string;
+}
 export default class MusicBox {
-    private playingAudio?: HTMLAudioElement = undefined;
+    public static Singleton = new MusicBox();
 
-    public async playIntro() {
-        await this.playAudio(introAudio);
-    }
+    public static Intro: Sound = { name: "intro", path: introPath };
+    public static FightStart: Sound = {
+        name: "fight-start",
+        path: fightStartPath,
+    };
+    public static FightAmbient: Sound = {
+        name: "fight-ambient",
+        path: fightAmbientPath,
+    };
+    public static FightEnd: Sound = { name: "fight-end", path: fightEndPath };
 
-    public async playFightStart() {
-        await this.playAudio(fightStartAudio);
-    }
+    private currentAudio?: HTMLAudioElement = undefined;
+    private audioQueue: HTMLAudioElement[] = [];
 
-    public async playFightEnd() {
-        await this.playAudio(fightEndAudio);
-    }
+    private constructor() {}
 
-    public loopAmbientFightingMusic() {
-        this.stopCurrentAudio();
-        this.playingAudio = new Audio(fightAmbientAudio);
-        this.playingAudio.loop = true;
-        this.playingAudio.play();
-    }
-
-    public stopCurrentAudio() {
-        if (this.playingAudio !== undefined) {
-            this.playingAudio.currentTime = this.playingAudio.duration;
-            this.playingAudio.pause();
-            this.playingAudio = undefined;
+    public queue(sound: Sound, loop: boolean = false) {
+        const audio = new Audio(sound.path);
+        audio.loop = loop;
+        audio.addEventListener("ended", () => {
+            this.currentAudio = undefined;
+            this.playNextInQueue();
+        });
+        this.audioQueue.push(audio);
+        if (this.currentAudio?.loop) {
+            this.stopCurrentAudio();
+        }
+        if (this.currentAudio === undefined) {
+            this.playNextInQueue();
         }
     }
 
-    private playAudio(audio: string): Promise<void> {
+    public stopCurrentAudio() {
+        if (this.currentAudio !== undefined) {
+            if (!isNaN(this.currentAudio.duration)) {
+                this.currentAudio.currentTime = this.currentAudio.duration;
+            }
+            this.currentAudio.pause();
+            this.currentAudio = undefined;
+        }
+    }
+
+    public isPlaying() {
+        return this.currentAudio !== undefined;
+    }
+
+    private play(audio: HTMLAudioElement) {
         this.stopCurrentAudio();
-        this.playingAudio = new Audio(audio);
-        this.playingAudio.play();
-        return new Promise((resolve) =>
-            this.playingAudio.addEventListener("ended", () => resolve(), {
-                once: true,
-            })
-        );
+        this.currentAudio = audio;
+        audio.play();
+    }
+
+    private playNextInQueue() {
+        if (this.audioQueue.length > 0) {
+            const [topOfQueue] = this.audioQueue.splice(0, 1);
+            this.play(topOfQueue);
+        }
     }
 }

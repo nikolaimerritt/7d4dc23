@@ -17,9 +17,7 @@ var configuration = await WaitForConfigurationAsync(app);
 Console.WriteLine($"Found a configuration entry. Initializing the database.");
 await InitializeDatabaseAsync(app, configuration);
 Console.WriteLine("Database initialized. Running the web server.");
-
-// TO SELF: debug
-//builder.WebHost.UseUrls("http://*:5000");
+builder.WebHost.UseUrls("http://*:5000");
 app.Run();
 
 static async Task<WebApplication> InitializeServicesAsync(WebApplicationBuilder builder)
@@ -61,7 +59,6 @@ static async Task<WebApplication> InitializeServicesAsync(WebApplicationBuilder 
     builder.Services.AddHangfire(options =>
     {
         options.UseSQLiteStorage();
-        // TO SELF: debug
         options.UseFilter(new AutomaticRetryAttribute() { Attempts = 1 });
     });
 
@@ -113,10 +110,7 @@ static async Task<WebApplication> InitializeServicesAsync(WebApplicationBuilder 
     );
 
     app.UseHangfireServer();
-    // TO SELF: debug! Purging all previously created jobs
     JobStorage.Current?.GetMonitoringApi().PurgeJobs();
-    // TO SELF: debug
-    app.UseHangfireDashboard("/hangfire");
 
     // Configure the HTTP request pipeline.
     if (!app.Environment.IsDevelopment())
