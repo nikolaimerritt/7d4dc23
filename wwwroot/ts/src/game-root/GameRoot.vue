@@ -328,7 +328,10 @@ export default {
             if (
                 currentRound !== undefined &&
                 this.ui.round.state === "fighting" &&
-                this.ui.round.playedFightStartMusic?.id !== currentRound.id
+                this.ui.round.playedFightStartMusic?.id !== currentRound.id &&
+                this.seaStates.some(
+                    (seaState) => seaState.teamShips.length >= 2
+                )
             ) {
                 this.musicBox.queue(MusicBox.FightStart);
                 this.musicBox.queue(MusicBox.FightAmbient, true);
