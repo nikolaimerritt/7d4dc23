@@ -177,8 +177,8 @@ static async Task InitializeDatabaseAsync(WebApplication app, Configuration conf
     foreach (var round in await roundRepository.AllPlayableRoundsAsync())
     {
         backgroundJobClient.Schedule(
-            () => outcomeService.WriteOutcomes(round),
-            round.End - TimeSpan.FromSeconds(30)
+            () => outcomeService.WriteOutcomesAtEndOfRound(round),
+            round.StartCooldown
         );
     }
 }

@@ -7,12 +7,13 @@ namespace PirateConquest.Services;
 
 public class OutcomeService
 {
+    private static readonly double MaxBoostFactor = 1.1;
+    private static readonly Random Random = new();
+    private static readonly TimeSpan EndOfRoundWindow = TimeSpan.FromSeconds(15);
     private readonly TeamRepository _teamRepository;
     private readonly SeaRepository _seaRepository;
     private readonly OutcomeRepository _outcomeRepository;
     private readonly RoundRepository _roundRepository;
-    private static readonly double MaxBoostFactor = 1.1;
-    private static readonly Random Random = new();
 
     public OutcomeService(
         TeamRepository teamRepository,
@@ -27,7 +28,22 @@ public class OutcomeService
         _roundRepository = roundRepository;
     }
 
-    public async Task WriteOutcomes(Round round)
+    public async Task WriteOutcomesAtEndOfRound(Round round)
+    {
+        var sleepDuration = TimeSpan.FromSeconds(0.5 * EndOfRoundWindow.TotalSeconds);
+        while ((round.End - DateTime.UtcNow).TotalSeconds > EndOfRoundWindow.TotalSeconds)
+        {
+            Console.WriteLine(
+                $"Waiting for round {round.Id} to end. Round ends in {round.End - DateTime.UtcNow}"
+            );
+            await Task.Delay(sleepDuration);
+        }
+        Console.WriteLine($"Round {round.Id} has ended. Writing outcomes.");
+        await WriteOutcomes(round);
+        Console.WriteLine($"Written outcomes for round {round.Id}.");
+    }
+
+    private async Task WriteOutcomes(Round round)
     {
         var roundHasOutcomes = (await _outcomeRepository.AllAsync())
             .Where(outcome => outcome.Round.Id == round.Id)
