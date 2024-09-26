@@ -17,10 +17,10 @@ Icons.define();
 
 Vue.component("tutorial", Tutorial);
 Vue.component("sea-centre", SeaCentre);
-Vue.component("game-root", GameRoot);
 Vue.component("team-ship", TeamShip);
 Vue.component("message-board", MessageBoard);
 Vue.component("message-bubble", MessageBubble);
+Vue.component("game-root", GameRoot);
 
 new Vue({
     el: "#gameRoot",

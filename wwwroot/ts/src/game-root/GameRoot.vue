@@ -118,6 +118,7 @@ import { Util, VueThis } from "../common/util";
 import * as moment from "moment";
 import { MessageEndpoint } from "../endpoints/message";
 import TeamShip from "./TeamShip.vue";
+import MusicBox from "../common/music-box";
 
 const updateRoundTextMs = 2_000;
 const updateMapMs = 5_000;
@@ -280,6 +281,7 @@ export default {
         if (!this.hasCompletedTutorial()) {
             this.ui.showTutorial = true;
         }
+        MusicBox.playIntro();
     },
     methods: {
         async updateMap(this: This) {

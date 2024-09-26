@@ -17,7 +17,9 @@ var configuration = await WaitForConfigurationAsync(app);
 Console.WriteLine($"Found a configuration entry. Initializing the database.");
 await InitializeDatabaseAsync(app, configuration);
 Console.WriteLine("Database initialized. Running the web server.");
-builder.WebHost.UseUrls("http://*:5000");
+
+// TO SELF: debug
+//builder.WebHost.UseUrls("http://*:5000");
 app.Run();
 
 static async Task<WebApplication> InitializeServicesAsync(WebApplicationBuilder builder)
